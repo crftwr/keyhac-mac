@@ -8,12 +8,18 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @State private var isKeyboardHookEnabled: Bool = false
+    
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            Toggle(isOn: $isKeyboardHookEnabled) {
+                Text("Enable keyboard hook")
+            }
+            .toggleStyle(SwitchToggleStyle(tint: .blue))
+            .onChange(of: isKeyboardHookEnabled) { oldValue, newValue in
+                print("isKeyboardHookEnabled changed to \(newValue)")
+            }
         }
         .padding()
     }
