@@ -12,9 +12,20 @@ class KeyboardHook {
     
     static let instance = KeyboardHook()
     
-    func install() -> Bool {
-        print("KeyboardHook.Install()")
+    var installed: Bool = false
+    var eventTap: CFMachPort?
+    var runLoopSource: CFRunLoopSource?
+    var eventSource: CGEventSource?
 
+    func install() -> Bool {
+        
+        if self.installed {
+            print("KeyboardHook is already installed.")
+            return true;
+        }
+        
+        print("Installing KeyboardHook")
+        
         let eventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue) | (1 << CGEventType.flagsChanged.rawValue)
         
         func _callback(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent, refcon: UnsafeMutableRawPointer?) -> Unmanaged<CGEvent>? {
@@ -48,12 +59,22 @@ class KeyboardHook {
         
         self.eventSource = CGEventSource(stateID: CGEventSourceStateID.privateState)
         
+        self.installed = true
+        
+        print("KeyboardHook installation successful")
+
         return true
     }
     
     func uninstall() -> Bool {
-        print("KeyboardHook.Uninstall()")
+
+        if !self.installed {
+            print("KeyboardHook is not installed.")
+            return true;
+        }
         
+        print("Uninstalling KeyboardHook")
+
         if let eventTap = self.eventTap {
             CGEvent.tapEnable(tap: eventTap, enable: false)
         }
@@ -65,7 +86,11 @@ class KeyboardHook {
         self.eventSource = nil
         self.runLoopSource = nil
         self.eventTap = nil
+
+        self.installed = false
         
+        print("KeyboardHook uninstallation successful")
+
         return true
     }
 
@@ -95,8 +120,8 @@ class KeyboardHook {
         keydown_event.post(tap: CGEventTapLocation.cghidEventTap)
         keyup_event.post(tap: CGEventTapLocation.cghidEventTap)
     }
-
-    var eventTap: CFMachPort?
-    var runLoopSource: CFRunLoopSource?
-    var eventSource: CGEventSource?
+    
+    func test1(){
+        PythonBridge.getInstance().pointee.callFunction()
+    }
 }

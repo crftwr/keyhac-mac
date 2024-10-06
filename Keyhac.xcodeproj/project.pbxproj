@@ -6,7 +6,27 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		FE5C48152CB351A00046C3DC /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = FE5C48142CB351A00046C3DC /* Python */; };
+		FE5C48162CB351A00046C3DC /* Python in Embed Libraries */ = {isa = PBXBuildFile; fileRef = FE5C48142CB351A00046C3DC /* Python */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		FE5C48172CB351A00046C3DC /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				FE5C48162CB351A00046C3DC /* Python in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		FE5C48142CB351A00046C3DC /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = ../../../../Library/Frameworks/Python.framework/Versions/3.12/Python; sourceTree = "<group>"; };
 		FEBAF4FF2CB33AD000200C1F /* Keyhac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Keyhac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -23,16 +43,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE5C48152CB351A00046C3DC /* Python in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FE5C48092CB34E7E0046C3DC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FE5C48142CB351A00046C3DC /* Python */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		FEBAF4F62CB33AD000200C1F = {
 			isa = PBXGroup;
 			children = (
 				FEBAF5012CB33AD000200C1F /* Keyhac */,
+				FE5C48092CB34E7E0046C3DC /* Frameworks */,
 				FEBAF5002CB33AD000200C1F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -55,6 +85,7 @@
 				FEBAF4FB2CB33AD000200C1F /* Sources */,
 				FEBAF4FC2CB33AD000200C1F /* Frameworks */,
 				FEBAF4FD2CB33AD000200C1F /* Resources */,
+				FE5C48172CB351A00046C3DC /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -82,6 +113,7 @@
 				TargetAttributes = {
 					FEBAF4FE2CB33AD000200C1F = {
 						CreatedOnToolsVersion = 16.0;
+						LastSwiftMigration = 1600;
 					};
 				};
 			};
@@ -177,7 +209,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/3.12/include/python3.12";
 				INFOPLIST_KEY_LSUIElement = YES;
+				LIBRARY_SEARCH_PATHS = "";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -236,7 +270,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/3.12/include/python3.12";
 				INFOPLIST_KEY_LSUIElement = YES;
+				LIBRARY_SEARCH_PATHS = "";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -252,6 +288,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Keyhac/Keyhac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -266,10 +303,16 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/3.12",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = crftwr.Keyhac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "Keyhac/Keyhac-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -279,6 +322,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Keyhac/Keyhac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -293,10 +337,15 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/3.12",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = crftwr.Keyhac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "Keyhac/Keyhac-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

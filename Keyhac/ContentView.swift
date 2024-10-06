@@ -18,7 +18,6 @@ struct ContentView: View {
             }
             .toggleStyle(SwitchToggleStyle(tint: .blue))
             .onChange(of: isKeyboardHookEnabled) { oldValue, newValue in
-                print("isKeyboardHookEnabled changed to \(newValue)")
                 if newValue {
                     let result = KeyboardHook.instance.install()
                     if !result {
@@ -33,6 +32,18 @@ struct ContentView: View {
                         isKeyboardHookEnabled = true
                     }
                 }
+            }
+            
+            Divider()
+            
+            Button("Test: call Python func") {
+                KeyboardHook.instance.test1()
+            }
+            
+            Divider()
+            
+            Button("Quit"){
+                NSApplication.shared.terminate(nil)
             }
         }
         .padding()
