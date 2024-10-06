@@ -9,9 +9,9 @@ import SwiftUI
 
 @main
 struct KeyhacApp: App {
-    var body: some Scene {
-        WindowGroup {
+    var body: some Scene {        
+        MenuBarExtra("Keyhac", systemImage: "hammer") {
             ContentView()
-        }
+        }.menuBarExtraStyle(.window)
     }
 }
