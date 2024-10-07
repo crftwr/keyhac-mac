@@ -13,54 +13,34 @@
 
 static PyObject *SpamError;
 
-static PyObject *
-spam_system(PyObject *self, PyObject *args)
+static PyObject * keyhac_core_test1(PyObject *self, PyObject *args)
 {
-    const char *command;
-    int sts;
-
-    if (!PyArg_ParseTuple(args, "s", &command))
-        return NULL;
-    sts = system(command);
-    if (sts < 0) {
-        PyErr_SetString(SpamError, "System command failed");
-        return NULL;
-    }
-    return PyLong_FromLong(sts);
+    printf("keyhac_core_test1 was called\n");
+    return PyLong_FromLong(0);
 }
 
-static PyMethodDef SpamMethods[] = {
-    {"system",  spam_system, METH_VARARGS,
-     "Execute a shell command."},
+static PyMethodDef keyhac_core_methods[] = {
+    {"test1", keyhac_core_test1, METH_VARARGS, "Test function"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
-static struct PyModuleDef spammodule = {
+static struct PyModuleDef keyhac_core_module = {
     PyModuleDef_HEAD_INIT,
-    "spam",   /* name of module */
+    "keyhac_core",   /* name of module */
     NULL, /* module documentation, may be NULL */
     -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
-    SpamMethods
+    keyhac_core_methods
 };
 
 PyMODINIT_FUNC
-PyInit_spam(void)
+PyInit_keyhac_core(void)
 {
     PyObject *m;
 
-    m = PyModule_Create(&spammodule);
+    m = PyModule_Create(&keyhac_core_module);
     if (m == NULL)
         return NULL;
-
-    SpamError = PyErr_NewException("spam.error", NULL, NULL);
-    Py_XINCREF(SpamError);
-    if (PyModule_AddObject(m, "error", SpamError) < 0) {
-        Py_XDECREF(SpamError);
-        Py_CLEAR(SpamError);
-        Py_DECREF(m);
-        return NULL;
-    }
 
     return m;
 }
@@ -82,7 +62,7 @@ PythonBridge::PythonBridge()
 {
     printf("PythonBridge::PythonBridge\n");
     
-    if (PyImport_AppendInittab("spam", PyInit_spam) == -1) {
+    if (PyImport_AppendInittab("keyhac_core", PyInit_keyhac_core) == -1) {
         fprintf(stderr, "Error: could not extend in-built modules table\n");
         exit(1);
     }
@@ -94,11 +74,8 @@ PythonBridge::~PythonBridge()
 {
     printf("PythonBridge::~PythonBridge\n");
 }
-    
-int PythonBridge::callFunction()
+
+int PythonBridge::runString(const char * code)
 {
-    const char * script = "print('Hello from Python code')";
-    PyRun_SimpleString(script);
-    
-    return 0;
+    return PyRun_SimpleString(code);
 }

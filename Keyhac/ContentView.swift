@@ -19,25 +19,24 @@ struct ContentView: View {
             .toggleStyle(SwitchToggleStyle(tint: .blue))
             .onChange(of: isKeyboardHookEnabled) { oldValue, newValue in
                 if newValue {
+                    // Install keyboard hook to the OS
                     let result = KeyboardHook.instance.install()
                     if !result {
                         // keyboard hook instalaltion failed, so reverting toggle status
                         isKeyboardHookEnabled = false
                     }
+                    
+                    // configure keyboard hook behavior
+                    KeyboardHook.instance.configure()
                 }
                 else {
+                    // Uninstall the keyboard hook
                     let result = KeyboardHook.instance.uninstall()
                     if !result {
                         // keyboard hook uninstalaltion failed, so reverting toggle status
                         isKeyboardHookEnabled = true
                     }
                 }
-            }
-            
-            Divider()
-            
-            Button("Test: call Python func") {
-                KeyboardHook.instance.test1()
             }
             
             Divider()

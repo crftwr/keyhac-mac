@@ -62,7 +62,7 @@ class KeyboardHook {
         self.installed = true
         
         print("KeyboardHook installation successful")
-
+        
         return true
     }
     
@@ -121,7 +121,21 @@ class KeyboardHook {
         keyup_event.post(tap: CGEventTapLocation.cghidEventTap)
     }
     
-    func test1(){
-        PythonBridge.getInstance().pointee.callFunction()
+    func configure(){
+        
+        let bundleResourcePath = Bundle.main.resourceURL!.path
+        
+        let code = """
+        import sys
+        
+        bundle_resource_path = "\(bundleResourcePath)"
+        if bundle_resource_path not in sys.path:
+            sys.path.insert(0, bundle_resource_path)
+        
+        import keyhac_main
+        keyhac_main.configure()
+        """
+        
+        PythonBridge.getInstance().pointee.runString(code)
     }
 }

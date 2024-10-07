@@ -18,7 +18,7 @@ public:
     PythonBridge();
     virtual ~PythonBridge();
     
-    int callFunction();
+    int runString(const char * code);
     
 private:
     static PythonBridge * instance;
