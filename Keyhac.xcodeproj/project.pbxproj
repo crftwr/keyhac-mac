@@ -26,7 +26,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		FE5C48142CB351A00046C3DC /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = ../../../../Library/Frameworks/Python.framework/Versions/3.12/Python; sourceTree = "<group>"; };
+		FE5C48142CB351A00046C3DC /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = /Library/Frameworks/Python.framework/Versions/3.12/Python; sourceTree = "<group>"; };
 		FEBAF4FF2CB33AD000200C1F /* Keyhac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Keyhac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
