@@ -12,6 +12,19 @@
 
 // ------------------------------------------
 
+KeyboardHookCpp * KeyboardHookCpp::create(
+    void * _swift_obj,
+    callback_t _callbackTest1
+    )
+{
+    return new KeyboardHookCpp(_swift_obj, _callbackTest1);
+}
+
+void KeyboardHookCpp::destroy(KeyboardHookCpp * obj)
+{
+    delete obj;
+}
+
 KeyboardHookCpp::KeyboardHookCpp(
     void * _swift_obj,
     callback_t _callbackTest1
@@ -20,17 +33,17 @@ KeyboardHookCpp::KeyboardHookCpp(
     swift_obj(_swift_obj),
     callbackTest1(_callbackTest1)
 {
-    printf("HookBase::HookBase()\n");
+    printf("KeyboardHookCpp::KeyboardHookCpp()\n");
 }
 
 KeyboardHookCpp::~KeyboardHookCpp()
 {
-    printf("HookBase::~HookBase()\n");
+    printf("KeyboardHookCpp::~KeyboardHookCpp()\n");
 }
 
 int KeyboardHookCpp::test1(int i)
 {
-    printf("HookBase::VirtualMethodTest()\n");
+    printf("KeyboardHookCpp::test1()\n");
 
     if(callbackTest1)
     {
@@ -76,17 +89,18 @@ PyInit_keyhac_core(void)
     return m;
 }
 
-// ---
+
+// ------------------------------------------
 
 PythonBridge * PythonBridge::instance;
 
-PythonBridge * PythonBridge::getInstance()
+PythonBridge & PythonBridge::getInstance()
 {
     if(!instance)
     {
         instance = new PythonBridge();
     }
-    return instance;
+    return (*instance);
 }
 
 PythonBridge::PythonBridge()

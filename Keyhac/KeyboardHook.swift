@@ -12,6 +12,8 @@ class KeyboardHook {
     
     static let instance = KeyboardHook()
     
+    var keyboad_hook_cpp: KeyboardHookCpp?
+    
     var installed: Bool = false
     var eventTap: CFMachPort?
     var runLoopSource: CFRunLoopSource?
@@ -59,6 +61,8 @@ class KeyboardHook {
         
         self.eventSource = CGEventSource(stateID: CGEventSourceStateID.privateState)
         
+        bridgeCpp()
+
         self.installed = true
         
         print("KeyboardHook installation successful")
@@ -74,6 +78,9 @@ class KeyboardHook {
         }
         
         print("Uninstalling KeyboardHook")
+        
+        KeyboardHookCpp.destroy(self.keyboad_hook_cpp)
+        self.keyboad_hook_cpp = nil
 
         if let eventTap = self.eventTap {
             CGEvent.tapEnable(tap: eventTap, enable: false)
@@ -101,15 +108,32 @@ class KeyboardHook {
             var keyCode = event.getIntegerValueField(.keyboardEventKeycode)
             print( "EventType \(type), KeyCode \(keyCode)" )
 
+            /*
             // Test swap A and B
             if keyCode == 0 {
                 keyCode = 11
             } else if keyCode == 11 {
                 keyCode = 0
             }
+            */
+            
             event.setIntegerValueField(.keyboardEventKeycode, value: keyCode)
         }
         return Unmanaged.passUnretained(event)
+    }
+    
+    func bridgeCpp() {
+        
+        func _callback(swift_obj: UnsafeMutableRawPointer?, i: Int32) -> Int32 {
+            let keyboard_hook = Unmanaged<KeyboardHook>.fromOpaque(swift_obj!).takeUnretainedValue()
+            let result = keyboard_hook.test1(Int(i))
+            return Int32(result)
+        }
+        
+        self.keyboad_hook_cpp = KeyboardHookCpp.create(
+            Unmanaged.passRetained(self).toOpaque(),
+            _callback
+        )
     }
     
     func sendKey() {
@@ -140,19 +164,10 @@ class KeyboardHook {
     }
     
     func callbackTest(){
-        
-        func _callback(swift_obj: UnsafeMutableRawPointer?, i: Int32) -> Int32 {
-            let keyboard_hook = Unmanaged<KeyboardHook>.fromOpaque(swift_obj!).takeUnretainedValue()
-            let result = keyboard_hook.test1(Int(i))
-            return Int32(result)
+        if let keyboad_hook_cpp = self.keyboad_hook_cpp {
+            let result = keyboad_hook_cpp.test1(123)
+            print("result = \(result)")
         }
-
-        var hookCpp = KeyboardHookCpp(
-            Unmanaged.passRetained(self).toOpaque(),
-            _callback
-        )
-        let result = hookCpp.test1(123)
-        print("result = \(result)")
     }
     
     func test1(_ i: Int) -> Int {
