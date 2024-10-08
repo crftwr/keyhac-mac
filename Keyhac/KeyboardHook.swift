@@ -138,4 +138,24 @@ class KeyboardHook {
         
         PythonBridge.getInstance().pointee.runString(code)
     }
+    
+    func callbackTest(){
+        
+        func _callback(swift_obj: UnsafeMutableRawPointer?, i: Int32) -> Int32 {
+            let keyboard_hook = Unmanaged<KeyboardHook>.fromOpaque(swift_obj!).takeUnretainedValue()
+            let result = keyboard_hook.test1(Int(i))
+            return Int32(result)
+        }
+
+        var hookCpp = KeyboardHookCpp(
+            Unmanaged.passRetained(self).toOpaque(),
+            _callback
+        )
+        let result = hookCpp.test1(123)
+        print("result = \(result)")
+    }
+    
+    func test1(_ i: Int) -> Int {
+        return 2;
+    }
 }

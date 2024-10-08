@@ -9,9 +9,40 @@
 #include "Python.h"
 #include "PythonBridge.hpp"
 
+
 // ------------------------------------------
 
-static PyObject *SpamError;
+KeyboardHookCpp::KeyboardHookCpp(
+    void * _swift_obj,
+    callback_t _callbackTest1
+    )
+    :
+    swift_obj(_swift_obj),
+    callbackTest1(_callbackTest1)
+{
+    printf("HookBase::HookBase()\n");
+}
+
+KeyboardHookCpp::~KeyboardHookCpp()
+{
+    printf("HookBase::~HookBase()\n");
+}
+
+int KeyboardHookCpp::test1(int i)
+{
+    printf("HookBase::VirtualMethodTest()\n");
+
+    if(callbackTest1)
+    {
+        return (*callbackTest1)(swift_obj,i);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+// ------------------------------------------
 
 static PyObject * keyhac_core_test1(PyObject *self, PyObject *args)
 {

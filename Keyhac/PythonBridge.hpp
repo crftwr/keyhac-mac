@@ -10,6 +10,25 @@
 
 #include <stdio.h>
 
+
+class KeyboardHookCpp
+{
+    typedef int (*callback_t)(void*,int);
+
+public:
+    KeyboardHookCpp(
+        void * swift_obj,
+        callback_t callbackTest1
+    );
+    ~KeyboardHookCpp();
+    
+    void * swift_obj;
+    callback_t callbackTest1;
+    
+    int test1(int i);
+};
+
+
 class PythonBridge
 {
 public:

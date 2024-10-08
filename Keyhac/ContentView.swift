@@ -41,6 +41,12 @@ struct ContentView: View {
             
             Divider()
             
+            Button("Test"){
+                KeyboardHook.instance.callbackTest()
+            }
+
+            Divider()
+            
             Button("Quit"){
                 NSApplication.shared.terminate(nil)
             }
