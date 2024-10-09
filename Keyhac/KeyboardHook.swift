@@ -12,7 +12,8 @@ class KeyboardHook {
     
     static let instance = KeyboardHook()
     
-    var keyboad_hook_cpp: KeyboardHookCpp?
+    var pythonBridge: PythonBridge?
+    var keyboadHookCpp: KeyboardHookCpp?
     
     var installed: Bool = false
     var eventTap: CFMachPort?
@@ -61,7 +62,8 @@ class KeyboardHook {
         
         self.eventSource = CGEventSource(stateID: CGEventSourceStateID.privateState)
         
-        bridgeCpp()
+        initializeCpp()
+        initializePython()
 
         self.installed = true
         
@@ -79,8 +81,8 @@ class KeyboardHook {
         
         print("Uninstalling KeyboardHook")
         
-        KeyboardHookCpp.destroy(self.keyboad_hook_cpp)
-        self.keyboad_hook_cpp = nil
+        terminatePython()
+        terminateCpp()
 
         if let eventTap = self.eventTap {
             CGEvent.tapEnable(tap: eventTap, enable: false)
@@ -105,7 +107,7 @@ class KeyboardHook {
         
         if [CGEventType.keyDown, CGEventType.keyUp].contains(type) {
             
-            var keyCode = event.getIntegerValueField(.keyboardEventKeycode)
+            let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
             print( "EventType \(type), KeyCode \(keyCode)" )
 
             /*
@@ -122,7 +124,7 @@ class KeyboardHook {
         return Unmanaged.passUnretained(event)
     }
     
-    func bridgeCpp() {
+    func initializeCpp() {
         
         func _callback(swift_obj: UnsafeMutableRawPointer?, i: Int32) -> Int32 {
             let keyboard_hook = Unmanaged<KeyboardHook>.fromOpaque(swift_obj!).takeUnretainedValue()
@@ -130,10 +132,24 @@ class KeyboardHook {
             return Int32(result)
         }
         
-        self.keyboad_hook_cpp = KeyboardHookCpp.create(
+        self.keyboadHookCpp = KeyboardHookCpp.create(
             Unmanaged.passRetained(self).toOpaque(),
             _callback
         )
+    }
+    
+    func terminateCpp() {
+        KeyboardHookCpp.destroy(self.keyboadHookCpp)
+        self.keyboadHookCpp = nil
+    }
+    
+    func initializePython() {
+        self.pythonBridge = PythonBridge.create()
+    }
+    
+    func terminatePython() {
+        PythonBridge.destroy(self.pythonBridge)
+        self.pythonBridge = nil
     }
     
     func sendKey() {
@@ -160,12 +176,14 @@ class KeyboardHook {
         keyhac_main.configure()
         """
         
-        PythonBridge.getInstance().pointee.runString(code)
+        if let pythonBridge = self.pythonBridge {
+            pythonBridge.runString(code)
+        }
     }
     
     func callbackTest(){
-        if let keyboad_hook_cpp = self.keyboad_hook_cpp {
-            let result = keyboad_hook_cpp.test1(123)
+        if let keyboadHookCpp = self.keyboadHookCpp {
+            let result = keyboadHookCpp.test1(123)
             print("result = \(result)")
         }
     }

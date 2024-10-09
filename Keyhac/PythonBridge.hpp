@@ -52,15 +52,25 @@ private:
 class PythonBridge
 {
 public:
-    static PythonBridge & getInstance();
+    // static method to handle as reference type
+    static PythonBridge * create();
     
-    PythonBridge();
-    virtual ~PythonBridge();
-    
-    int runString(const char * code);
+    // static method to handle as reference type
+    static void destroy(PythonBridge * obj);
     
 private:
-    static PythonBridge * instance;
-};
+    // private to handle as reference type
+    PythonBridge();
+    
+    // private to handle as reference type
+    PythonBridge(const PythonBridge & src);
+    
+    // private to handle as reference type
+    virtual ~PythonBridge();
+    
+public:
+    int runString(const char * code);
+    
+} SWIFT_UNSAFE_REFERENCE;
 
 #endif /* PythonBridge_hpp */

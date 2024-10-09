@@ -92,15 +92,14 @@ PyInit_keyhac_core(void)
 
 // ------------------------------------------
 
-PythonBridge * PythonBridge::instance;
-
-PythonBridge & PythonBridge::getInstance()
+PythonBridge * PythonBridge::create()
 {
-    if(!instance)
-    {
-        instance = new PythonBridge();
-    }
-    return (*instance);
+    return new PythonBridge();
+}
+
+void PythonBridge::destroy(PythonBridge * obj)
+{
+    delete obj;
 }
 
 PythonBridge::PythonBridge()
