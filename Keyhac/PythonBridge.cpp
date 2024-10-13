@@ -261,31 +261,36 @@ int PythonBridge::runString(const char * code)
     return PyRun_SimpleString(code);
 }
 
-int PythonBridge::invokeCallable(const PyObjectPtr & callable, const PyObjectPtr & arg)
+PyObjectPtr PythonBridge::invokeCallable(const PyObjectPtr & callable, const PyObjectPtr & arg)
 {
-//    PyObjectPtr p = buildPythonString("Hello");
-//    p.DecRef();
-    
     PyObject * pyarglist = Py_BuildValue("(O)", arg.ptr());
     PyObject * pyresult = PyObject_Call( callable.ptr(), pyarglist, NULL );
     Py_DECREF(pyarglist);
-    if(pyresult)
-    {
-        int result;
-        PyArg_Parse(pyresult,"i", &result );
-        Py_DECREF(pyresult);
-        return result;
-    }
-    else
+    
+    if(!pyresult)
     {
         PyErr_Print();
     }
-
-    return 0;
+    
+    return pyresult;
 }
 
 PyObjectPtr PythonBridge::buildPythonString(const char * s)
 {
     PyObject * pyobj = Py_BuildValue("s",s);
     return pyobj;
+}
+
+int PythonBridge::parsePythonInt(const PyObjectPtr & obj)
+{
+    int i;
+    if( obj.ptr()==Py_None )
+    {
+        i = 0;
+    }
+    else
+    {
+        PyArg_Parse(obj.ptr(),"i", &i );
+    }
+    return i;
 }

@@ -2,34 +2,41 @@ import json
 
 import keyhac_core
 
+
+hook = keyhac_core.Hook()
+
 class Keymap:
+    
+    _instance = None
+            
+    @staticmethod
+    def getInstance():
+        if not Keymap._instance:
+            Keymap._instance = Keymap()
+        return Keymap._instance
+
     def __init__(self):
         pass
-        
-    def onKey(self, type, keyCode):
-        pass
 
-def keyboardCallback(s):
-    print("keyboardCallback", s)
-    d = json.loads(s)
-    return 0
+    def enableKeyboardHook(self):
+    
+        def _onKey(s):
+            d = json.loads(s)
+            if d["type"]=="keyDown":
+                return self.onKeyDown(d["keyCode"])
+            elif d["type"]=="keyUp":
+                return self.onKeyUp(d["keyCode"])
+
+        hook.setCallback("Keyboard", _onKey)
+
+    def onKeyDown(self, keyCode):
+        print("Keymap.onKeyDown", keyCode)
+        return False
+
+    def onKeyUp(self, keyCode):
+        print("Keymap.onKeyUp", keyCode)
+        return False
+
 
 def configure():
-
-    # Test module level function
-    keyhac_core.test1()
-    
-    hook = keyhac_core.Hook()
-    
-    hook.setCallback("Keyboard", keyboardCallback)
-    #hook.setCallback("Keyboard", None)
-
-#    inputs = [
-#        keyhac_core.Input(),
-#        keyhac_core.Input(),
-#        keyhac_core.Input(),
-#    ]
-#    hook.sendInputs(inputs)
-#
-#    hook.destroy()
-
+    Keymap.getInstance().enableKeyboardHook()

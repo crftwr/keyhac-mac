@@ -58,10 +58,14 @@ private:
     
 public:
     int runString(const char * code);
-    int invokeCallable(const PyObjectPtr & callable, const PyObjectPtr & arg);
+    
+    // FIXME: なぜか static method にしないと動かない
+    static PyObjectPtr invokeCallable(const PyObjectPtr & callable, const PyObjectPtr & arg);
     
     // FIXME: なぜか static method にしないと動かない
     static PyObjectPtr buildPythonString(const char * s);
+    
+    static int parsePythonInt(const PyObjectPtr & obj);
 
 } SWIFT_UNSAFE_REFERENCE;
 
