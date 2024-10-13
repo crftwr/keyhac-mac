@@ -148,8 +148,21 @@ public class Hook {
             */
             
             if let pythonBridge = PythonBridge.getInstance() {
-                var arg = PyObjectPtr()
+                
+                let typeString: String
+                switch type {
+                case .keyDown: typeString = "keyDown"
+                case .keyUp: typeString = "keyUp"
+                default: typeString = "unknown"
+                }
+                
+                let json = """
+                {"type": "\(typeString)", "keyCode": \(keyCode)}
+                """
+
+                var arg = PythonBridge.buildPythonString(json)
                 pythonBridge.invokeCallable(self.keyboardCallback, arg)
+                arg.DecRef()
             }
         }
         return Unmanaged.passUnretained(event)

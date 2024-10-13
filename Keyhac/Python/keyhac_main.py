@@ -1,8 +1,17 @@
+import json
 
 import keyhac_core
 
-def keyboardCallback():
-    print("keyboardCallback")
+class Keymap:
+    def __init__(self):
+        pass
+        
+    def onKey(self, type, keyCode):
+        pass
+
+def keyboardCallback(s):
+    print("keyboardCallback", s)
+    d = json.loads(s)
     return 0
 
 def configure():

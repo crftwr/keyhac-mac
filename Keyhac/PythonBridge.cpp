@@ -62,11 +62,6 @@ static PyObject * Hook_destroy(Hook_Object * self, PyObject* args)
     return Py_None;
 }
 
-static void _Hook_callback(Hook_Object * self, Keyhac::EventBase * event)
-{
-    
-}
-
 static PyObject * Hook_setCallback(Hook_Object * self, PyObject* args)
 {
     PyObject * pyname;
@@ -268,7 +263,10 @@ int PythonBridge::runString(const char * code)
 
 int PythonBridge::invokeCallable(const PyObjectPtr & callable, const PyObjectPtr & arg)
 {
-    PyObject * pyarglist = Py_BuildValue("()");
+//    PyObjectPtr p = buildPythonString("Hello");
+//    p.DecRef();
+    
+    PyObject * pyarglist = Py_BuildValue("(O)", arg.ptr());
     PyObject * pyresult = PyObject_Call( callable.ptr(), pyarglist, NULL );
     Py_DECREF(pyarglist);
     if(pyresult)
@@ -284,4 +282,10 @@ int PythonBridge::invokeCallable(const PyObjectPtr & callable, const PyObjectPtr
     }
 
     return 0;
+}
+
+PyObjectPtr PythonBridge::buildPythonString(const char * s)
+{
+    PyObject * pyobj = Py_BuildValue("s",s);
+    return pyobj;
 }

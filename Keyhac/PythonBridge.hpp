@@ -31,6 +31,8 @@ private:
     PyObject * p;
 };
 
+
+
 class PythonBridge
 {
 public:
@@ -58,6 +60,9 @@ public:
     int runString(const char * code);
     int invokeCallable(const PyObjectPtr & callable, const PyObjectPtr & arg);
     
+    // FIXME: なぜか static method にしないと動かない
+    static PyObjectPtr buildPythonString(const char * s);
+
 } SWIFT_UNSAFE_REFERENCE;
 
 #endif /* PythonBridge_hpp */
