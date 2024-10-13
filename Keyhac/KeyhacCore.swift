@@ -32,6 +32,11 @@ public class EventClipboard : EventBase {
     var s : String = ""
 }
 
+struct KeyInput : Codable {
+    var type: String
+    var keyCode: Int
+}
+
 public class Hook {
     
     var eventTap: CFMachPort?
@@ -316,14 +321,24 @@ public class Hook {
     }
     */
 
-
-    func sendKey() {
+    public func sendKeyboardEvent(type: String, keyCode: Int) {
         
-        let keydown_event = CGEvent(keyboardEventSource: eventSource, virtualKey: 179, keyDown: true)!
-        let keyup_event = CGEvent(keyboardEventSource: eventSource, virtualKey: 179, keyDown: false)!
+        let keyDown: Bool
         
-        keydown_event.post(tap: CGEventTapLocation.cghidEventTap)
-        keyup_event.post(tap: CGEventTapLocation.cghidEventTap)
+        switch type {
+        case "keyDown":
+            keyDown = true
+        case "keyUp":
+            keyDown = false
+        default:
+            fatalError("Unknown keyboard event type: \(type)")
+        }
+        
+        let event = CGEvent(keyboardEventSource: eventSource, virtualKey: CGKeyCode(keyCode), keyDown: keyDown)
+        
+        if let event = event {
+            event.post(tap: CGEventTapLocation.cghidEventTap)
+        }
     }
 
 }

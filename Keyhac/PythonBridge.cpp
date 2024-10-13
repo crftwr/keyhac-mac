@@ -89,9 +89,27 @@ static PyObject * Hook_setCallback(Hook_Object * self, PyObject* args)
     return Py_None;
 }
 
+static PyObject * Hook_sendKeyboardEvent(Hook_Object * self, PyObject* args)
+{
+    PyObject * pytype;
+    int keyCode;
+    if( ! PyArg_ParseTuple(args, "UI", &pytype, &keyCode ) )
+    {
+        return NULL;
+    }
+    
+    const char * type = PyUnicode_AsUTF8AndSize(pytype, NULL);
+    
+    self->impl.sendKeyboardEvent(type, keyCode);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMethodDef Hook_methods[] = {
     { "destroy", (PyCFunction)Hook_destroy, METH_VARARGS, "" },
     { "setCallback", (PyCFunction)Hook_setCallback, METH_VARARGS, "" },
+    { "sendKeyboardEvent", (PyCFunction)Hook_sendKeyboardEvent, METH_VARARGS, "" },
     {NULL,NULL}
 };
 
