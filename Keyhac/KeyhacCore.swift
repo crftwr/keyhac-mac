@@ -8,6 +8,30 @@
 import Foundation
 import CoreGraphics
 
+public enum EventType {
+    case undefined
+    case keyDown
+    case keyUp
+    case clipboardChanged
+}
+
+public class EventBase {
+    var type : EventType = .undefined
+    
+    init(type: EventType) {
+        self.type = type
+    }
+}
+
+public class EventKeyDown : EventBase {
+    var mod : Int = 0
+    var vk : Int = 0
+}
+
+public class EventClipboard : EventBase {
+    var s : String = ""
+}
+
 public class Hook {
     
     var eventTap: CFMachPort?
@@ -26,14 +50,39 @@ public class Hook {
         print("Hook.destroy()")
     }
     
-    public func setKeyboardHook() {
-        print("Hook.setKeyboardHook()")
+    var keyboardCallback = PyObjectPtr()
+    
+    public func setCallback(name: String, callback: PyObjectPtr?){
         
+        if let callback = callback {
+            switch name {
+            case "Keyboard":
+                self.setKeyboardCallback(callback: callback)
+            default:
+                break
+            }
+        }
+        else {
+            switch name {
+            case "Keyboard":
+                self.unsetKeyboardCallback()
+            default:
+                break
+            }
+        }
+    }
+
+    public func setKeyboardCallback(callback: PyObjectPtr) {
+        print("Hook.setKeyboardCallback()")
+
+        self.keyboardCallback = callback
+        self.keyboardCallback.IncRef()
+
         let eventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue) | (1 << CGEventType.flagsChanged.rawValue)
         
         func _callback(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent, refcon: UnsafeMutableRawPointer?) -> Unmanaged<CGEvent>? {
             let hook = Unmanaged<Hook>.fromOpaque(refcon!).takeUnretainedValue()
-            return hook.keyboardCallback(proxy: proxy, type: type, event: event)
+            return hook.keyboardCallbackSwift(proxy: proxy, type: type, event: event)
         }
         
         self.eventTap = CGEvent.tapCreate(
@@ -63,7 +112,7 @@ public class Hook {
         self.eventSource = CGEventSource(stateID: CGEventSourceStateID.privateState)
     }
     
-    public func unsetKeyboardHook() {
+    public func unsetKeyboardCallback() {
         
         if let eventTap = self.eventTap {
             CGEvent.tapEnable(tap: eventTap, enable: false)
@@ -76,9 +125,12 @@ public class Hook {
         self.eventSource = nil
         self.runLoopSource = nil
         self.eventTap = nil
+
+        self.keyboardCallback.DecRef()
+        self.keyboardCallback = PyObjectPtr()
     }
 
-    func keyboardCallback(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
+    func keyboardCallbackSwift(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         
         if [CGEventType.keyDown, CGEventType.keyUp].contains(type) {
             
@@ -92,9 +144,13 @@ public class Hook {
             } else if keyCode == 11 {
                 keyCode = 0
             }
+            event.setIntegerValueField(.keyboardEventKeycode, value: keyCode)
             */
             
-            event.setIntegerValueField(.keyboardEventKeycode, value: keyCode)
+            if let pythonBridge = PythonBridge.getInstance() {
+                var arg = PyObjectPtr()
+                pythonBridge.invokeCallable(self.keyboardCallback, arg)
+            }
         }
         return Unmanaged.passUnretained(event)
     }

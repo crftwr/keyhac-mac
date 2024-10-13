@@ -11,11 +11,9 @@ class KeyhacSystem {
     
     static let instance = KeyhacSystem()
     
-    var pythonBridge: PythonBridge?
-    
     func start() -> Bool {
         
-        if self.pythonBridge != nil {
+        if PythonBridge.getInstance() != nil {
             print("KeyhacSystem is already running.")
             return true;
         }
@@ -27,7 +25,7 @@ class KeyhacSystem {
     
     func stop() -> Bool {
 
-        if self.pythonBridge == nil {
+        if PythonBridge.getInstance() == nil {
             print("KeyhacSystem is not running.")
             return true;
         }
@@ -38,12 +36,11 @@ class KeyhacSystem {
     }
 
     func initializePython() {
-        self.pythonBridge = PythonBridge.create()
+        PythonBridge.create()
     }
     
     func terminatePython() {
-        PythonBridge.destroy(self.pythonBridge)
-        self.pythonBridge = nil
+        PythonBridge.destroy()
     }
     
     func configure(){
@@ -61,7 +58,7 @@ class KeyhacSystem {
         keyhac_main.configure()
         """
         
-        if let pythonBridge = self.pythonBridge {
+        if let pythonBridge = PythonBridge.getInstance() {
             pythonBridge.runString(code)
         }
     }

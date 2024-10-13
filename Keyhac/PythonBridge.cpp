@@ -20,50 +20,83 @@ struct Hook_Object
     Keyhac::Hook impl;
 };
 
-static int Hook_init( PyObject * self, PyObject * args, PyObject * kwds)
+static int Hook_init(Hook_Object * self, PyObject * args, PyObject * kwds)
 {
     if( ! PyArg_ParseTuple( args, "" ) )
     {
         return -1;
     }
     
-    ((Hook_Object*)self)->impl = Keyhac::Hook::init();
+    self->impl = Keyhac::Hook::init();
 
     return 0;
 }
 
-static void Hook_dealloc( PyObject * self )
+static void Hook_dealloc(Hook_Object * self)
 {
-    ((Hook_Object*)self)->impl.~Hook();
+    self->impl.~Hook();
 
-    self->ob_type->tp_free((PyObject*)self);
+    ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Hook_destroy( PyObject* self, PyObject* args )
+static PyObject * Hook_getattr(Hook_Object * self, PyObject * pyattrname)
+{
+    return PyObject_GenericGetAttr((PyObject*)self, pyattrname);
+}
+
+static int Hook_setattr(Hook_Object * self, PyObject * pyattrname, PyObject * pyvalue)
+{
+    return PyObject_GenericSetAttr((PyObject*)self, pyattrname,pyvalue);
+}
+
+static PyObject * Hook_destroy(Hook_Object * self, PyObject* args)
 {
     if( ! PyArg_ParseTuple(args, "" ) )
     {
         return NULL;
     }
     
-    ((Hook_Object*)self)->impl.destroy();
+    self->impl.destroy();
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
-static PyObject * Hook_getattr( Hook_Object * self, PyObject * pyattrname )
+static void _Hook_callback(Hook_Object * self, Keyhac::EventBase * event)
 {
-    return PyObject_GenericGetAttr((PyObject*)self,pyattrname);
+    
 }
 
-static int Hook_setattr( Hook_Object * self, PyObject * pyattrname, PyObject * pyvalue )
+static PyObject * Hook_setCallback(Hook_Object * self, PyObject* args)
 {
-    return PyObject_GenericSetAttr((PyObject*)self,pyattrname,pyvalue);
+    PyObject * pyname;
+    PyObject * pycallback;
+    if( ! PyArg_ParseTuple(args, "UO", &pyname, &pycallback ) )
+    {
+        return NULL;
+    }
+    
+    const char * name = PyUnicode_AsUTF8AndSize(pyname, NULL);
+    printf("Hook_setCallback - %s\n", name);
+    
+    if(pycallback!=Py_None)
+    {
+        auto callback = swift::Optional<PyObjectPtr>::some(PyObjectPtr(pycallback));
+        self->impl.setCallback(name, callback);
+    }
+    else
+    {
+        auto callback = swift::Optional<PyObjectPtr>::none();
+        self->impl.setCallback(name, callback);
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMethodDef Hook_methods[] = {
-    { "destroy", Hook_destroy, METH_VARARGS, "" },
+    { "destroy", (PyCFunction)Hook_destroy, METH_VARARGS, "" },
+    { "setCallback", (PyCFunction)Hook_setCallback, METH_VARARGS, "" },
     {NULL,NULL}
 };
 
@@ -72,7 +105,7 @@ PyTypeObject Hook_Type = {
     "Hook",                 /* tp_name */
     sizeof(Hook_Type),      /* tp_basicsize */
     0,                      /* tp_itemsize */
-    Hook_dealloc,           /* tp_dealloc */
+    (destructor)Hook_dealloc,/* tp_dealloc */
     0,                      /* tp_print */
     0,                      /* tp_getattr */
     0,                      /* tp_setattr */
@@ -103,7 +136,7 @@ PyTypeObject Hook_Type = {
     0,                      /* tp_descr_get */
     0,                      /* tp_descr_set */
     0,                      /* tp_dictoffset */
-    Hook_init,              /* tp_init */
+    (initproc)Hook_init,    /* tp_init */
     0,                      /* tp_alloc */
     PyType_GenericNew,      /* tp_new */
     0,                      /* tp_free */
@@ -165,14 +198,47 @@ PyInit_keyhac_core(void)
 
 // ------------------------------------------
 
-PythonBridge * PythonBridge::create()
+PyObjectPtr::PyObjectPtr()
+    :
+    p(NULL)
 {
-    return new PythonBridge();
 }
 
-void PythonBridge::destroy(PythonBridge * obj)
+PyObjectPtr::PyObjectPtr(PyObject * _p)
+    :
+    p(_p)
 {
-    delete obj;
+}
+
+void PyObjectPtr::IncRef()
+{
+    Py_XINCREF(p);
+}
+
+void PyObjectPtr::DecRef()
+{
+    Py_XDECREF(p);
+}
+
+
+// ------------------------------------------
+
+PythonBridge * PythonBridge::instance;
+
+void PythonBridge::create()
+{
+    instance = new PythonBridge();
+}
+
+PythonBridge * PythonBridge::getInstance()
+{
+    return instance;
+}
+
+void PythonBridge::destroy()
+{
+    delete instance;
+    instance = NULL;
 }
 
 PythonBridge::PythonBridge()
@@ -191,9 +257,31 @@ PythonBridge::PythonBridge()
 PythonBridge::~PythonBridge()
 {
     printf("PythonBridge::~PythonBridge\n");
+    
+    Py_Finalize();
 }
 
 int PythonBridge::runString(const char * code)
 {
     return PyRun_SimpleString(code);
+}
+
+int PythonBridge::invokeCallable(const PyObjectPtr & callable, const PyObjectPtr & arg)
+{
+    PyObject * pyarglist = Py_BuildValue("()");
+    PyObject * pyresult = PyObject_Call( callable.ptr(), pyarglist, NULL );
+    Py_DECREF(pyarglist);
+    if(pyresult)
+    {
+        int result;
+        PyArg_Parse(pyresult,"i", &result );
+        Py_DECREF(pyresult);
+        return result;
+    }
+    else
+    {
+        PyErr_Print();
+    }
+
+    return 0;
 }
