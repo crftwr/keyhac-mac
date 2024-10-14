@@ -172,12 +172,13 @@ public class Hook {
 
                 var arg = PythonBridge.buildPythonString(json)
                 var pyresult = PythonBridge.invokeCallable(self.keyboardCallback, arg)
-                let keyProcessed = PythonBridge.parsePythonInt(pyresult)
-                print("keyProcessed: \(keyProcessed)")
-                arg.DecRef()
-                pyresult.DecRef()
-
-                if keyProcessed != 0 {
+                
+                defer {
+                    arg.DecRef()
+                    pyresult.DecRef()
+                }
+                
+                if pyresult.ptr() != nil && PythonBridge.parsePythonInt(pyresult) != 0 {
                     // Python側で処理済みなのでイベントを捨てる
                     event.type = .null
                     break foo
@@ -215,13 +216,6 @@ public class Hook {
         if (src.rawValue & UInt64(NX_DEVICELALTKEYMASK|NX_DEVICERALTKEYMASK)) != 0 { dst.insert(.maskAlternate) }
         if (src.rawValue & UInt64(NX_DEVICELCMDKEYMASK|NX_DEVICERCMDKEYMASK)) != 0 { dst.insert(.maskCommand) }
         if (src.rawValue & UInt64(NX_SECONDARYFNMASK)) != 0 { dst.insert(.maskSecondaryFn) }
-
-        // print src in hex
-        let src_hex = String(format:"0x%X", src.rawValue)
-        let dst_hex = String(format:"0x%X", dst.rawValue)
-
-        print("src: \(src_hex)")
-        print("dst: \(dst_hex)")
         
         return dst;
     }
