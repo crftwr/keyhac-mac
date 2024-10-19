@@ -32,12 +32,14 @@ private:
 };
 
 
+typedef PyObject * (*PythonModuleInitFunc)();
+
 
 class PythonBridge
 {
 public:
     // static method to handle as reference type
-    static void create();
+    static void create(const char * module_name, PythonModuleInitFunc module_init_func);
     
     static PythonBridge * getInstance();
     
@@ -46,7 +48,7 @@ public:
     
 private:
     // private to handle as reference type
-    PythonBridge();
+    PythonBridge(const char * module_name, PythonModuleInitFunc module_init_func);
     
     // private to handle as reference type
     PythonBridge(const PythonBridge & src);

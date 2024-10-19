@@ -248,8 +248,7 @@ public class Hook {
     }
 
     /*
-    static inline bool LookupKeyState( const KeyMap & keys, int vk )
-    {
+    func lookupKeyState( const KeyMap & keys, vk: Int ) -> Bool {
         // GetKeys / KeyMap では、左右のモディファイアキーの区別がつかないので、
         // どちらかが押されていたら、両方押されているとみなす。
         switch(vk)
@@ -276,13 +275,13 @@ public class Hook {
         
         return (keys[ vk / 32 ].bigEndianValue & (1<<(vk%32))) != 0;
     }
+    */
 
-    void HookMac::fixWierdModifierState()
-    {
-        TRACE;
-
+    public func fixWierdModifierState() {
+        
+        /*
         KeyMap keys;
-        GetKeys(keys);
+        getKeys(keys);
         
         if( ! LookupKeyState(keys,kVK_Control) )
         {
@@ -312,8 +311,8 @@ public class Hook {
         {
             modifier = (CGEventFlags)( modifier & ~VkToFlag(kVK_Function) );
         }
+        */
     }
-    */
 
     public func sendKeyboardEvent(type: String, keyCode: Int) {
         

@@ -36,7 +36,7 @@ class KeyhacSystem {
     }
 
     func initializePython() {
-        PythonBridge.create()
+        PythonBridge.create(keyhacCoreModuleName, keyhacCoreModuleInit)
     }
     
     func terminatePython() {
