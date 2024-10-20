@@ -15,6 +15,7 @@ public enum EventType {
     case clipboardChanged
 }
 
+// 使ってない？
 public class EventBase {
     var type : EventType = .undefined
     
@@ -23,6 +24,7 @@ public class EventBase {
     }
 }
 
+// 使ってない？
 public class EventKeyDown : EventBase {
     var mod : Int = 0
     var vk : Int = 0

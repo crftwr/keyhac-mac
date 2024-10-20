@@ -17,6 +17,146 @@
 
 const char * keyhacCoreModuleName = MODULE_NAME;
 
+
+// ------------------------------------------
+
+extern PyTypeObject UIElement_Type;
+
+struct UIElement_Object
+{
+    PyObject_HEAD
+    Keyhac::UIElement impl;
+};
+
+static int UIElement_init(UIElement_Object * self, PyObject * args, PyObject * kwds)
+{
+    if( ! PyArg_ParseTuple( args, "" ) )
+    {
+        return -1;
+    }
+    
+    self->impl = Keyhac::UIElement::init();
+
+    return 0;
+}
+
+static void UIElement_dealloc(UIElement_Object * self)
+{
+    self->impl.~UIElement();
+
+    ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * UIElement_getattr(UIElement_Object * self, PyObject * pyattrname)
+{
+    return PyObject_GenericGetAttr((PyObject*)self, pyattrname);
+}
+
+static int UIElement_setattr(UIElement_Object * self, PyObject * pyattrname, PyObject * pyvalue)
+{
+    return PyObject_GenericSetAttr((PyObject*)self, pyattrname,pyvalue);
+}
+
+static UIElement_Object * UIElement_getSystemWideElement( PyObject * self, PyObject * args )
+{
+    if( ! PyArg_ParseTuple(args,"") )
+        return NULL;
+    
+    auto elm = Keyhac::UIElement::getSystemWideElement();
+    
+    UIElement_Object * new_obj;
+    new_obj = (UIElement_Object*)UIElement_Type.tp_alloc(&UIElement_Type, 0);
+    new_obj->impl = elm;
+    
+    return new_obj;
+}
+
+static PyObject * UIElement_getAttributeNames(UIElement_Object * self, PyObject * args)
+{
+    if( ! PyArg_ParseTuple(args,"") )
+        return NULL;
+    
+    PyObject * pyattr_names = PyList_New(0);
+
+    auto attr_names = self->impl.getAttributeNames();
+    for( swift::Int i=attr_names.getStartIndex() ; i<attr_names.getEndIndex() ; ++i )
+    {
+        std::string attr_name = attr_names[i];
+
+        PyObject * pyitem = Py_BuildValue( "s", attr_name.c_str() );
+        PyList_Append( pyattr_names, pyitem );
+        Py_XDECREF(pyitem);
+    }
+    
+    return pyattr_names;
+}
+
+static PyObject * UIElement_getAttributeValue(UIElement_Object * self, PyObject * args)
+{
+    PyObject * pyattr_name;
+    if( ! PyArg_ParseTuple(args, "U", &pyattr_name ) )
+    {
+        return NULL;
+    }
+    
+    const char * attr_name = PyUnicode_AsUTF8AndSize(pyattr_name, NULL);
+
+    //auto value = self->impl.getAttributeValue(attr_name);
+
+    // FIXME
+    return NULL;
+}
+
+static PyMethodDef UIElement_methods[] = {
+    { "getSystemWideElement", (PyCFunction)UIElement_getSystemWideElement, METH_STATIC|METH_VARARGS, "" },
+    { "getAttributeNames", (PyCFunction)UIElement_getAttributeNames, METH_VARARGS, "" },
+    { "getAttributeValue", (PyCFunction)UIElement_getAttributeValue, METH_VARARGS, "" },
+    {NULL,NULL}
+};
+
+PyTypeObject UIElement_Type = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "UIElement",            /* tp_name */
+    sizeof(UIElement_Type), /* tp_basicsize */
+    0,                      /* tp_itemsize */
+    (destructor)UIElement_dealloc,/* tp_dealloc */
+    0,                      /* tp_print */
+    0,                      /* tp_getattr */
+    0,                      /* tp_setattr */
+    0,                      /* tp_compare */
+    0,                      /* tp_repr */
+    0,                      /* tp_as_number */
+    0,                      /* tp_as_sequence */
+    0,                      /* tp_as_mapping */
+    0,                      /* tp_hash */
+    0,                      /* tp_call */
+    0,                      /* tp_str */
+    (getattrofunc)UIElement_getattr, /* tp_getattro */
+    (setattrofunc)UIElement_setattr, /* tp_setattro */
+    0,                      /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,   /* tp_flags */
+    "",                     /* tp_doc */
+    0,                      /* tp_traverse */
+    0,                      /* tp_clear */
+    0,                      /* tp_richcompare */
+    0,                      /* tp_weaklistoffset */
+    0,                      /* tp_iter */
+    0,                      /* tp_iternext */
+    UIElement_methods,      /* tp_methods */
+    0,                      /* tp_members */
+    0,                      /* tp_getset */
+    0,                      /* tp_base */
+    0,                      /* tp_dict */
+    0,                      /* tp_descr_get */
+    0,                      /* tp_descr_set */
+    0,                      /* tp_dictoffset */
+    (initproc)UIElement_init,/* tp_init */
+    0,                      /* tp_alloc */
+    PyType_GenericNew,      /* tp_new */
+    0,                      /* tp_free */
+};
+
+
 // ------------------------------------------
 
 struct Hook_Object
@@ -40,7 +180,7 @@ static int Hook_init(Hook_Object * self, PyObject * args, PyObject * kwds)
 static void Hook_dealloc(Hook_Object * self)
 {
     self->impl.~Hook();
-
+    
     ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
 }
 
@@ -165,7 +305,7 @@ PyTypeObject Hook_Type = {
 
 static PyObject * _getFocus(PyObject *self, PyObject *args)
 {
-    std::string focus = Keyhac::Gui::getFocus();
+    std::string focus = "Hello";
     
     //return PyLong_FromLong(0);
     return PyUnicode_FromString(focus.c_str());
@@ -188,7 +328,8 @@ static struct PyModuleDef keyhac_core_module = {
 PyObject * keyhacCoreModuleInit(void)
 {
     if( PyType_Ready(&Hook_Type)<0 ) return NULL;
-    
+    if( PyType_Ready(&UIElement_Type)<0 ) return NULL;
+
     PyObject *m, *d;
 
     m = PyModule_Create(&keyhac_core_module);
@@ -197,6 +338,9 @@ PyObject * keyhacCoreModuleInit(void)
     Py_INCREF(&Hook_Type);
     PyModule_AddObject( m, "Hook", (PyObject*)&Hook_Type );
 
+    Py_INCREF(&UIElement_Type);
+    PyModule_AddObject( m, "UIElement", (PyObject*)&UIElement_Type );
+    
     d = PyModule_GetDict(m);
 
     /*

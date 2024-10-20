@@ -10,10 +10,49 @@ import CoreGraphics
 import AppKit
 import Cocoa
 
-public class Gui {
+public class UIElement {
         
-    static func getAttributeValue(elm: AXUIElement, name: String) -> Any? {
+    var elm: AXUIElement?
+    
+    public init() {
+        print("UIElement.init()")
+    }
+    
+    init(_ elm: AXUIElement) {
+        print("UIElement.init()")
+        self.elm = elm
+    }
+    
+    deinit {
+        print("UIElement.deinit()")
+    }
 
+    public static func getSystemWideElement() -> UIElement {
+        let elm: AXUIElement = AXUIElementCreateSystemWide()
+        return UIElement(elm)
+    }
+    
+    public func getAttributeNames() -> [String] {
+        
+        guard let elm else {
+            return []
+        }
+        
+        var names: CFArray?
+        let result = AXUIElementCopyAttributeNames(elm, &names)
+        if result != .success {
+            return []
+        }
+
+        return names! as [AnyObject] as! [String]
+    }
+    
+    public func getAttributeValue(name: String) -> Any? {
+        
+        guard let elm else {
+            return nil
+        }
+        
         var value: AnyObject?
         AXUIElementCopyAttributeValue(elm, name as CFString, &value)
         
@@ -46,7 +85,8 @@ public class Gui {
             return nil
         }
     }
-    
+
+    /*
     static func printDetails(elm: AXUIElement) {
         
         var result: AXError
@@ -73,25 +113,29 @@ public class Gui {
             }
         }
     }
+    */
     
-    static func getParent(elm: AXUIElement) -> AXUIElement? {
-        let parent = getAttributeValue(elm: elm, name: "AXParent") as! AXUIElement?
+    func getParent() -> AXUIElement? {
+        let parent = getAttributeValue(name: "AXParent") as! AXUIElement?
         return parent
     }
-    
-    static func getFocusedChild(elm: AXUIElement) -> AXUIElement? {
+
+    /*
+    public func getFocusedChild() -> AXUIElement? {
         
-        let role = getAttributeValue(elm: elm, name: "AXRole") as! String
+        let role = getAttributeValue(elm: self.elm, name: "AXRole") as! String
         switch role {
         case "AXSystemWide":
-            return getAttributeValue(elm: elm, name: "AXFocusedApplication") as! AXUIElement?
+            return getAttributeValue(elm: self.elm, name: "AXFocusedApplication") as! AXUIElement?
         case "AXApplication":
-            return getAttributeValue(elm: elm, name: "AXFocusedWindow") as! AXUIElement?
+            return getAttributeValue(elm: self.elm, name: "AXFocusedWindow") as! AXUIElement?
         default:
             return nil
         }
     }
+    */
     
+    /*
     public static func getFocus() -> String {
         
         var elm: AXUIElement? = AXUIElementCreateSystemWide()
@@ -117,5 +161,6 @@ public class Gui {
         
         return "Hello"
     }
+    */
 }
 
