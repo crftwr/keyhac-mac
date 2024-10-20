@@ -778,6 +778,9 @@ class Keymap:
 
     # フォーカスがあるウインドウを明示的に更新する
     def _updateFocusWindow(self):
+    
+        focus = keyhac_core.getFocus()
+        print("Focus:", focus)
         
         """
         new_focus_change_count = ckit.getFocusChangeCount()

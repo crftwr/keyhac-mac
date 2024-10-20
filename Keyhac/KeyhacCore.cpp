@@ -14,8 +14,8 @@
 
 #define MODULE_NAME "keyhac_core"
 
-const char * keyhacCoreModuleName = MODULE_NAME;
 
+const char * keyhacCoreModuleName = MODULE_NAME;
 
 // ------------------------------------------
 
@@ -163,14 +163,16 @@ PyTypeObject Hook_Type = {
 
 // ------------------------------------------
 
-static PyObject * keyhac_core_test1(PyObject *self, PyObject *args)
+static PyObject * _getFocus(PyObject *self, PyObject *args)
 {
-    printf("keyhac_core_test1 was called\n");
-    return PyLong_FromLong(0);
+    std::string focus = Keyhac::Gui::getFocus();
+    
+    //return PyLong_FromLong(0);
+    return PyUnicode_FromString(focus.c_str());
 }
 
 static PyMethodDef keyhac_core_methods[] = {
-    {"test1", keyhac_core_test1, METH_VARARGS, "Test function"},
+    {"getFocus", _getFocus, METH_VARARGS, "Get focus information in string format"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
