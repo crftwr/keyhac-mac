@@ -201,10 +201,5 @@ public class UIElement {
             return nil
         }
     }
-
-    func getParent() -> AXUIElement? {
-        let parent = getAttributeValue(name: "AXParent") as! AXUIElement?
-        return parent
-    }
 }
 

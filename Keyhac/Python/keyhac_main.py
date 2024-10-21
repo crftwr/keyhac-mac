@@ -1,6 +1,7 @@
 import sys
 import json
 import time
+import fnmatch
 import traceback
 
 import keyhac_core
@@ -528,15 +529,15 @@ class KeyCondition:
 
 class WindowKeymap:
 
-    def __init__( self, app_name=None, check_func=None, help_string=None ):
-        self.app_name = app_name
+    def __init__( self, pattern=None, check_func=None, help_string=None ):
+        self.pattern = pattern
         self.check_func = check_func
         self.help_string = help_string
         self.keymap = {}
 
     def check( self, focus ):
-        
-        #if self.app_name and ( not focus or not fnmatch.fnmatch( ckit.getApplicationNameByPid(focus.pid), self.app_name ) ) : return False
+
+        if self.pattern and ( not focus or not fnmatch.fnmatch( focus, self.pattern ) ) : return False
         
         try:
             if self.check_func and ( not focus or not self.check_func(focus) ) : return False
@@ -599,7 +600,6 @@ class Keymap:
         self.vk_mod_map = {}                    # モディファイアキーの仮想キーコードとビットのテーブル
         self.vk_vk_map = {}                     # キーの置き換えテーブル
         self.focus = None                       # 現在フォーカスされているUI要素
-        self.focus_change_count = None          # フォーカス変更検出用のカウント
         self.modifier = 0                       # 押されているモディファイアキーのビットの組み合わせ
         self.last_keydown = None                # 最後にKeyDownされた仮想キーコード
         self.oneshot_canceled = False           # ワンショットモディファイアをキャンセルするか
@@ -649,6 +649,19 @@ class Keymap:
             print("Hello World!")
 
         keymap_global["Fn-A"] = command_HelloWorld
+
+
+        # Keymap for Xcode
+        keymap_xcode = self.defineWindowKeymap( re_pattern=r"AXApplication(Xcode):::*" )
+
+        # Fn-A : Sample of assigning callable object to key
+        def command_HelloXcode():
+            print("Hello Xcode!")
+
+        keymap_xcode["Fn-B"] = command_HelloXcode
+
+
+
 
         # FIXME: フォーカス変更検出を実装するまでの暫定実装
         self._updateKeymap(None)
@@ -731,8 +744,8 @@ class Keymap:
         self.sendInput(input_seq)
 
 
-    def defineWindowKeymap( self, app_name=None, check_func=None ):
-        window_keymap = WindowKeymap( app_name, check_func )
+    def defineWindowKeymap( self, re_pattern=None, check_func=None ):
+        window_keymap = WindowKeymap( re_pattern, check_func )
         self.window_keymap_list.append(window_keymap)
         return window_keymap
 
@@ -779,13 +792,34 @@ class Keymap:
                 self.input_seq.append( ("keyUp", vk_mod[0]) )
                 self.virtual_modifier &= ~vk_mod[1]
 
+    def _focusChanged( self, focus ):
+        self.focus = None
+        self._updateKeymap(focus)
+        self.focus = focus
 
     # フォーカスがあるウインドウを明示的に更新する
     def _updateFocusWindow(self):
     
+        focus_elms = []
+
         elm = keyhac_core.UIElement.getSystemWideElement()
         elm = elm.getAttributeValue("AXFocusedUIElement")
 
+        while elm:
+            focus_elms.append(elm)
+            elm = elm.getAttributeValue("AXParent")
+
+        focus_path_components = []
+
+        for elm in reversed(focus_elms):
+            focus_path_components.append( "%s(%s)" % (elm.getAttributeValue("AXRole"), elm.getAttributeValue("AXTitle")) )
+
+        new_focus = ":::".join(focus_path_components)
+        if self.focus != new_focus:
+            print("Focus path:", new_focus)
+            self._focusChanged(new_focus)
+
+        """
         while elm:
             print(elm)
             attr_names = elm.getAttributeNames()
@@ -796,6 +830,7 @@ class Keymap:
             print("-----")
 
             elm = elm.getAttributeValue("AXParent")
+        """
 
         """
         new_focus_change_count = ckit.getFocusChangeCount()
