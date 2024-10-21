@@ -14,6 +14,7 @@
 
 #define MODULE_NAME "keyhac_core"
 
+using namespace Keyhac;
 
 const char * keyhacCoreModuleName = MODULE_NAME;
 
@@ -25,7 +26,7 @@ extern PyTypeObject UIElement_Type;
 struct UIElement_Object
 {
     PyObject_HEAD
-    Keyhac::UIElement impl;
+    UIElement impl;
 };
 
 static int UIElement_init(UIElement_Object * self, PyObject * args, PyObject * kwds)
@@ -35,7 +36,7 @@ static int UIElement_init(UIElement_Object * self, PyObject * args, PyObject * k
         return -1;
     }
     
-    self->impl = Keyhac::UIElement::init();
+    self->impl = UIElement::init();
 
     return 0;
 }
@@ -62,7 +63,7 @@ static UIElement_Object * UIElement_getSystemWideElement( PyObject * self, PyObj
     if( ! PyArg_ParseTuple(args,"") )
         return NULL;
     
-    auto elm = Keyhac::UIElement::getSystemWideElement();
+    auto elm = UIElement::getSystemWideElement();
     
     UIElement_Object * new_obj;
     new_obj = (UIElement_Object*)UIElement_Type.tp_alloc(&UIElement_Type, 0);
@@ -91,6 +92,94 @@ static PyObject * UIElement_getAttributeNames(UIElement_Object * self, PyObject 
     return pyattr_names;
 }
 
+static PyObject * _convertUIValueToPyObject(const UIValue & value)
+{
+    PyObject * pyvalue = NULL;
+    
+    auto type = value.getType();
+    switch (type) {
+    case UIValueType::cases::bool_:
+        {
+            bool b = value.getValueBool();
+            if(b)
+            {
+                pyvalue = Py_True;
+            }
+            else
+            {
+                pyvalue = Py_False;
+            }
+            Py_INCREF(pyvalue);
+        }
+        break;
+            
+    case UIValueType::cases::number:
+        {
+            long i = value.getValueNumber();
+            pyvalue = PyLong_FromLong(i);
+        }
+            break;
+            
+    case UIValueType::cases::string:
+        {
+            std::string s = value.getValueString();
+            pyvalue = PyUnicode_DecodeUTF8( s.c_str(), s.length(), "replace");
+        }
+        break;
+            
+    case UIValueType::cases::rect:
+        {
+            auto rect = value.getValueRect();
+            pyvalue = Py_BuildValue( "(ffff)", rect[0], rect[1], rect[2], rect[3] );
+        }
+        break;
+            
+    case UIValueType::cases::uiElement:
+        {
+            UIElement uiElement = value.getValueUIElement();
+            
+            UIElement_Object * pyUIElement;
+            pyUIElement = (UIElement_Object*)UIElement_Type.tp_alloc(&UIElement_Type, 0);
+            pyUIElement->impl = uiElement;
+            
+            pyvalue = (PyObject*)pyUIElement;
+        }
+        break;
+            
+    case UIValueType::cases::array:
+        {
+            auto array = value.getValueArray();
+            
+            PyObject * pylist = PyList_New(0);
+            
+            for( swift::Int i=array.getStartIndex() ; i<array.getEndIndex() ; ++i )
+            {
+                UIValue item = array[i];
+                
+                PyObject * pyitem = _convertUIValueToPyObject(item);
+                PyList_Append( pylist, pyitem );
+                Py_XDECREF(pyitem);
+            }
+            
+            pyvalue = pylist;
+        }
+        break;
+            
+    default:
+        break;
+    }
+    
+    if(pyvalue)
+    {
+        return pyvalue;
+    }
+    else
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+}
+
 static PyObject * UIElement_getAttributeValue(UIElement_Object * self, PyObject * args)
 {
     PyObject * pyattr_name;
@@ -100,11 +189,25 @@ static PyObject * UIElement_getAttributeValue(UIElement_Object * self, PyObject 
     }
     
     const char * attr_name = PyUnicode_AsUTF8AndSize(pyattr_name, NULL);
+    
+    PyObject * pyvalue = NULL;
 
-    //auto value = self->impl.getAttributeValue(attr_name);
-
-    // FIXME
-    return NULL;
+    auto wrapped_value = self->impl.getAttributeValue(attr_name);
+    if(wrapped_value)
+    {
+        UIValue value = wrapped_value.get();
+        pyvalue = _convertUIValueToPyObject(value);
+    }
+    
+    if(pyvalue)
+    {
+        return pyvalue;
+    }
+    else
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 }
 
 static PyMethodDef UIElement_methods[] = {
@@ -162,7 +265,7 @@ PyTypeObject UIElement_Type = {
 struct Hook_Object
 {
     PyObject_HEAD
-    Keyhac::Hook impl;
+    Hook impl;
 };
 
 static int Hook_init(Hook_Object * self, PyObject * args, PyObject * kwds)
@@ -172,7 +275,7 @@ static int Hook_init(Hook_Object * self, PyObject * args, PyObject * kwds)
         return -1;
     }
     
-    self->impl = Keyhac::Hook::init();
+    self->impl = Hook::init();
 
     return 0;
 }

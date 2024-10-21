@@ -10,21 +10,122 @@ import CoreGraphics
 import AppKit
 import Cocoa
 
+public enum UIValueType {
+    case uiElement
+    case bool
+    case number
+    case string
+    case range
+    case point
+    case size
+    case rect
+    case array
+    case unknown
+}
+
+public struct UIValue {
+    
+    private var value: AnyObject?
+    
+    public init() {
+    }
+    
+    public init(_ value: AnyObject) {
+        self.value = value
+    }
+    
+    public func getType() -> UIValueType {
+        
+        guard let value else { return .unknown }
+        
+        let type = CFGetTypeID(value)
+        switch type {
+        case CFNumberGetTypeID():
+            return .number
+        case CFBooleanGetTypeID():
+            return .bool
+        case CFStringGetTypeID():
+            return .string
+        case AXUIElementGetTypeID():
+            return .uiElement
+        case AXValueGetTypeID():
+            let type = AXValueGetType(value as! AXValue)
+            switch type {
+            case .cfRange:
+                return .range
+            case .cgPoint:
+                return .point
+            case .cgSize:
+                return .size
+            case .cgRect:
+                return .rect
+            default:
+                return .unknown
+            }
+        case CFArrayGetTypeID():
+            return .array
+        default:
+            return .unknown
+        }
+    }
+    
+    public func getValueBool() -> Bool {
+        guard let value else { return false }
+        return value as! Bool
+    }
+    
+    public func getValueNumber() -> Int {
+        guard let value else { return 0 }
+        return value as! Int
+    }
+    
+    public func getValueString() -> String {
+        guard let value else { return "" }
+        var s = value as! String
+        
+        // Workaround for https://github.com/swiftlang/swift/issues/69870
+        s.makeContiguousUTF8()
+        
+        return s
+    }
+    
+    public func getValueRect() -> [Float] {
+        var rect: CGRect = CGRect.zero
+        guard let value else { return [0,0,0,0] }
+        AXValueGetValue(value as! AXValue, .cgRect, &rect)
+        return [Float(rect.origin.x), Float(rect.origin.y), Float(rect.size.width), Float(rect.size.height)]
+    }
+    
+    public func getValueUIElement() -> UIElement {
+        guard let value else { return UIElement() }
+        return UIElement( value as! AXUIElement )
+    }
+    
+    public func getValueArray() -> [UIValue] {
+        guard let value else { return [] }
+        //return value as! [UIValue]
+        
+        let array = value as! [AnyObject]
+        return array.map { UIValue($0) }
+    }
+    
+}
+
 public class UIElement {
         
     var elm: AXUIElement?
     
     public init() {
-        print("UIElement.init()")
+        //print("UIElement.init()")
     }
     
     init(_ elm: AXUIElement) {
-        print("UIElement.init()")
+        //print("UIElement.init()")
         self.elm = elm
     }
     
     deinit {
-        print("UIElement.deinit()")
+        //print("UIElement.deinit()")
     }
 
     public static func getSystemWideElement() -> UIElement {
@@ -47,7 +148,11 @@ public class UIElement {
         return names! as [AnyObject] as! [String]
     }
     
-    public func getAttributeValue(name: String) -> Any? {
+    public func getAttributeValue(name: String) -> UIValue? {
+        
+        if name == "AXCustomRotors" {
+            
+        }
         
         guard let elm else {
             return nil
@@ -56,6 +161,13 @@ public class UIElement {
         var value: AnyObject?
         AXUIElementCopyAttributeValue(elm, name as CFString, &value)
         
+        guard let value else {
+            return nil
+        }
+
+        return UIValue(value)
+
+        /*
         if let value = value {
             let type = CFGetTypeID(value)
             switch type {
@@ -84,6 +196,7 @@ public class UIElement {
         else {
             return nil
         }
+        */
     }
 
     /*

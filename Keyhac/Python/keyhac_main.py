@@ -1,9 +1,13 @@
+import sys
 import json
 import time
 import traceback
 
 import keyhac_core
 from keyhac_const import *
+
+# for Xcode console
+sys.stdout.reconfigure(encoding='utf-8')
 
 hook = keyhac_core.Hook()
 
@@ -779,13 +783,19 @@ class Keymap:
     # フォーカスがあるウインドウを明示的に更新する
     def _updateFocusWindow(self):
     
-        #focus = keyhac_core.getFocus()
-        #print("Focus:", focus)
-        
         elm = keyhac_core.UIElement.getSystemWideElement()
-        print(elm)
-        attr_names = elm.getAttributeNames()
-        print(attr_names)
+        elm = elm.getAttributeValue("AXFocusedUIElement")
+
+        while elm:
+            print(elm)
+            attr_names = elm.getAttributeNames()
+            for attr_name in attr_names:
+                attr_value = elm.getAttributeValue(attr_name)
+                print(f"  {attr_name}: {attr_value}")
+
+            print("-----")
+
+            elm = elm.getAttributeValue("AXParent")
 
         """
         new_focus_change_count = ckit.getFocusChangeCount()
