@@ -660,6 +660,10 @@ class Keymap:
 
         keymap_xcode["Fn-B"] = command_HelloXcode
 
+        # Test of multi-stroke key binding
+        keymap_xcode["Ctrl-X"] = self.defineMultiStrokeKeymap("Ctrl-X")
+        keymap_xcode["Ctrl-X"]["Ctrl-O"] = "Cmd-O"
+        
 
 
 
@@ -1103,6 +1107,45 @@ class Keymap:
             self.beginInput()
             self.setInput_Modifier( self.modifier | MODKEY_CTRL_L )
             self.endInput()
+
+    def setInput_FromString( self, s ):
+
+        s = s.upper()
+
+        vk = None
+        mod = 0
+        up = None
+
+        token_list = s.split("-")
+
+        for token in token_list[:-1]:
+
+            token = token.strip()
+
+            try:
+                mod |= KeyCondition.strToMod( token, force_LR=True )
+            except ValueError:
+                if token=="D":
+                    up = False
+                elif token=="U":
+                    up = True
+                else:
+                    raise ValueError
+
+        token = token_list[-1].strip()
+
+        vk = KeyCondition.strToVk(token)
+
+        self.setInput_Modifier(mod)
+
+        if up==True:
+            self.input_seq.append( ("keyUp", vk) )
+        elif up==False:
+            self.input_seq.append( ("keyDown", vk) )
+        else:
+            self.input_seq.append( ("keyDown", vk) )
+            self.input_seq.append( ("keyUp", vk) )
+
 
 
 def configure():
