@@ -599,7 +599,8 @@ class Keymap:
         self.current_map = {}                   # 現在フォーカスされているウインドウで有効なキーマップ
         self.vk_mod_map = {}                    # モディファイアキーの仮想キーコードとビットのテーブル
         self.vk_vk_map = {}                     # キーの置き換えテーブル
-        self.focus = None                       # 現在フォーカスされているUI要素
+        self.focus_path = None                  # 現在フォーカスされているUI要素を表す文字列
+        self.focus_elm = None                   # 現在フォーカスされているUI要素
         self.modifier = 0                       # 押されているモディファイアキーのビットの組み合わせ
         self.last_keydown = None                # 最後にKeyDownされた仮想キーコード
         self.oneshot_canceled = False           # ワンショットモディファイアをキャンセルするか
@@ -662,12 +663,6 @@ class Keymap:
         # Test of multi-stroke key binding
         keymap_xcode["Ctrl-X"] = self.defineMultiStrokeKeymap("Ctrl-X")
         keymap_xcode["Ctrl-X"]["Ctrl-O"] = "Cmd-O"
-        
-
-
-
-        # FIXME: フォーカス変更検出を実装するまでの暫定実装
-        self._updateKeymap(None)
 
     def enableKeyboardHook(self):
     
@@ -795,18 +790,14 @@ class Keymap:
                 self.input_seq.append( ("keyUp", vk_mod[0]) )
                 self.virtual_modifier &= ~vk_mod[1]
 
-    def _focusChanged( self, focus ):
-        self.focus = None
-        self._updateKeymap(focus)
-        self.focus = focus
-
-    # フォーカスがあるウインドウを明示的に更新する
-    def _updateFocusWindow(self):
+    def _checkFocusChange(self):
     
         focus_elms = []
 
         elm = keyhac_core.UIElement.getSystemWideElement()
         elm = elm.getAttributeValue("AXFocusedUIElement")
+
+        self.focus_elm = elm
 
         while elm:
             focus_elms.append(elm)
@@ -817,10 +808,11 @@ class Keymap:
         for elm in reversed(focus_elms):
             focus_path_components.append( "%s(%s)" % (elm.getAttributeValue("AXRole"), elm.getAttributeValue("AXTitle")) )
 
-        new_focus = ":::".join(focus_path_components)
-        if self.focus != new_focus:
-            print("Focus path:", new_focus)
-            self._focusChanged(new_focus)
+        new_focus_path = ":::".join(focus_path_components)
+        if self.focus_path != new_focus_path:
+            print("Focus path:", new_focus_path)
+            self.focus_path = new_focus_path
+            self._updateKeymap()
 
         """
         while elm:
@@ -893,7 +885,7 @@ class Keymap:
                 self.hook_call_list = []
                 return True
 
-        self._updateFocusWindow()
+        self._checkFocusChange()
 
         self._fixWierdModifierState()
 
@@ -948,7 +940,7 @@ class Keymap:
 
     def onKeyUp( self, vk ):
 
-        self._updateFocusWindow()
+        self._checkFocusChange()
 
         self._fixWierdModifierState()
 
@@ -1074,8 +1066,9 @@ class Keymap:
     def enterMultiStroke( self, keymap ):
 
         self.multi_stroke_keymap = keymap
-        self._updateKeymap(self.focus)
+        self._updateKeymap()
 
+        # FIXME : toast を使う
         #help_string = self.multi_stroke_keymap.helpString()
         #if help_string:
         #    self.popBalloon( "MultiStroke", help_string )
@@ -1084,11 +1077,11 @@ class Keymap:
 
         if self.multi_stroke_keymap:
             self.multi_stroke_keymap = None
-            self._updateKeymap(self.focus)
+            self._updateKeymap()
 
             #self.closeBalloon( "MultiStroke" )
 
-    def _updateKeymap( self, focus ):
+    def _updateKeymap(self):
 
         self.current_map = {}
 
@@ -1096,7 +1089,7 @@ class Keymap:
             self.current_map.update(self.multi_stroke_keymap.keymap)
         else:
             for window_keymap in self.window_keymap_list:
-                if window_keymap.check(focus):
+                if window_keymap.check(self.focus_path):
                     self.current_map.update(window_keymap.keymap)
 
 
@@ -1145,8 +1138,8 @@ class Keymap:
             self.input_seq.append( ("keyDown", vk) )
             self.input_seq.append( ("keyUp", vk) )
 
-    def getFocus(self):
-        return self.focus
+    def getFocusedUIElement(self):
+        return self.focus_elm
 
 def configure():
     Keymap.getInstance().enableKeyboardHook()
