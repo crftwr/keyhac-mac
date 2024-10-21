@@ -8,37 +8,6 @@
 import Foundation
 import CoreGraphics
 
-public enum EventType {
-    case undefined
-    case keyDown
-    case keyUp
-    case clipboardChanged
-}
-
-// 使ってない？
-public class EventBase {
-    var type : EventType = .undefined
-    
-    init(type: EventType) {
-        self.type = type
-    }
-}
-
-// 使ってない？
-public class EventKeyDown : EventBase {
-    var mod : Int = 0
-    var vk : Int = 0
-}
-
-public class EventClipboard : EventBase {
-    var s : String = ""
-}
-
-struct KeyInput : Codable {
-    var type: String
-    var keyCode: Int
-}
-
 public class Hook {
     
     var eventTap: CFMachPort?
