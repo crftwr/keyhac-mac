@@ -613,7 +613,6 @@ class Keymap:
         self.sanity_check_count = 0
         self.last_input_send_time = 0
 
-
     def configure(self):
 
         self._releaseModifierAll()
@@ -1146,7 +1145,8 @@ class Keymap:
             self.input_seq.append( ("keyDown", vk) )
             self.input_seq.append( ("keyUp", vk) )
 
-
+    def getFocus(self):
+        return self.focus
 
 def configure():
     Keymap.getInstance().enableKeyboardHook()
