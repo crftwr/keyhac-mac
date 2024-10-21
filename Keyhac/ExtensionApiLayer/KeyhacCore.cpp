@@ -29,6 +29,143 @@ struct UIElement_Object
     UIElement impl;
 };
 
+static UIElement_Object * _createPyUIElement(const UIElement & uiElement)
+{
+    UIElement_Object * pyUIElement = (UIElement_Object*)UIElement_Type.tp_alloc(&UIElement_Type, 0);
+    pyUIElement->impl = uiElement;
+    
+    return pyUIElement;
+}
+
+static PyObject * _convertUIValueToPyObject(const UIValue & value)
+{
+    PyObject * pyvalue = NULL;
+    
+    auto type = value.getType();
+    switch (type) {
+        case UIValueType::cases::bool_:
+            {
+                bool b = value.getValueBool();
+                if(b)
+                {
+                    pyvalue = Py_True;
+                }
+                else
+                {
+                    pyvalue = Py_False;
+                }
+                Py_INCREF(pyvalue);
+            }
+            break;
+                
+        case UIValueType::cases::number:
+            {
+                long i = value.getValueNumber();
+                pyvalue = PyLong_FromLong(i);
+            }
+                break;
+                
+        case UIValueType::cases::string:
+            {
+                std::string s = value.getValueString();
+                pyvalue = PyUnicode_DecodeUTF8( s.c_str(), s.length(), "replace");
+            }
+            break;
+
+        case UIValueType::cases::range:
+            {
+                auto range = value.getValueRange();
+                pyvalue = Py_BuildValue( "(ii)", range[0], range[1] );
+            }
+            break;
+                
+        case UIValueType::cases::point:
+            {
+                auto rect = value.getValueRect();
+                pyvalue = Py_BuildValue( "(ff)", rect[0], rect[1] );
+            }
+            break;
+                
+        case UIValueType::cases::size:
+            {
+                auto rect = value.getValueRect();
+                pyvalue = Py_BuildValue( "(ff)", rect[0], rect[1] );
+            }
+            break;
+                
+        case UIValueType::cases::rect:
+            {
+                auto rect = value.getValueRect();
+                pyvalue = Py_BuildValue( "(ffff)", rect[0], rect[1], rect[2], rect[3] );
+            }
+            break;
+                
+        case UIValueType::cases::uiElement:
+            {
+                UIElement uiElement = value.getValueUIElement();
+                pyvalue = (PyObject*)_createPyUIElement(uiElement);
+            }
+            break;
+                
+        case UIValueType::cases::array:
+            {
+                auto array = value.getValueArray();
+                
+                PyObject * pylist = PyList_New(0);
+                
+                for( swift::Int i=array.getStartIndex() ; i<array.getEndIndex() ; ++i )
+                {
+                    UIValue item = array[i];
+                    
+                    PyObject * pyitem = _convertUIValueToPyObject(item);
+                    PyList_Append( pylist, pyitem );
+                    Py_XDECREF(pyitem);
+                }
+                
+                pyvalue = pylist;
+            }
+            break;
+
+        case UIValueType::cases::dictionary:
+            {
+                auto keys = value.getValueDictionaryKeys();
+                
+                PyObject * pydict = PyDict_New();
+                
+                // iterate keys
+                for( swift::Int i=keys.getStartIndex() ; i<keys.getEndIndex() ; ++i )
+                {
+                    std::string dict_key = keys[i];
+                    auto dict_value = value.getValueDictionaryValue(dict_key.c_str());
+                    
+                    PyObject * pykey = PyUnicode_DecodeUTF8( dict_key.c_str(), dict_key.length(), "replace");
+                    PyObject * pyvalue = _convertUIValueToPyObject(dict_value.get());
+
+                    PyDict_SetItem(pydict, pykey, pyvalue);
+                    
+                    Py_XDECREF(pykey);
+                    Py_XDECREF(pyvalue);
+                }
+                
+                pyvalue = pydict;
+            }
+            break;
+
+        default:
+            break;
+    }
+    
+    if(pyvalue)
+    {
+        return pyvalue;
+    }
+    else
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+}
+
 static int UIElement_init(UIElement_Object * self, PyObject * args, PyObject * kwds)
 {
     if( ! PyArg_ParseTuple( args, "" ) )
@@ -63,13 +200,10 @@ static UIElement_Object * UIElement_getSystemWideElement( PyObject * self, PyObj
     if( ! PyArg_ParseTuple(args,"") )
         return NULL;
     
-    auto elm = UIElement::getSystemWideElement();
+    UIElement elm = UIElement::getSystemWideElement();
+    UIElement_Object * pyelm = _createPyUIElement(elm);
     
-    UIElement_Object * new_obj;
-    new_obj = (UIElement_Object*)UIElement_Type.tp_alloc(&UIElement_Type, 0);
-    new_obj->impl = elm;
-    
-    return new_obj;
+    return pyelm;
 }
 
 static PyObject * UIElement_getAttributeNames(UIElement_Object * self, PyObject * args)
@@ -90,94 +224,6 @@ static PyObject * UIElement_getAttributeNames(UIElement_Object * self, PyObject 
     }
     
     return pyattr_names;
-}
-
-static PyObject * _convertUIValueToPyObject(const UIValue & value)
-{
-    PyObject * pyvalue = NULL;
-    
-    auto type = value.getType();
-    switch (type) {
-    case UIValueType::cases::bool_:
-        {
-            bool b = value.getValueBool();
-            if(b)
-            {
-                pyvalue = Py_True;
-            }
-            else
-            {
-                pyvalue = Py_False;
-            }
-            Py_INCREF(pyvalue);
-        }
-        break;
-            
-    case UIValueType::cases::number:
-        {
-            long i = value.getValueNumber();
-            pyvalue = PyLong_FromLong(i);
-        }
-            break;
-            
-    case UIValueType::cases::string:
-        {
-            std::string s = value.getValueString();
-            pyvalue = PyUnicode_DecodeUTF8( s.c_str(), s.length(), "replace");
-        }
-        break;
-            
-    case UIValueType::cases::rect:
-        {
-            auto rect = value.getValueRect();
-            pyvalue = Py_BuildValue( "(ffff)", rect[0], rect[1], rect[2], rect[3] );
-        }
-        break;
-            
-    case UIValueType::cases::uiElement:
-        {
-            UIElement uiElement = value.getValueUIElement();
-            
-            UIElement_Object * pyUIElement;
-            pyUIElement = (UIElement_Object*)UIElement_Type.tp_alloc(&UIElement_Type, 0);
-            pyUIElement->impl = uiElement;
-            
-            pyvalue = (PyObject*)pyUIElement;
-        }
-        break;
-            
-    case UIValueType::cases::array:
-        {
-            auto array = value.getValueArray();
-            
-            PyObject * pylist = PyList_New(0);
-            
-            for( swift::Int i=array.getStartIndex() ; i<array.getEndIndex() ; ++i )
-            {
-                UIValue item = array[i];
-                
-                PyObject * pyitem = _convertUIValueToPyObject(item);
-                PyList_Append( pylist, pyitem );
-                Py_XDECREF(pyitem);
-            }
-            
-            pyvalue = pylist;
-        }
-        break;
-            
-    default:
-        break;
-    }
-    
-    if(pyvalue)
-    {
-        return pyvalue;
-    }
-    else
-    {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
 }
 
 static PyObject * UIElement_getAttributeValue(UIElement_Object * self, PyObject * args)

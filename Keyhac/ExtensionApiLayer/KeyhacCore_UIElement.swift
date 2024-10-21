@@ -20,6 +20,7 @@ public enum UIValueType {
     case size
     case rect
     case array
+    case dictionary
     case unknown
 }
 
@@ -64,7 +65,11 @@ public struct UIValue {
             }
         case CFArrayGetTypeID():
             return .array
+        case CFDictionaryGetTypeID():
+            return .dictionary
         default:
+            let unsupportedTypeDesc = CFCopyTypeIDDescription(type)
+            print("Unsupported type: \(unsupportedTypeDesc!)")
             return .unknown
         }
     }
@@ -89,6 +94,27 @@ public struct UIValue {
         return s
     }
     
+    public func getValueRange() -> [Int] {
+        var range: CFRange = CFRange.init(location:0, length:0)
+        guard let value else { return [0,0] }
+        AXValueGetValue(value as! AXValue, .cfRange, &range)
+        return [range.location, range.length]
+    }
+    
+    public func getValuePoint() -> [Float] {
+        var point: CGPoint = CGPoint.zero
+        guard let value else { return [0,0] }
+        AXValueGetValue(value as! AXValue, .cgPoint, &point)
+        return [Float(point.x), Float(point.y)]
+    }
+    
+    public func getValueSize() -> [Float] {
+        var size: CGSize = CGSize.zero
+        guard let value else { return [0,0] }
+        AXValueGetValue(value as! AXValue, .cgSize, &size)
+        return [Float(size.width), Float(size.height)]
+    }
+    
     public func getValueRect() -> [Float] {
         var rect: CGRect = CGRect.zero
         guard let value else { return [0,0,0,0] }
@@ -103,12 +129,21 @@ public struct UIValue {
     
     public func getValueArray() -> [UIValue] {
         guard let value else { return [] }
-        //return value as! [UIValue]
-        
         let array = value as! [AnyObject]
         return array.map { UIValue($0) }
     }
     
+    public func getValueDictionaryKeys() -> [String] {
+        guard let value else { return [] }
+        let dictionary = value as! [String: AnyObject]
+        return dictionary.keys.map(\.self)
+    }
+    
+    public func getValueDictionaryValue(key: String) -> UIValue? {
+        guard let value else { return nil }
+        let dictionary = value as! [String: AnyObject]
+        return UIValue( dictionary[key]! )
+    }
 }
 
 public class UIElement {
@@ -150,130 +185,26 @@ public class UIElement {
     
     public func getAttributeValue(name: String) -> UIValue? {
         
-        if name == "AXCustomRotors" {
-            
-        }
-        
         guard let elm else {
             return nil
         }
         
         var value: AnyObject?
-        AXUIElementCopyAttributeValue(elm, name as CFString, &value)
+        let result = AXUIElementCopyAttributeValue(elm, name as CFString, &value)
         
-        guard let value else {
+        switch result {
+        case .success, .noValue, .notImplemented, .attributeUnsupported:
+            guard let value else { return nil }
+            return UIValue(value)
+        default:
+            print("AXUIElementCopyAttributeValue failed: \(name) - \(result)")
             return nil
         }
-
-        return UIValue(value)
-
-        /*
-        if let value = value {
-            let type = CFGetTypeID(value)
-            switch type {
-            case AXUIElementGetTypeID():
-                return value as! AXUIElement
-            case AXValueGetTypeID():
-                let type = AXValueGetType(value as! AXValue)
-                switch type {
-                case .cgSize:
-                    var axvalue: CGSize = CGSize.zero
-                    AXValueGetValue(value as! AXValue, type, &axvalue)
-                    return axvalue
-                default:
-                    print("AXValueType: \(type)")
-                    return value
-                }
-            case CFBooleanGetTypeID():
-                return value as! Bool
-            case CFStringGetTypeID():
-                return value as! String
-            default:
-                print("CFTypeID: \(type)")
-                return value
-            }
-        }
-        else {
-            return nil
-        }
-        */
     }
 
-    /*
-    static func printDetails(elm: AXUIElement) {
-        
-        var result: AXError
-        
-        print("Elm: \(elm)")
-        
-        var names: CFArray?
-        result = AXUIElementCopyAttributeNames(elm, &names)
-        if result != .success {
-            print("  AXUIElementCopyAttributeNames failed: \(result)")
-            return
-        }
-        if result == .success {
-            let names = names! as [AnyObject] as! [String]
-            
-            for name in names {
-                let value = getAttributeValue(elm:elm, name:name)
-                if let value = value {
-                    print("  Attr \(name): \(value)")
-                }
-                else {
-                    print("  Attr \(name): nil")
-                }
-            }
-        }
-    }
-    */
-    
     func getParent() -> AXUIElement? {
         let parent = getAttributeValue(name: "AXParent") as! AXUIElement?
         return parent
     }
-
-    /*
-    public func getFocusedChild() -> AXUIElement? {
-        
-        let role = getAttributeValue(elm: self.elm, name: "AXRole") as! String
-        switch role {
-        case "AXSystemWide":
-            return getAttributeValue(elm: self.elm, name: "AXFocusedApplication") as! AXUIElement?
-        case "AXApplication":
-            return getAttributeValue(elm: self.elm, name: "AXFocusedWindow") as! AXUIElement?
-        default:
-            return nil
-        }
-    }
-    */
-    
-    /*
-    public static func getFocus() -> String {
-        
-        var elm: AXUIElement? = AXUIElementCreateSystemWide()
-            
-        /*
-        // from top to bottom
-        while elm != nil {
-            printDetails(elm: elm!)
-            print("------------")
-            
-            elm = getFocusedChild(elm: elm!)
-        }
-        */
-        
-        // from bottom to top
-        elm = getAttributeValue(elm: elm!, name: "AXFocusedUIElement") as! AXUIElement?
-        while elm != nil {
-            printDetails(elm: elm!)
-            print("------------")
-
-            elm = getParent(elm: elm!)
-        }
-        
-        return "Hello"
-    }
-    */
 }
 
