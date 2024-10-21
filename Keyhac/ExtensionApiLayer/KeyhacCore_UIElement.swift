@@ -147,7 +147,7 @@ public struct UIValue {
 }
 
 public class UIElement {
-        
+    
     var elm: AXUIElement?
     
     public init() {
@@ -162,7 +162,7 @@ public class UIElement {
     deinit {
         //print("UIElement.deinit()")
     }
-
+    
     public static func getSystemWideElement() -> UIElement {
         let elm: AXUIElement = AXUIElementCreateSystemWide()
         return UIElement(elm)
@@ -179,7 +179,7 @@ public class UIElement {
         if result != .success {
             return []
         }
-
+        
         return names! as [AnyObject] as! [String]
     }
     
@@ -199,6 +199,51 @@ public class UIElement {
         default:
             print("AXUIElementCopyAttributeValue failed: \(name) - \(result)")
             return nil
+        }
+    }
+
+    public func getActionNames() -> [String] {
+        
+        guard let elm else {
+            return []
+        }
+        
+        var names: CFArray?
+        let result = AXUIElementCopyActionNames(elm, &names)
+        if result != .success {
+            return []
+        }
+        
+        return names! as [AnyObject] as! [String]
+    }
+    
+    public func getActionDescription(action: String) -> String! {
+        
+        guard let elm else {
+            return nil
+        }
+        
+        var description: CFString?
+        let result = AXUIElementCopyActionDescription(elm, action as CFString, &description)
+        if result != .success {
+            return nil
+        }
+        
+        return description as? String
+    }
+    
+    public func performAction(action: String) {
+        guard let elm else {
+            return
+        }
+        
+        let result = AXUIElementPerformAction(elm, action as CFString)
+        switch result {
+        case .success:
+            return
+        default:
+            print("AXUIElementPerformAction failed: \(action) - \(result)")
+            return
         }
     }
 }
