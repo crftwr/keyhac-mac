@@ -1,10 +1,12 @@
 import sys
+import os
 import json
 import time
 import fnmatch
 import traceback
 
 import keyhac_core
+import keyhac_config
 from keyhac_const import *
 
 # for Xcode console
@@ -636,33 +638,12 @@ class Keymap:
         self.vk_mod_map[VK_RCOMMAND ] = MODKEY_CMD_R
         self.vk_mod_map[VK_FUNCTION ] = MODKEY_FN_L
 
-        # ------
-
-        # Replacing Right-Shift key with BackSpace
-        self.replaceKey( "RShift", "Back" )
-
-        # Global keymap which affects any windows
-        keymap_global = self.defineWindowKeymap()
-
-        # Fn-A : Sample of assigning callable object to key
-        def command_HelloWorld():
-            print("Hello World!")
-
-        keymap_global["Fn-A"] = command_HelloWorld
-
-
-        # Keymap for Xcode
-        keymap_xcode = self.defineWindowKeymap( re_pattern=r"AXApplication(Xcode):::*" )
-
-        # Fn-A : Sample of assigning callable object to key
-        def command_HelloXcode():
-            print("Hello Xcode!")
-
-        keymap_xcode["Fn-B"] = command_HelloXcode
-
-        # Test of multi-stroke key binding
-        keymap_xcode["Ctrl-X"] = self.defineMultiStrokeKeymap("Ctrl-X")
-        keymap_xcode["Ctrl-X"]["Ctrl-O"] = "Cmd-O"
+        # Load configuration file
+        self.config = keyhac_config.Config(
+            os.path.expanduser("~/.keyhac/config.py"),
+            os.path.join(os.path.dirname(__file__), "_config.py")
+        )
+        self.config.call("configure", self)
 
     def enableKeyboardHook(self):
     
@@ -677,8 +658,6 @@ class Keymap:
 
     def disableKeyboardHook(self):
         hook.setCallback("Keyboard", None)
-
-
 
     def replaceKey( self, src, dst ):
         try:
