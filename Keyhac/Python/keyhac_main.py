@@ -531,15 +531,15 @@ class KeyCondition:
 
 class WindowKeymap:
 
-    def __init__( self, pattern=None, check_func=None, help_string=None ):
-        self.pattern = pattern
+    def __init__( self, focus_path_pattern=None, check_func=None, help_string=None ):
+        self.focus_path_pattern = focus_path_pattern
         self.check_func = check_func
         self.help_string = help_string
         self.keymap = {}
 
-    def check( self, focus ):
+    def check( self, focus_path ):
 
-        if self.pattern and ( not focus or not fnmatch.fnmatch( focus, self.pattern ) ) : return False
+        if self.focus_path_pattern and ( not focus_path or not fnmatch.fnmatch( focus_path, self.focus_path_pattern ) ) : return False
         
         try:
             if self.check_func and ( not focus or not self.check_func(focus) ) : return False
@@ -721,8 +721,8 @@ class Keymap:
         self.sendInput(input_seq)
 
 
-    def defineWindowKeymap( self, re_pattern=None, check_func=None ):
-        window_keymap = WindowKeymap( re_pattern, check_func )
+    def defineWindowKeymap( self, focus_path_pattern=None, check_func=None ):
+        window_keymap = WindowKeymap( focus_path_pattern, check_func )
         self.window_keymap_list.append(window_keymap)
         return window_keymap
 

@@ -15,7 +15,7 @@ def configure(keymap):
 
 
     # Keymap for Xcode
-    keymap_xcode = keymap.defineWindowKeymap( re_pattern=r"AXApplication(Xcode):::*" )
+    keymap_xcode = keymap.defineWindowKeymap( focus_path_pattern=r"AXApplication(Xcode):::*" )
 
     # Fn-A : Sample of assigning callable object to key
     def command_HelloXcode():
