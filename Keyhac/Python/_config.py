@@ -14,6 +14,28 @@ def configure(keymap):
     keymap_global["Fn-A"] = command_HelloWorld
 
 
+    # Fn-M : Zoom window (Test of UIElement.performAction)
+    def command_ZoomWindow():
+
+        elm = keymap.getFocusedUIElement()
+
+        while elm:
+            role = elm.getAttributeValue("AXRole")
+            if role=="AXWindow":
+                break
+            elm = elm.getAttributeValue("AXParent")
+
+        if elm:
+            names = elm.getAttributeNames()
+            if "AXZoomButton" in names:
+                elm = elm.getAttributeValue("AXZoomButton")
+                actions = elm.getActionNames()
+                print(actions)
+                elm.performAction("AXPress")
+
+    keymap_global["Fn-M"] = command_ZoomWindow
+
+
     # Keymap for Xcode
     keymap_xcode = keymap.defineWindowKeymap( focus_path_pattern=r"AXApplication(Xcode):::*" )
 
@@ -26,3 +48,5 @@ def configure(keymap):
     # Test of multi-stroke key binding
     keymap_xcode["Ctrl-X"] = keymap.defineMultiStrokeKeymap("Ctrl-X")
     keymap_xcode["Ctrl-X"]["Ctrl-O"] = "Cmd-O"
+
+    print("configuration finished.")

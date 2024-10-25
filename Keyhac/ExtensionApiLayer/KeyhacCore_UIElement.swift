@@ -242,6 +242,7 @@ public class UIElement {
         case .success:
             return
         default:
+            // FIXME: print human readable error message, consider raising Python exception
             print("AXUIElementPerformAction failed: \(action) - \(result)")
             return
         }

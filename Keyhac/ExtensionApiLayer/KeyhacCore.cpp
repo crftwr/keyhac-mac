@@ -256,10 +256,50 @@ static PyObject * UIElement_getAttributeValue(UIElement_Object * self, PyObject 
     }
 }
 
+static PyObject * UIElement_getActionNames(UIElement_Object * self, PyObject * args)
+{
+    if( ! PyArg_ParseTuple(args,"") )
+        return NULL;
+    
+    PyObject * pyaction_names = PyList_New(0);
+
+    auto action_names = self->impl.getActionNames();
+    for( swift::Int i=action_names.getStartIndex() ; i<action_names.getEndIndex() ; ++i )
+    {
+        std::string action_name = action_names[i];
+
+        PyObject * pyitem = Py_BuildValue( "s", action_name.c_str() );
+        PyList_Append( pyaction_names, pyitem );
+        Py_XDECREF(pyitem);
+    }
+    
+    return pyaction_names;
+}
+
+static PyObject * UIElement_performAction(UIElement_Object * self, PyObject * args)
+{
+    PyObject * pyaction;
+    if( ! PyArg_ParseTuple(args, "U", &pyaction ) )
+    {
+        return NULL;
+    }
+    
+    const char * action = PyUnicode_AsUTF8AndSize(pyaction, NULL);
+    
+    self->impl.performAction(action);
+    
+    // FIXME: handle error
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMethodDef UIElement_methods[] = {
     { "getSystemWideElement", (PyCFunction)UIElement_getSystemWideElement, METH_STATIC|METH_VARARGS, "" },
     { "getAttributeNames", (PyCFunction)UIElement_getAttributeNames, METH_VARARGS, "" },
     { "getAttributeValue", (PyCFunction)UIElement_getAttributeValue, METH_VARARGS, "" },
+    { "getActionNames", (PyCFunction)UIElement_getActionNames, METH_VARARGS, "" },
+    { "performAction", (PyCFunction)UIElement_performAction, METH_VARARGS, "" },
     {NULL,NULL}
 };
 
