@@ -37,7 +37,10 @@ def configure(keymap):
 
 
     # Keymap for Xcode
-    keymap_xcode = keymap.defineWindowKeymap( focus_path_pattern=r"AXApplication(Xcode):::*" )
+    keymap_xcode = keymap.defineWindowKeymap( focus_path_pattern=r"AXApplication(Xcode):::*:::AXTextArea(None)" )
+
+    # Fn-L : Select whole line
+    keymap_xcode["Fn-L"] = "Cmd-Left", "Cmd-Left", "Shift-Cmd-Right"
 
     # Fn-A : Sample of assigning callable object to key
     def command_HelloXcode():
