@@ -185,16 +185,6 @@ static void UIElement_dealloc(UIElement_Object * self)
     ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * UIElement_getattr(UIElement_Object * self, PyObject * pyattrname)
-{
-    return PyObject_GenericGetAttr((PyObject*)self, pyattrname);
-}
-
-static int UIElement_setattr(UIElement_Object * self, PyObject * pyattrname, PyObject * pyvalue)
-{
-    return PyObject_GenericSetAttr((PyObject*)self, pyattrname,pyvalue);
-}
-
 static UIElement_Object * UIElement_getSystemWideElement( PyObject * self, PyObject * args )
 {
     if( ! PyArg_ParseTuple(args,"") )
@@ -320,8 +310,8 @@ PyTypeObject UIElement_Type = {
     0,                      /* tp_hash */
     0,                      /* tp_call */
     0,                      /* tp_str */
-    (getattrofunc)UIElement_getattr, /* tp_getattro */
-    (setattrofunc)UIElement_setattr, /* tp_setattro */
+    0,                      /* tp_getattro */
+    0,                      /* tp_setattro */
     0,                      /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,   /* tp_flags */
     "",                     /* tp_doc */
@@ -351,50 +341,8 @@ PyTypeObject UIElement_Type = {
 struct Hook_Object
 {
     PyObject_HEAD
-    Hook impl;
+    //Hook impl;
 };
-
-static int Hook_init(Hook_Object * self, PyObject * args, PyObject * kwds)
-{
-    if( ! PyArg_ParseTuple( args, "" ) )
-    {
-        return -1;
-    }
-    
-    self->impl = Hook::init();
-
-    return 0;
-}
-
-static void Hook_dealloc(Hook_Object * self)
-{
-    self->impl.~Hook();
-    
-    ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
-}
-
-static PyObject * Hook_getattr(Hook_Object * self, PyObject * pyattrname)
-{
-    return PyObject_GenericGetAttr((PyObject*)self, pyattrname);
-}
-
-static int Hook_setattr(Hook_Object * self, PyObject * pyattrname, PyObject * pyvalue)
-{
-    return PyObject_GenericSetAttr((PyObject*)self, pyattrname,pyvalue);
-}
-
-static PyObject * Hook_destroy(Hook_Object * self, PyObject* args)
-{
-    if( ! PyArg_ParseTuple(args, "" ) )
-    {
-        return NULL;
-    }
-    
-    self->impl.destroy();
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
 
 static PyObject * Hook_setCallback(Hook_Object * self, PyObject* args)
 {
@@ -411,12 +359,12 @@ static PyObject * Hook_setCallback(Hook_Object * self, PyObject* args)
     if(pycallback!=Py_None)
     {
         auto callback = swift::Optional<PyObjectPtr>::some(PyObjectPtr(pycallback));
-        self->impl.setCallback(name, callback);
+        Hook::getInstance().setCallback(name, callback);
     }
     else
     {
         auto callback = swift::Optional<PyObjectPtr>::none();
-        self->impl.setCallback(name, callback);
+        Hook::getInstance().setCallback(name, callback);
     }
 
     Py_INCREF(Py_None);
@@ -434,16 +382,15 @@ static PyObject * Hook_sendKeyboardEvent(Hook_Object * self, PyObject* args)
     
     const char * type = PyUnicode_AsUTF8AndSize(pytype, NULL);
     
-    self->impl.sendKeyboardEvent(type, keyCode);
+    Hook::getInstance().sendKeyboardEvent(type, keyCode);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
 static PyMethodDef Hook_methods[] = {
-    { "destroy", (PyCFunction)Hook_destroy, METH_VARARGS, "" },
-    { "setCallback", (PyCFunction)Hook_setCallback, METH_VARARGS, "" },
-    { "sendKeyboardEvent", (PyCFunction)Hook_sendKeyboardEvent, METH_VARARGS, "" },
+    { "setCallback", (PyCFunction)Hook_setCallback, METH_STATIC|METH_VARARGS, "" },
+    { "sendKeyboardEvent", (PyCFunction)Hook_sendKeyboardEvent, METH_STATIC|METH_VARARGS, "" },
     {NULL,NULL}
 };
 
@@ -452,7 +399,7 @@ PyTypeObject Hook_Type = {
     "Hook",                 /* tp_name */
     sizeof(Hook_Type),      /* tp_basicsize */
     0,                      /* tp_itemsize */
-    (destructor)Hook_dealloc,/* tp_dealloc */
+    0,                      /* tp_dealloc */
     0,                      /* tp_print */
     0,                      /* tp_getattr */
     0,                      /* tp_setattr */
@@ -464,8 +411,8 @@ PyTypeObject Hook_Type = {
     0,                      /* tp_hash */
     0,                      /* tp_call */
     0,                      /* tp_str */
-    (getattrofunc)Hook_getattr, /* tp_getattro */
-    (setattrofunc)Hook_setattr, /* tp_setattro */
+    0,                      /* tp_getattro */
+    0,                      /* tp_setattro */
     0,                      /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,   /* tp_flags */
     "",                     /* tp_doc */
@@ -483,7 +430,7 @@ PyTypeObject Hook_Type = {
     0,                      /* tp_descr_get */
     0,                      /* tp_descr_set */
     0,                      /* tp_dictoffset */
-    (initproc)Hook_init,    /* tp_init */
+    0,                      /* tp_init */
     0,                      /* tp_alloc */
     PyType_GenericNew,      /* tp_new */
     0,                      /* tp_free */
@@ -497,21 +444,6 @@ struct Console_Object
     PyObject_HEAD
 };
 
-static int Console_init(Console_Object * self, PyObject * args, PyObject * kwds)
-{
-    if( ! PyArg_ParseTuple( args, "" ) )
-    {
-        return -1;
-    }
-    
-    return 0;
-}
-
-static void Console_dealloc(Console_Object * self)
-{
-    ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
-}
-
 static PyObject * Console_write(Console_Object * self, PyObject* args)
 {
     PyObject * pys;
@@ -522,7 +454,7 @@ static PyObject * Console_write(Console_Object * self, PyObject* args)
     
     const char * s = PyUnicode_AsUTF8AndSize(pys, NULL);
     
-    Keyhac::Console::write(s);
+    Keyhac::Console::getInstance().write(s);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -538,7 +470,7 @@ PyTypeObject Console_Type = {
     "Console",              /* tp_name */
     sizeof(Console_Type),   /* tp_basicsize */
     0,                      /* tp_itemsize */
-    (destructor)Console_dealloc,/* tp_dealloc */
+    0,                      /* tp_dealloc */
     0,                      /* tp_print */
     0,                      /* tp_getattr */
     0,                      /* tp_setattr */
@@ -569,7 +501,7 @@ PyTypeObject Console_Type = {
     0,                      /* tp_descr_get */
     0,                      /* tp_descr_set */
     0,                      /* tp_dictoffset */
-    (initproc)Console_init, /* tp_init */
+    0,                      /* tp_init */
     0,                      /* tp_alloc */
     PyType_GenericNew,      /* tp_new */
     0,                      /* tp_free */

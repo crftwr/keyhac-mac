@@ -9,9 +9,12 @@ import Foundation
 
 public class Console {
     
-    static var writeCallback: ((String) -> Void)?
+    private static let instance = Console()
+    public static func getInstance() -> Console { return instance }
+
+    var writeCallback: ((String) -> Void)?
     
-    public static func write(s: String) {
+    public func write(s: String) {
         if let callback = writeCallback {
             callback(s)
         }

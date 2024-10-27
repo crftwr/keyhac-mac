@@ -9,7 +9,8 @@ import Foundation
 
 class KeyhacSystem {
     
-    static let instance = KeyhacSystem()
+    private static let instance = KeyhacSystem()
+    static func getInstance() -> KeyhacSystem { return instance }
     
     func start() -> Bool {
         

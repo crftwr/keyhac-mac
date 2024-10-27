@@ -9,7 +9,10 @@ import Foundation
 import CoreGraphics
 
 public class Hook {
-    
+
+    private static let instance = Hook()
+    public static func getInstance() -> Hook { return instance }
+
     var eventTap: CFMachPort?
     var runLoopSource: CFRunLoopSource?
     var eventSource: CGEventSource?
@@ -17,18 +20,19 @@ public class Hook {
     var modifier: CGEventFlags = CGEventFlags()
     
     public init() {
-        print("Hook.init()")
+        installKeyboardHook()
     }
     
     deinit {
-        print("Hook.deinit()")
+        unintallKeyboardHook()
     }
     
     public func destroy() {
-        print("Hook.destroy()")
+        unintallKeyboardHook()
     }
     
     var keyboardCallback = PyObjectPtr()
+
     
     public func setCallback(name: String, callback: PyObjectPtr?){
         
@@ -51,11 +55,22 @@ public class Hook {
     }
 
     public func setKeyboardCallback(callback: PyObjectPtr) {
-        print("Hook.setKeyboardCallback()")
-
         self.keyboardCallback = callback
         self.keyboardCallback.IncRef()
+    }
+    
+    public func unsetKeyboardCallback() {
+        self.keyboardCallback.DecRef()
+        self.keyboardCallback = PyObjectPtr()
+    }
 
+    public func installKeyboardHook() {
+        
+        if self.eventSource != nil {
+            print("Keyboard hook is already installed.")
+            return
+        }
+        
         let eventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue) | (1 << CGEventType.flagsChanged.rawValue)
         
         func _callback(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent, refcon: UnsafeMutableRawPointer?) -> Unmanaged<CGEvent>? {
@@ -90,7 +105,12 @@ public class Hook {
         self.eventSource = CGEventSource(stateID: CGEventSourceStateID.privateState)
     }
     
-    public func unsetKeyboardCallback() {
+    public func unintallKeyboardHook() {
+        
+        if self.eventSource == nil {
+            print("Keyboard hook is not installed.")
+            return
+        }
         
         if let eventTap = self.eventTap {
             CGEvent.tapEnable(tap: eventTap, enable: false)
@@ -103,11 +123,8 @@ public class Hook {
         self.eventSource = nil
         self.runLoopSource = nil
         self.eventTap = nil
-
-        self.keyboardCallback.DecRef()
-        self.keyboardCallback = PyObjectPtr()
     }
-
+    
     func keyboardCallbackSwift(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         
         foo: do {
@@ -137,22 +154,25 @@ public class Hook {
             let injected_by_self = event.getIntegerValueField(.eventSourceStateID) == eventSource!.sourceStateID.rawValue
             
             if !injected_by_self {
-                let json = """
-                {"type": "\(typeString)", "keyCode": \(keyCode)}
-                """
+                
+                if self.keyboardCallback.ptr() != nil {
+                    let json = """
+                    {"type": "\(typeString)", "keyCode": \(keyCode)}
+                    """
 
-                var arg = PythonBridge.buildPythonString(json)
-                var pyresult = PythonBridge.invokeCallable(self.keyboardCallback, arg)
-                
-                defer {
-                    arg.DecRef()
-                    pyresult.DecRef()
-                }
-                
-                if pyresult.ptr() != nil && PythonBridge.parsePythonInt(pyresult) != 0 {
-                    // Python側で処理済みなのでイベントを捨てる
-                    event.type = .null
-                    break foo
+                    var arg = PythonBridge.buildPythonString(json)
+                    var pyresult = PythonBridge.invokeCallable(self.keyboardCallback, arg)
+                    
+                    defer {
+                        arg.DecRef()
+                        pyresult.DecRef()
+                    }
+                    
+                    if pyresult.ptr() != nil && PythonBridge.parsePythonInt(pyresult) != 0 {
+                        // Python側で処理済みなのでイベントを捨てる
+                        event.type = .null
+                        break foo
+                    }
                 }
             }
 

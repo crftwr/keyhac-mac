@@ -15,8 +15,6 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 keyhac_console.StandardIo.installRedirection()
 
-hook = keyhac_core.Hook()
-
 def checkModifier( mod1, mod2 ):
 
     _mod1 = mod1 & 0xff
@@ -657,10 +655,10 @@ class Keymap:
             elif d["type"]=="keyUp":
                 return self.onKeyUp(d["keyCode"])
 
-        hook.setCallback("Keyboard", _onKey)
+        keyhac_core.Hook.setCallback("Keyboard", _onKey)
 
     def disableKeyboardHook(self):
-        hook.setCallback("Keyboard", None)
+        keyhac_core.Hook.setCallback("Keyboard", None)
 
     def replaceKey( self, src, dst ):
         try:
@@ -712,7 +710,7 @@ class Keymap:
 
     def sendInput(self, seq):
         for event in seq:
-            hook.sendKeyboardEvent(event[0], event[1])
+            keyhac_core.Hook.sendKeyboardEvent(event[0], event[1])
         self.last_input_send_time = time.time()
 
     def _releaseModifierAll(self):
@@ -817,7 +815,7 @@ class Keymap:
                     
                     self.modifier &= ~vk_mod[1]
                     
-                    #keyhac_hook.hook.fixWierdModifierState()
+                    #keyhac_core.Hook.fixWierdModifierState()
     
                     #if self.debug:
                     if 0:

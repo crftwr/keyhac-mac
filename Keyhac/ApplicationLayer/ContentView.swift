@@ -43,15 +43,15 @@ struct ContentView: View {
             .toggleStyle(SwitchToggleStyle(tint: .blue))
             .onChange(of: isKeyboardHookEnabled) { oldValue, newValue in
                 if newValue {
-                    let result = KeyhacSystem.instance.start()
+                    let result = KeyhacSystem.getInstance().start()
                     if !result {
                         // keyboard hook instalaltion failed, so reverting toggle status
                         isKeyboardHookEnabled = false
                     }
-                    KeyhacSystem.instance.configure()
+                    KeyhacSystem.getInstance().configure()
                 }
                 else {
-                    let result = KeyhacSystem.instance.stop()
+                    let result = KeyhacSystem.getInstance().stop()
                     if !result {
                         // keyboard hook uninstalaltion failed, so reverting toggle status
                         isKeyboardHookEnabled = true
