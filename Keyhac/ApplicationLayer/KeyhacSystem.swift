@@ -12,40 +12,32 @@ class KeyhacSystem {
     private static let instance = KeyhacSystem()
     static func getInstance() -> KeyhacSystem { return instance }
     
-    func start() -> Bool {
-        
-        if PythonBridge.getInstance() != nil {
-            print("KeyhacSystem is already running.")
-            return true;
-        }
-        
-        initializePython()
-
-        return true
+    init() {
+        initializePythonSystem()
+        bootstrapPythonLayer()
     }
     
-    func stop() -> Bool {
-
-        if PythonBridge.getInstance() == nil {
-            print("KeyhacSystem is not running.")
-            return true;
-        }
-        
-        terminatePython()
-
-        return true
+    deinit {
+        finalizePythonSystem()
     }
-
-    func initializePython() {
+    
+    func initializePythonSystem() {
         PythonBridge.create(keyhacCoreModuleName, keyhacCoreModuleInit)
     }
     
-    func terminatePython() {
+    func finalizePythonSystem() {
         PythonBridge.destroy()
     }
     
-    func configure(){
-        
+    func initializeKeyboardHook() {
+        Hook.getInstance().installKeyboardHook()
+    }
+
+    func finalizeKeyboardHook() {
+        Hook.getInstance().uninstallKeyboardHook()
+    }
+    
+    func bootstrapPythonLayer(){
         let bundleResourcePath = Bundle.main.resourceURL!.path
         
         let code = """
@@ -55,6 +47,17 @@ class KeyhacSystem {
         if bundle_resource_path not in sys.path:
             sys.path.insert(0, bundle_resource_path)
         
+        import keyhac_main
+        keyhac_main.configure()
+        """
+        
+        if let pythonBridge = PythonBridge.getInstance() {
+            pythonBridge.runString(code)
+        }
+    }
+
+    func reconfigurePythonLayer(){
+        let code = """
         import keyhac_main
         keyhac_main.configure()
         """

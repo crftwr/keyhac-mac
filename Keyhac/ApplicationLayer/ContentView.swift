@@ -43,19 +43,11 @@ struct ContentView: View {
             .toggleStyle(SwitchToggleStyle(tint: .blue))
             .onChange(of: isKeyboardHookEnabled) { oldValue, newValue in
                 if newValue {
-                    let result = KeyhacSystem.getInstance().start()
-                    if !result {
-                        // keyboard hook instalaltion failed, so reverting toggle status
-                        isKeyboardHookEnabled = false
-                    }
-                    KeyhacSystem.getInstance().configure()
+                    KeyhacSystem.getInstance().initializeKeyboardHook()
+                    KeyhacSystem.getInstance().reconfigurePythonLayer()
                 }
                 else {
-                    let result = KeyhacSystem.getInstance().stop()
-                    if !result {
-                        // keyboard hook uninstalaltion failed, so reverting toggle status
-                        isKeyboardHookEnabled = true
-                    }
+                    KeyhacSystem.getInstance().finalizeKeyboardHook()
                 }
             }
         }

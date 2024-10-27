@@ -624,9 +624,12 @@ class Keymap:
         KeyCondition.initTables()
 
         self.window_keymap_list = []
+        self.multi_stroke_keymap = None
         self.current_map = {}
         self.vk_mod_map = {}
         self.vk_vk_map = {}
+        self.focus_path = None
+        self.focus_elm = None
         self.modifier = 0
 
         self.vk_mod_map[VK_LSHIFT   ] = MODKEY_SHIFT_L
@@ -716,7 +719,7 @@ class Keymap:
     def _releaseModifierAll(self):
         input_seq = []
         for vk_mod in self.vk_mod_map.items():
-            if vk_mod[1] & Modifier.MODKEY_USER_ALL:
+            if vk_mod[1] & MODKEY_USER_ALL:
                 continue
             input_seq.append( ("keyUp", vk_mod[0]) )
         self.sendInput(input_seq)

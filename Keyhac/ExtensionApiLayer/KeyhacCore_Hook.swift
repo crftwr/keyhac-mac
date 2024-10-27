@@ -18,21 +18,7 @@ public class Hook {
     var eventSource: CGEventSource?
     
     var modifier: CGEventFlags = CGEventFlags()
-    
-    public init() {
-        installKeyboardHook()
-    }
-    
-    deinit {
-        unintallKeyboardHook()
-    }
-    
-    public func destroy() {
-        unintallKeyboardHook()
-    }
-    
     var keyboardCallback = PyObjectPtr()
-
     
     public func setCallback(name: String, callback: PyObjectPtr?){
         
@@ -105,7 +91,7 @@ public class Hook {
         self.eventSource = CGEventSource(stateID: CGEventSourceStateID.privateState)
     }
     
-    public func unintallKeyboardHook() {
+    public func uninstallKeyboardHook() {
         
         if self.eventSource == nil {
             print("Keyboard hook is not installed.")
