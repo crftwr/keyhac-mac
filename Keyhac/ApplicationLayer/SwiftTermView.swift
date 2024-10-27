@@ -147,13 +147,13 @@ class SwiftTermViewController: NSViewController, LocalProcessTerminalViewDelegat
         terminal.addGestureRecognizer(zoomGesture!)
         SwiftTermViewController.lastTerminal = terminal
         terminal.processDelegate = self
-        terminal.feed(text: "Welcome to SwiftTerm")
+        //terminal.feed(text: "Welcome to SwiftTerm")
 
-        let shell = getShell()
-        let shellIdiom = "-" + NSString(string: shell).lastPathComponent
+        //let shell = getShell()
+        //let shellIdiom = "-" + NSString(string: shell).lastPathComponent
         
-        FileManager.default.changeCurrentDirectoryPath (FileManager.default.homeDirectoryForCurrentUser.path)
-        terminal.startProcess (executable: shell, execName: shellIdiom)
+        //FileManager.default.changeCurrentDirectoryPath (FileManager.default.homeDirectoryForCurrentUser.path)
+        //terminal.startProcess (executable: shell, execName: shellIdiom)
         view.addSubview(terminal)
         logging = NSUserDefaultsController.shared.defaults.bool(forKey: "LogHostOutput")
         updateLogging ()

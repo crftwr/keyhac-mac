@@ -12,6 +12,7 @@ struct ContentView: View {
     @State private var isKeyboardHookEnabled: Bool = false
     
     let termViewKey = UUID().uuidString
+    let termViewController = SwiftTermViewController()
     
     var body: some View {
         VStack {
@@ -19,23 +20,11 @@ struct ContentView: View {
             HStack {
 
                 Button("Run ls command"){
-
-                    let view = SwiftTermView.lookup(termViewKey)
-                    if let view = view {
-                        if let term = view as? SwiftTermView {
-                            term.viewController.testRunShellCommand(cmd: "ls -al")
-                        }
-                    }
+                    termViewController.testRunShellCommand(cmd: "ls -al")
                 }
 
                 Button("Print Hello"){
-
-                    let view = SwiftTermView.lookup(termViewKey)
-                    if let view = view {
-                        if let term = view as? SwiftTermView {
-                            term.viewController.testPrint(line: "Hello World!\r\n")
-                        }
-                    }
+                    termViewController.testPrint(line: "Hello World!\r\n")
                 }
 
                 Button("Quit"){
@@ -44,21 +33,14 @@ struct ContentView: View {
 
             }
             
-            SwiftTermView( viewController: SwiftTermViewController() )
+            SwiftTermView( viewController: termViewController )
                 .lookupKey(termViewKey)
                 .frame(width: 400, height: 400, alignment: .center)
-                /*
                 .onAppear() {
                     Console.writeCallback = { s in
-                        let view = SwiftTermView.lookup(termViewKey)
-                        if let view = view {
-                            if let term = view as? SwiftTermView {
-                                term.viewController.terminal.feed(text: s)
-                            }
-                        }
+                        termViewController.terminal.feed(text: s)
                     }
                 }
-                */
 
             Toggle(isOn: $isKeyboardHookEnabled) {
                 Text("Enable keyboard hook")
