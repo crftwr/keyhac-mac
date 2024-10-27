@@ -11,8 +11,55 @@ struct ContentView: View {
     
     @State private var isKeyboardHookEnabled: Bool = false
     
+    let termViewKey = UUID().uuidString
+    
     var body: some View {
         VStack {
+            
+            HStack {
+
+                Button("Run ls command"){
+
+                    let view = SwiftTermView.lookup(termViewKey)
+                    if let view = view {
+                        if let term = view as? SwiftTermView {
+                            term.viewController.testRunShellCommand(cmd: "ls -al")
+                        }
+                    }
+                }
+
+                Button("Print Hello"){
+
+                    let view = SwiftTermView.lookup(termViewKey)
+                    if let view = view {
+                        if let term = view as? SwiftTermView {
+                            term.viewController.testPrint(line: "Hello World!\r\n")
+                        }
+                    }
+                }
+
+                Button("Quit"){
+                    NSApplication.shared.terminate(nil)
+                }
+
+            }
+            
+            SwiftTermView( viewController: SwiftTermViewController() )
+                .lookupKey(termViewKey)
+                .frame(width: 400, height: 400, alignment: .center)
+                /*
+                .onAppear() {
+                    Console.writeCallback = { s in
+                        let view = SwiftTermView.lookup(termViewKey)
+                        if let view = view {
+                            if let term = view as? SwiftTermView {
+                                term.viewController.terminal.feed(text: s)
+                            }
+                        }
+                    }
+                }
+                */
+
             Toggle(isOn: $isKeyboardHookEnabled) {
                 Text("Enable keyboard hook")
             }
@@ -34,19 +81,8 @@ struct ContentView: View {
                     }
                 }
             }
-            
-            Divider()
-            
-            Button("Test"){
-            }
-
-            Divider()
-            
-            Button("Quit"){
-                NSApplication.shared.terminate(nil)
-            }
         }
-        .padding()
+        .padding(.all, 10)
     }
 }
 

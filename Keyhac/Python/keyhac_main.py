@@ -790,6 +790,7 @@ class Keymap:
         new_focus_path = ":::".join(focus_path_components)
         if self.focus_path != new_focus_path:
             print("Focus path:", new_focus_path)
+            keyhac_core.Console.write(new_focus_path + "\r\n")
             self.focus_path = new_focus_path
             self._updateKeymap()
 

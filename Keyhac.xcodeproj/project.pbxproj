@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		FE5C48152CB351A00046C3DC /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = FE5C48142CB351A00046C3DC /* Python */; };
 		FE5C48162CB351A00046C3DC /* Python in Embed Libraries */ = {isa = PBXBuildFile; fileRef = FE5C48142CB351A00046C3DC /* Python */; };
+		FE9A43BC2CCE0883008FA157 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = FE9A43BB2CCE0883008FA157 /* SwiftTerm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -43,6 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE9A43BC2CCE0883008FA157 /* SwiftTerm in Frameworks */,
 				FE5C48152CB351A00046C3DC /* Python in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -96,6 +98,7 @@
 			);
 			name = Keyhac;
 			packageProductDependencies = (
+				FE9A43BB2CCE0883008FA157 /* SwiftTerm */,
 			);
 			productName = Keyhac;
 			productReference = FEBAF4FF2CB33AD000200C1F /* Keyhac.app */;
@@ -126,6 +129,9 @@
 			);
 			mainGroup = FEBAF4F62CB33AD000200C1F;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				FE9A43BA2CCE0883008FA157 /* XCLocalSwiftPackageReference "../SwiftTerm" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FEBAF5002CB33AD000200C1F /* Products */;
 			projectDirPath = "";
@@ -372,6 +378,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		FE9A43BA2CCE0883008FA157 /* XCLocalSwiftPackageReference "../SwiftTerm" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../SwiftTerm;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FE9A43BB2CCE0883008FA157 /* SwiftTerm */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SwiftTerm;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FEBAF4F72CB33AD000200C1F /* Project object */;
 }
