@@ -12,15 +12,6 @@ class KeyhacSystem {
     private static let instance = KeyhacSystem()
     static func getInstance() -> KeyhacSystem { return instance }
     
-    init() {
-        initializePythonSystem()
-        bootstrapPythonLayer()
-    }
-    
-    deinit {
-        finalizePythonSystem()
-    }
-    
     func initializePythonSystem() {
         PythonBridge.create(keyhacCoreModuleName, keyhacCoreModuleInit)
     }
@@ -29,12 +20,16 @@ class KeyhacSystem {
         PythonBridge.destroy()
     }
     
-    func initializeKeyboardHook() {
+    func installKeyboardHook() {
         Hook.getInstance().installKeyboardHook()
     }
 
-    func finalizeKeyboardHook() {
+    func uninstallKeyboardHook() {
         Hook.getInstance().uninstallKeyboardHook()
+    }
+    
+    func isKeyboardHookInstalled() -> Bool {
+        return Hook.getInstance().isKeyboardHookInstalled()
     }
     
     func bootstrapPythonLayer(){

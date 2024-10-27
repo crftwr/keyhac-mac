@@ -9,45 +9,40 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @State private var isKeyboardHookEnabled: Bool = false
+    @State private var isKeyboardHookEnabled: Bool = KeyhacSystem().isKeyboardHookInstalled()
     
     let termViewKey = UUID().uuidString
     let termViewController = SwiftTermViewController()
-    
+
     var body: some View {
         VStack {
             
             HStack {
-
-                Button("Run ls command"){
-                    termViewController.testRunShellCommand(cmd: "ls -al")
+                Toggle(isOn: $isKeyboardHookEnabled ) {
+                    Text("Keyboard Hook")
                 }
-
-                Button("Print Hello"){
-                    termViewController.testPrint(line: "Hello World!\r\n")
+                .toggleStyle(SwitchToggleStyle(tint: .blue))
+                .onChange(of: isKeyboardHookEnabled) { oldValue, newValue in
+                    if newValue {
+                        KeyhacSystem.getInstance().installKeyboardHook()
+                        KeyhacSystem.getInstance().reconfigurePythonLayer()
+                    }
+                    else {
+                        KeyhacSystem.getInstance().uninstallKeyboardHook()
+                    }
                 }
-
-                Button("Quit"){
-                    NSApplication.shared.terminate(nil)
-                }
-
             }
             
             SwiftTermView( viewController: termViewController )
                 .lookupKey(termViewKey)
                 .frame(width: 400, height: 400, alignment: .center)
 
-            Toggle(isOn: $isKeyboardHookEnabled) {
-                Text("Enable keyboard hook")
-            }
-            .toggleStyle(SwitchToggleStyle(tint: .blue))
-            .onChange(of: isKeyboardHookEnabled) { oldValue, newValue in
-                if newValue {
-                    KeyhacSystem.getInstance().initializeKeyboardHook()
-                    KeyhacSystem.getInstance().reconfigurePythonLayer()
+            HStack {
+                Button("Edit config.py"){
                 }
-                else {
-                    KeyhacSystem.getInstance().finalizeKeyboardHook()
+
+                Button("Quit"){
+                    NSApplication.shared.terminate(nil)
                 }
             }
         }

@@ -9,7 +9,14 @@ import SwiftUI
 
 @main
 struct KeyhacApp: App {
-    var body: some Scene {        
+    
+    init() {
+        KeyhacSystem.getInstance().initializePythonSystem()
+        KeyhacSystem.getInstance().bootstrapPythonLayer()
+        KeyhacSystem.getInstance().installKeyboardHook()
+    }
+    
+    var body: some Scene {
         MenuBarExtra("Keyhac", systemImage: "hammer") {
             ContentView()
         }.menuBarExtraStyle(.window)
