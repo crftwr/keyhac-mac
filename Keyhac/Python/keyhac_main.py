@@ -7,10 +7,13 @@ import traceback
 
 import keyhac_core
 import keyhac_config
+import keyhac_console
 from keyhac_const import *
 
 # for Xcode console
 sys.stdout.reconfigure(encoding='utf-8')
+
+keyhac_console.StandardIo.installRedirection()
 
 hook = keyhac_core.Hook()
 
@@ -790,39 +793,8 @@ class Keymap:
         new_focus_path = ":::".join(focus_path_components)
         if self.focus_path != new_focus_path:
             print("Focus path:", new_focus_path)
-            keyhac_core.Console.write(new_focus_path + "\r\n")
             self.focus_path = new_focus_path
             self._updateKeymap()
-
-        """
-        while elm:
-            print(elm)
-            attr_names = elm.getAttributeNames()
-            for attr_name in attr_names:
-                attr_value = elm.getAttributeValue(attr_name)
-                print(f"  {attr_name}: {attr_value}")
-
-            print("-----")
-
-            elm = elm.getAttributeValue("AXParent")
-        """
-
-        """
-        new_focus_change_count = ckit.getFocusChangeCount()
-        if self.focus_change_count == new_focus_change_count:
-            return
-
-        self.focus_change_count = new_focus_change_count
-
-        try:
-            systemwide = accessibility.create_systemwide_ref()
-            focused_app = systemwide["AXFocusedApplication"]
-            focus = focused_app["AXFocusedUIElement"]
-        except Exception as e:
-            focus = None
-
-        self._focusChanged(focus)
-        """
 
     # モディファイアのおかしな状態を修正する
     # たとえば Win-L を押して ロック画面に行ったときに Winキーが押されっぱなしになってしまうような現象を回避

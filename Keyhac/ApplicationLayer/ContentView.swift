@@ -38,7 +38,8 @@ struct ContentView: View {
                 .frame(width: 400, height: 400, alignment: .center)
                 .onAppear() {
                     Console.writeCallback = { s in
-                        termViewController.terminal.feed(text: s)
+                        let s2 = s.replacingOccurrences(of: "\n", with: "\r\n")
+                        termViewController.terminal.feed(text: s2)
                     }
                 }
 
