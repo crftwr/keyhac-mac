@@ -36,12 +36,6 @@ struct ContentView: View {
             SwiftTermView( viewController: termViewController )
                 .lookupKey(termViewKey)
                 .frame(width: 400, height: 400, alignment: .center)
-                .onAppear() {
-                    Console.writeCallback = { s in
-                        let s2 = s.replacingOccurrences(of: "\n", with: "\r\n")
-                        termViewController.terminal.feed(text: s2)
-                    }
-                }
 
             Toggle(isOn: $isKeyboardHookEnabled) {
                 Text("Enable keyboard hook")

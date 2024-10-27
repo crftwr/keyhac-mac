@@ -105,26 +105,6 @@ class SwiftTermViewController: NSViewController, LocalProcessTerminalViewDelegat
         NSUserDefaultsController.shared.defaults.set (logging, forKey: "LogHostOutput")
     }
     
-    // Returns the shell associated with the current account
-    func getShell () -> String
-    {
-        let bufsize = sysconf(_SC_GETPW_R_SIZE_MAX)
-        guard bufsize != -1 else {
-            return "/bin/bash"
-        }
-        let buffer = UnsafeMutablePointer<Int8>.allocate(capacity: bufsize)
-        defer {
-            buffer.deallocate()
-        }
-        var pwd = passwd()
-        var result: UnsafeMutablePointer<passwd>? = UnsafeMutablePointer<passwd>.allocate(capacity: 1)
-        
-        if getpwuid_r(getuid(), &pwd, buffer, bufsize, &result) != 0 {
-            return "/bin/bash"
-        }
-        return String (cString: pwd.pw_shell)
-    }
-    
     func testPrint( line: String ) {
         if let terminal = terminal {
             terminal.feed(text: line)
@@ -147,16 +127,15 @@ class SwiftTermViewController: NSViewController, LocalProcessTerminalViewDelegat
         terminal.addGestureRecognizer(zoomGesture!)
         SwiftTermViewController.lastTerminal = terminal
         terminal.processDelegate = self
-        //terminal.feed(text: "Welcome to SwiftTerm")
 
-        //let shell = getShell()
-        //let shellIdiom = "-" + NSString(string: shell).lastPathComponent
-        
-        //FileManager.default.changeCurrentDirectoryPath (FileManager.default.homeDirectoryForCurrentUser.path)
-        //terminal.startProcess (executable: shell, execName: shellIdiom)
         view.addSubview(terminal)
         logging = NSUserDefaultsController.shared.defaults.bool(forKey: "LogHostOutput")
         updateLogging ()
+
+        Console.writeCallback = { s in
+            let s2 = s.replacingOccurrences(of: "\n", with: "\r\n")
+            self.terminal.feed(text: s2)
+        }
         
         #if DEBUG_MOUSE_FOCUS
         var t = NSTextField(frame: NSRect (x: 0, y: 100, width: 200, height: 30))
