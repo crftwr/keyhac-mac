@@ -36,7 +36,7 @@ class SwiftTermViewController: NSViewController, LocalProcessTerminalViewDelegat
     var zoomGesture: NSMagnificationGestureRecognizer?
     var postedTitle: String = ""
     var postedDirectory: String? = nil
-
+    
     func sizeChanged(source: LocalProcessTerminalView, newCols: Int, newRows: Int) {
         if changingSize {
             return
@@ -91,8 +91,6 @@ class SwiftTermViewController: NSViewController, LocalProcessTerminalViewDelegat
     }
     var terminal: LocalProcessTerminalView!
 
-    static weak var lastTerminal: LocalProcessTerminalView!
-    
     func getBufferAsData () -> Data
     {
         return terminal.getTerminal().getBufferAsData ()
@@ -118,6 +116,7 @@ class SwiftTermViewController: NSViewController, LocalProcessTerminalViewDelegat
     }
     
     override func viewDidLoad() {
+        
         super.viewDidLoad()
 
         terminal = LocalProcessTerminalView(frame: view.frame)
@@ -125,25 +124,20 @@ class SwiftTermViewController: NSViewController, LocalProcessTerminalViewDelegat
         
         zoomGesture = NSMagnificationGestureRecognizer(target: self, action: #selector(zoomGestureHandler))
         terminal.addGestureRecognizer(zoomGesture!)
-        SwiftTermViewController.lastTerminal = terminal
         terminal.processDelegate = self
 
         view.addSubview(terminal)
         logging = NSUserDefaultsController.shared.defaults.bool(forKey: "LogHostOutput")
         updateLogging ()
 
+        // Set console write callback
         Console.getInstance().writeCallback = { s in
             let s2 = s.replacingOccurrences(of: "\n", with: "\r\n")
             self.terminal.feed(text: s2)
         }
         
-        #if DEBUG_MOUSE_FOCUS
-        var t = NSTextField(frame: NSRect (x: 0, y: 100, width: 200, height: 30))
-        t.backgroundColor = NSColor.white
-        t.stringValue = "Hello - here to test focus switching"
-        
-        view.addSubview(t)
-        #endif
+        // Flush Console buffer
+        Console.getInstance().write(s: "")
     }
     
     override func viewWillDisappear() {

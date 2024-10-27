@@ -51,5 +51,3 @@ def configure(keymap):
     # Test of multi-stroke key binding
     keymap_xcode["Ctrl-X"] = keymap.defineMultiStrokeKeymap("Ctrl-X")
     keymap_xcode["Ctrl-X"]["Ctrl-O"] = "Cmd-O"
-
-    print("configuration finished.")

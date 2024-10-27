@@ -616,6 +616,8 @@ class Keymap:
         self.sanity_check_state = None
         self.sanity_check_count = 0
         self.last_input_send_time = 0
+        
+        print("Welcome to Keyhac")
 
     def configure(self):
 
@@ -648,6 +650,8 @@ class Keymap:
             os.path.join(os.path.dirname(__file__), "_config.py")
         )
         self.config.call("configure", self)
+        
+        print("Keymap configuration succeeded.")
 
     def enableKeyboardHook(self):
     

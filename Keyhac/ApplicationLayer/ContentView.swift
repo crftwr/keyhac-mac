@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @State private var isKeyboardHookEnabled: Bool = KeyhacSystem().isKeyboardHookInstalled()
+    @State private var isKeyboardHookEnabled: Bool = KeyhacSystem.getInstance().isKeyboardHookInstalled()
     
     let termViewKey = UUID().uuidString
     let termViewController = SwiftTermViewController()
@@ -25,10 +25,13 @@ struct ContentView: View {
                 .onChange(of: isKeyboardHookEnabled) { oldValue, newValue in
                     if newValue {
                         KeyhacSystem.getInstance().installKeyboardHook()
+                        Console.getInstance().write(s: "Installed keyboard hook\n")
+
                         KeyhacSystem.getInstance().reconfigurePythonLayer()
                     }
                     else {
                         KeyhacSystem.getInstance().uninstallKeyboardHook()
+                        Console.getInstance().write(s: "Uninstalled keyboard hook\n")
                     }
                 }
             }

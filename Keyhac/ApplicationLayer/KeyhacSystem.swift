@@ -11,7 +11,7 @@ class KeyhacSystem {
     
     private static let instance = KeyhacSystem()
     static func getInstance() -> KeyhacSystem { return instance }
-    
+
     func initializePythonSystem() {
         PythonBridge.create(keyhacCoreModuleName, keyhacCoreModuleInit)
     }
