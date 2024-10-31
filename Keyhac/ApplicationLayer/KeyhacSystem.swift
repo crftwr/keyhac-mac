@@ -37,10 +37,19 @@ class KeyhacSystem {
         
         let code = """
         import sys
+        import os
         
         bundle_resource_path = "\(bundleResourcePath)"
+
         if bundle_resource_path not in sys.path:
             sys.path.insert(0, bundle_resource_path)
+
+        #sys.path = [
+        #    bundle_resource_path,
+        #    os.path.join(bundle_resource_path, "lib/python3.12"),
+        #    os.path.join(bundle_resource_path, "lib/python3.12/lib-dynload"),
+        #    os.path.join(bundle_resource_path, "lib/python3.12/site-packages"),
+        #]
         
         import keyhac_main
         keyhac_main.configure()
