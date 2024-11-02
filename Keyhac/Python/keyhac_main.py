@@ -7,65 +7,14 @@ import traceback
 import keyhac_core
 import keyhac_config
 import keyhac_console
-from keyhac_key import KeyCondition
+from keyhac_key import KeyCondition, KeyTable
+from keyhac_focus import FocusCondition
 from keyhac_const import *
 
 # for Xcode console
 sys.stdout.reconfigure(encoding='utf-8')
 
 keyhac_console.StandardIo.installRedirection()
-
-class WindowKeymap:
-
-    def __init__( self, focus_path_pattern=None, check_func=None, help_string=None ):
-        self._focus_path_pattern = focus_path_pattern
-        self.check_func = check_func
-        self.help_string = help_string
-        self.keymap = {}
-
-    def check( self, focus_path ):
-
-        if self._focus_path_pattern and ( not focus_path or not fnmatch.fnmatch( focus_path, self._focus_path_pattern ) ) : return False
-        
-        try:
-            if self.check_func and ( not self._focus_elm or not self.check_func(self._focus_elm) ) : return False
-        except Exception as e:
-            print(e)
-            traceback.print_exc()
-            return False
-        return True
-
-    def helpString(self):
-        return self.help_string
-
-    def __setitem__( self, name, value ):
-
-        try:
-            key_cond = KeyCondition.fromString(name)
-        except ValueError:
-            print( "ERROR : Invalid key expression :", name )
-            return
-
-        self.keymap[key_cond] = value
-
-    def __getitem__( self, name ):
-
-        try:
-            key_cond = KeyCondition.fromString(name)
-        except ValueError:
-            print( "ERROR : Invalid key expression :", name )
-            return
-
-        return self.keymap[key_cond]
-
-    def __delitem__( self, name ):
-        try:
-            key_cond = KeyCondition.fromString(name)
-        except ValueError:
-            print( "ERROR : Invalid key expression :", name )
-            return
-
-        del self.keymap[key_cond]
 
 class Keymap:
     
@@ -82,8 +31,8 @@ class Keymap:
         self._debug = False                     # デバッグモード
         self._send_input_on_tru = False         # キーの置き換えが不要だった場合もsentInputするか
 
-        self._window_keymap_list = []            # WindowKeymapオブジェクトのリスト
-        self._multi_stroke_keymap = None         # マルチストローク用のWindowKeymapオブジェクト
+        self._focus_cond_keymap_list = []        # (FocusCondition, KeyTable) のリスト
+        self._multi_stroke_keymap = None         # マルチストローク用の KeyTable
         self._current_map = {}                   # 現在フォーカスされているウインドウで有効なキーマップ
         self._vk_mod_map = {}                    # モディファイアキーの仮想キーコードとビットのテーブル
         self._vk_vk_map = {}                     # キーの置き換えテーブル
@@ -107,7 +56,7 @@ class Keymap:
 
         KeyCondition.initTables()
 
-        self._window_keymap_list = []
+        self._focus_cond_keymap_list = []
         self._multi_stroke_keymap = None
         self._current_map = {}
         self._vk_mod_map = {}
@@ -135,7 +84,7 @@ class Keymap:
         
         print("Keymap configuration succeeded.")
 
-    def replaceKey( self, src, dst ):
+    def replace_key( self, src, dst ):
         try:
             if type(src)==str:
                 src = KeyCondition.strToVk(src)
@@ -152,7 +101,7 @@ class Keymap:
 
         self._vk_vk_map[src] = dst
 
-    def defineModifier( self, vk, mod ):
+    def define_modifier( self, vk, mod ):
 
         try:
             vk_org = vk
@@ -180,6 +129,7 @@ class Keymap:
 
         self._vk_mod_map[vk] = mod
 
+    # FIXME: naming convention
     def sendInput(self, seq):
         for event in seq:
             keyhac_core.Hook.sendKeyboardEvent(event[0], event[1])
@@ -192,25 +142,24 @@ class Keymap:
             input_seq.append( ("keyUp", vk_mod[0]) )
         self.sendInput(input_seq)
 
-    def defineWindowKeymap( self, focus_path_pattern=None, check_func=None ):
-        window_keymap = WindowKeymap( focus_path_pattern, check_func )
-        self._window_keymap_list.append(window_keymap)
-        return window_keymap
+    def define_keytable( self, name=None, focus_path_pattern=None, custom_condition_func=None ):
+        keytable = KeyTable(name=name)
+        focus_condition = FocusCondition( focus_path_pattern, custom_condition_func )
+        self._focus_cond_keymap_list.append( (focus_condition, keytable) )
+        return keytable
 
-    ## マルチストローク用のキーマップを定義する
-    def defineMultiStrokeKeymap( self, help_string=None ):
-        keymap = WindowKeymap( help_string=help_string )
-        return keymap
-
+    # FIXME: naming convention
     def beginInput(self):
         self._input_seq = []
         self._virtual_modifier = self._modifier
 
+    # FIXME: naming convention
     def endInput(self):
         self.setInput_Modifier(self._modifier)
         self.sendInput(self._input_seq)
         self._input_seq = []
 
+    # FIXME: naming convention
     def setInput_Modifier( self, mod ):
 
         # モディファイア押す
@@ -227,6 +176,7 @@ class Keymap:
                 self._input_seq.append( ("keyUp", vk_mod[0]) )
                 self._virtual_modifier &= ~vk_mod[1]
 
+    # FIXME: naming convention
     def setInput_FromString( self, s ):
 
         s = s.upper()
@@ -468,7 +418,7 @@ class Keymap:
         if callable(handler):
             handler()
 
-        elif isinstance(handler,WindowKeymap):
+        elif isinstance(handler, KeyTable):
             self._enterMultiStroke(handler)
 
         else:
@@ -511,11 +461,11 @@ class Keymap:
         self._current_map = {}
 
         if self._multi_stroke_keymap:
-            self._current_map.update(self._multi_stroke_keymap.keymap)
+            self._current_map.update(self._multi_stroke_keymap.table)
         else:
-            for window_keymap in self._window_keymap_list:
-                if window_keymap.check(self._focus_path):
-                    self._current_map.update(window_keymap.keymap)
+            for focus_condition, keytable in self._focus_cond_keymap_list:
+                if focus_condition.check(self._focus_path, self._focus_elm):
+                    self._current_map.update(keytable.table)
 
     @property
     def focus(self):

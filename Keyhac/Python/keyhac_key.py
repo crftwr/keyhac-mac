@@ -515,3 +515,36 @@ class KeyCondition:
         return True
 
 
+class KeyTable:
+
+    def __init__(self, name=None):
+        self.name = name
+        self.table = {}
+
+    def __setitem__( self, key, value ):
+        try:
+            key = KeyCondition.fromString(key)
+        except ValueError:
+            print( "ERROR : Invalid key expression :", key )
+            return
+
+        self.table[key] = value
+
+    def __getitem__( self, key ):
+        try:
+            key = KeyCondition.fromString(key)
+        except ValueError:
+            print( "ERROR : Invalid key expression :", key )
+            return
+
+        return self.table[key]
+
+    def __delitem__( self, key ):
+        try:
+            key = KeyCondition.fromString(key)
+        except ValueError:
+            print( "ERROR : Invalid key expression :", key )
+            return
+
+        del self.table[key]
+
