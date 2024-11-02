@@ -38,7 +38,7 @@ def configure(keymap):
 
 
     # Keymap for Xcode
-    keymap_xcode = keymap.defineWindowKeymap( focus_path_pattern=r"/AXApplication[Xcode]/*/AXTextArea[]" )
+    keymap_xcode = keymap.defineWindowKeymap( focus_path_pattern=r"/AXApplication(Xcode)/*/AXTextArea()" )
 
     # Fn-L : Select whole line
     keymap_xcode["Fn-L"] = "Cmd-Left", "Cmd-Left", "Shift-Cmd-Right"

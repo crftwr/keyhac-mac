@@ -795,10 +795,12 @@ class Keymap:
         special_chars_trans_table = str.maketrans({
             "(":  r"<",
             ")":  r">",
+            "/":  r"-",
+            "*":  r"-",
+            "?":  r"-",
             "[":  r"<",
             "]":  r">",
             ":":  r"-",
-            "/":  r"-",
             "\n": r" ",
             "\t": r" ",
         })
