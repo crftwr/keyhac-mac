@@ -60,6 +60,7 @@ copytree( f"python{python_version}",
     ignore_patterns=(
         "__pycache__",
         "site-packages",
+        "config-3.12-darwin",
         "test",
     )
 )
