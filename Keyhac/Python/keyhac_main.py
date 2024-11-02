@@ -790,12 +790,30 @@ class Keymap:
             focus_elms.append(elm)
             elm = elm.getAttributeValue("AXParent")
 
-        focus_path_components = []
+        focus_path_components = [""]
+
+        special_chars_trans_table = str.maketrans({
+            "[":  r"(",
+            "]":  r")",
+            ":":  r"-",
+            "/":  r"-",
+            "\n": r" ",
+            "\t": r" ",
+        })
 
         for elm in reversed(focus_elms):
-            focus_path_components.append( "%s(%s)" % (elm.getAttributeValue("AXRole"), elm.getAttributeValue("AXTitle")) )
 
-        new_focus_path = ":::".join(focus_path_components)
+            role = elm.getAttributeValue("AXRole")
+            if role is None: role = ""
+            role = role.translate(special_chars_trans_table)
+
+            title = elm.getAttributeValue("AXTitle")
+            if title is None: title = ""
+            title = title.translate(special_chars_trans_table)
+
+            focus_path_components.append( f"{role}[{title}]" )
+
+        new_focus_path = "/".join(focus_path_components)
         if self.focus_path != new_focus_path:
             print("Focus path:", new_focus_path)
             self.focus_path = new_focus_path
