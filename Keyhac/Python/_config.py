@@ -1,22 +1,22 @@
 import sys
+import keyhac
 
 def configure(keymap):
 
     # Replacing Right-Shift key with BackSpace
-    keymap.replaceKey( "RShift", "Back" )
+    keymap.replace_key( "RShift", "Back" )
 
     # Global keymap which affects any windows
-    keymap_global = keymap.defineWindowKeymap()
+    keytable_global = keymap.define_keytable()
 
     # Fn-A : Sample of assigning callable object to key
-    def command_HelloWorld():
+    def hello_world():
         print("Hello World!")
 
-    keymap_global["Fn-A"] = command_HelloWorld
-
+    keytable_global["Fn-A"] = hello_world
 
     # Fn-M : Zoom window (Test of UIElement.performAction)
-    def command_ZoomWindow():
+    def zoom_window():
 
         elm = keymap.focus
 
@@ -30,25 +30,26 @@ def configure(keymap):
             names = elm.getAttributeNames()
             if "AXZoomButton" in names:
                 elm = elm.getAttributeValue("AXZoomButton")
-                actions = elm.getActionNames()
-                print(actions)
-                elm.performAction("AXPress")
+                if elm:
+                    actions = elm.getActionNames()
+                    print(actions)
+                    elm.performAction("AXPress")
 
-    keymap_global["Fn-M"] = command_ZoomWindow
+    keytable_global["Fn-M"] = zoom_window
 
 
     # Keymap for Xcode
-    keymap_xcode = keymap.defineWindowKeymap( focus_path_pattern=r"/AXApplication(Xcode)/*/AXTextArea()" )
+    keytable_xcode = keymap.define_keytable( focus_path_pattern="/AXApplication(Xcode)/*/AXTextArea()" )
 
     # Fn-L : Select whole line
-    keymap_xcode["Fn-L"] = "Cmd-Left", "Cmd-Left", "Shift-Cmd-Right"
+    keytable_xcode["Fn-L"] = "Cmd-Left", "Cmd-Left", "Shift-Cmd-Right"
 
     # Fn-A : Sample of assigning callable object to key
-    def command_HelloXcode():
+    def hello_xcode():
         print("Hello Xcode!")
 
-    keymap_xcode["Fn-B"] = command_HelloXcode
+    keytable_xcode["Fn-B"] = hello_xcode
 
     # Test of multi-stroke key binding
-    keymap_xcode["Ctrl-X"] = keymap.defineMultiStrokeKeymap("Ctrl-X")
-    keymap_xcode["Ctrl-X"]["Ctrl-O"] = "Cmd-O"
+    keytable_xcode["Ctrl-X"] = keymap.define_keytable(name="Ctrl-X")
+    keytable_xcode["Ctrl-X"]["Ctrl-O"] = "Cmd-O"
