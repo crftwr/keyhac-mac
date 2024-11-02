@@ -616,6 +616,8 @@ class Keymap:
         self.sanity_check_state = None
         self.sanity_check_count = 0
         self.last_input_send_time = 0
+
+        keyhac_core.Hook.setCallback("Keyboard", self._onKey)
         
         print("Welcome to Keyhac")
 
@@ -652,17 +654,6 @@ class Keymap:
         self.config.call("configure", self)
         
         print("Keymap configuration succeeded.")
-
-    def enableKeyboardHook(self):
-    
-        def _onKey(s):
-            d = json.loads(s)
-            if d["type"]=="keyDown":
-                return self._onKeyDown(d["keyCode"])
-            elif d["type"]=="keyUp":
-                return self._onKeyUp(d["keyCode"])
-
-        keyhac_core.Hook.setCallback("Keyboard", _onKey)
 
     def replaceKey( self, src, dst ):
         try:
@@ -883,6 +874,12 @@ class Keymap:
                         print( "FIX :", KeyCondition.vkToStr(vk_mod[0]) )
                         print( "" )
 
+    def _onKey(self, s):
+        d = json.loads(s)
+        if d["type"]=="keyDown":
+            return self._onKeyDown(d["keyCode"])
+        elif d["type"]=="keyUp":
+            return self._onKeyUp(d["keyCode"])
 
     def _onKeyDown( self, vk ):
 
@@ -1115,5 +1112,4 @@ class Keymap:
         return self.focus_elm
 
 def configure():
-    Keymap.getInstance().enableKeyboardHook()
     Keymap.getInstance().configure()
