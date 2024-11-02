@@ -658,14 +658,11 @@ class Keymap:
         def _onKey(s):
             d = json.loads(s)
             if d["type"]=="keyDown":
-                return self.onKeyDown(d["keyCode"])
+                return self._onKeyDown(d["keyCode"])
             elif d["type"]=="keyUp":
-                return self.onKeyUp(d["keyCode"])
+                return self._onKeyUp(d["keyCode"])
 
         keyhac_core.Hook.setCallback("Keyboard", _onKey)
-
-    def disableKeyboardHook(self):
-        keyhac_core.Hook.setCallback("Keyboard", None)
 
     def replaceKey( self, src, dst ):
         try:
@@ -683,8 +680,6 @@ class Keymap:
             return
 
         self.vk_vk_map[src] = dst
-
-
 
     def defineModifier( self, vk, mod ):
 
@@ -714,7 +709,6 @@ class Keymap:
 
         self.vk_mod_map[vk] = mod
 
-
     def sendInput(self, seq):
         for event in seq:
             keyhac_core.Hook.sendKeyboardEvent(event[0], event[1])
@@ -727,7 +721,6 @@ class Keymap:
                 continue
             input_seq.append( ("keyUp", vk_mod[0]) )
         self.sendInput(input_seq)
-
 
     def defineWindowKeymap( self, focus_path_pattern=None, check_func=None ):
         window_keymap = WindowKeymap( focus_path_pattern, check_func )
@@ -776,6 +769,44 @@ class Keymap:
             if ( vk_mod[1] & self.virtual_modifier ) and not ( vk_mod[1] & mod ):
                 self.input_seq.append( ("keyUp", vk_mod[0]) )
                 self.virtual_modifier &= ~vk_mod[1]
+
+    def setInput_FromString( self, s ):
+
+        s = s.upper()
+
+        vk = None
+        mod = 0
+        up = None
+
+        token_list = s.split("-")
+
+        for token in token_list[:-1]:
+
+            token = token.strip()
+
+            try:
+                mod |= KeyCondition.strToMod( token, force_LR=True )
+            except ValueError:
+                if token=="D":
+                    up = False
+                elif token=="U":
+                    up = True
+                else:
+                    raise ValueError
+
+        token = token_list[-1].strip()
+
+        vk = KeyCondition.strToVk(token)
+
+        self.setInput_Modifier(mod)
+
+        if up==True:
+            self.input_seq.append( ("keyUp", vk) )
+        elif up==False:
+            self.input_seq.append( ("keyDown", vk) )
+        else:
+            self.input_seq.append( ("keyDown", vk) )
+            self.input_seq.append( ("keyUp", vk) )
 
     def _checkFocusChange(self):
     
@@ -853,7 +884,7 @@ class Keymap:
                         print( "" )
 
 
-    def onKeyDown( self, vk ):
+    def _onKeyDown( self, vk ):
 
         #if ckit.platform()=="win":
         if False:
@@ -913,11 +944,11 @@ class Keymap:
                     return False
 
         except Exception as e:
-            print( "ERROR : Unexpected error happened :", "onKeyDown" )
+            print( "ERROR : Unexpected error happened :" )
             print( e )
             traceback.print_exc()
 
-    def onKeyUp( self, vk ):
+    def _onKeyUp( self, vk ):
 
         self._checkFocusChange()
 
@@ -982,7 +1013,7 @@ class Keymap:
                     self._keyAction(key)
 
         except Exception as e:
-            print( "ERROR : Unexpected error happened :", "onKeyUp" )
+            print( "ERROR : Unexpected error happened :" )
             print( e )
             traceback.print_exc()
 
@@ -1011,7 +1042,7 @@ class Keymap:
                     return False
         finally:
             if not key.up and not key.oneshot and not key.vk in self.vk_mod_map:
-                self.leaveMultiStroke()
+                self._leaveMultiStroke()
 
         if callable(handler):
 
@@ -1023,7 +1054,7 @@ class Keymap:
 
             self._cancelOneshotWinAlt()
 
-            self.enterMultiStroke(handler)
+            self._enterMultiStroke(handler)
 
         else:
             if type(handler)!=list and type(handler)!=tuple:
@@ -1042,7 +1073,7 @@ class Keymap:
 
         return True
 
-    def enterMultiStroke( self, keymap ):
+    def _enterMultiStroke( self, keymap ):
 
         self.multi_stroke_keymap = keymap
         self._updateKeymap()
@@ -1052,7 +1083,7 @@ class Keymap:
         #if help_string:
         #    self.popBalloon( "MultiStroke", help_string )
 
-    def leaveMultiStroke(self):
+    def _leaveMultiStroke(self):
 
         if self.multi_stroke_keymap:
             self.multi_stroke_keymap = None
@@ -1078,44 +1109,6 @@ class Keymap:
             self.beginInput()
             self.setInput_Modifier( self.modifier | MODKEY_CTRL_L )
             self.endInput()
-
-    def setInput_FromString( self, s ):
-
-        s = s.upper()
-
-        vk = None
-        mod = 0
-        up = None
-
-        token_list = s.split("-")
-
-        for token in token_list[:-1]:
-
-            token = token.strip()
-
-            try:
-                mod |= KeyCondition.strToMod( token, force_LR=True )
-            except ValueError:
-                if token=="D":
-                    up = False
-                elif token=="U":
-                    up = True
-                else:
-                    raise ValueError
-
-        token = token_list[-1].strip()
-
-        vk = KeyCondition.strToVk(token)
-
-        self.setInput_Modifier(mod)
-
-        if up==True:
-            self.input_seq.append( ("keyUp", vk) )
-        elif up==False:
-            self.input_seq.append( ("keyDown", vk) )
-        else:
-            self.input_seq.append( ("keyDown", vk) )
-            self.input_seq.append( ("keyUp", vk) )
 
     @property
     def focus(self):
