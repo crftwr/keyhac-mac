@@ -17,7 +17,7 @@ struct KeyhacApp: App {
     }
     
     var body: some Scene {
-        MenuBarExtra("Keyhac", systemImage: "hammer") {
+        MenuBarExtra("Keyhac", image: "Keyboard") {
             ContentView()
         }.menuBarExtraStyle(.window)
     }
