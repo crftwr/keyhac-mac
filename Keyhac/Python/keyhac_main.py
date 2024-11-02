@@ -1,7 +1,6 @@
 import sys
 import os
 import json
-import time
 import fnmatch
 import traceback
 
@@ -533,17 +532,17 @@ class KeyCondition:
 class WindowKeymap:
 
     def __init__( self, focus_path_pattern=None, check_func=None, help_string=None ):
-        self.focus_path_pattern = focus_path_pattern
+        self._focus_path_pattern = focus_path_pattern
         self.check_func = check_func
         self.help_string = help_string
         self.keymap = {}
 
     def check( self, focus_path ):
 
-        if self.focus_path_pattern and ( not focus_path or not fnmatch.fnmatch( focus_path, self.focus_path_pattern ) ) : return False
+        if self._focus_path_pattern and ( not focus_path or not fnmatch.fnmatch( focus_path, self._focus_path_pattern ) ) : return False
         
         try:
-            if self.check_func and ( not self.focus_elm or not self.check_func(self.focus_elm) ) : return False
+            if self.check_func and ( not self._focus_elm or not self.check_func(self._focus_elm) ) : return False
         except Exception as e:
             print(e)
             traceback.print_exc()
@@ -594,28 +593,23 @@ class Keymap:
 
     def __init__(self):
 
-        self.debug = False                      # デバッグモード
-        self.send_input_on_tru = False          # キーの置き換えが不要だった場合もsentInputするか
+        self._debug = False                     # デバッグモード
+        self._send_input_on_tru = False         # キーの置き換えが不要だった場合もsentInputするか
 
-        self.window_keymap_list = []            # WindowKeymapオブジェクトのリスト
-        self.multi_stroke_keymap = None         # マルチストローク用のWindowKeymapオブジェクト
-        self.current_map = {}                   # 現在フォーカスされているウインドウで有効なキーマップ
-        self.vk_mod_map = {}                    # モディファイアキーの仮想キーコードとビットのテーブル
-        self.vk_vk_map = {}                     # キーの置き換えテーブル
-        self.focus_path = None                  # 現在フォーカスされているUI要素を表す文字列
-        self.focus_elm = None                   # 現在フォーカスされているUI要素
-        self.modifier = 0                       # 押されているモディファイアキーのビットの組み合わせ
-        self.last_keydown = None                # 最後にKeyDownされた仮想キーコード
-        self.oneshot_canceled = False           # ワンショットモディファイアをキャンセルするか
-        self.input_seq = []                     # 仮想のキー入力シーケンス ( beginInput ～ endInput で使用 )
-        self.virtual_modifier = 0               # 仮想のモディファイアキー状態 ( beginInput ～ endInput で使用 )
-        self.record_status = None               # キーボードマクロの状態
-        self.record_seq = None                  # キーボードマクロのシーケンス
-        self.hook_call_list = []                # フック内呼び出し関数のリスト
-
-        self.sanity_check_state = None
-        self.sanity_check_count = 0
-        self.last_input_send_time = 0
+        self._window_keymap_list = []            # WindowKeymapオブジェクトのリスト
+        self._multi_stroke_keymap = None         # マルチストローク用のWindowKeymapオブジェクト
+        self._current_map = {}                   # 現在フォーカスされているウインドウで有効なキーマップ
+        self._vk_mod_map = {}                    # モディファイアキーの仮想キーコードとビットのテーブル
+        self._vk_vk_map = {}                     # キーの置き換えテーブル
+        self._focus_path = None                  # 現在フォーカスされているUI要素を表す文字列
+        self._focus_elm = None                   # 現在フォーカスされているUI要素
+        self._modifier = 0                       # 押されているモディファイアキーのビットの組み合わせ
+        self._last_keydown = None                # 最後にKeyDownされた仮想キーコード
+        self._oneshot_canceled = False           # ワンショットモディファイアをキャンセルするか
+        self._input_seq = []                     # 仮想のキー入力シーケンス ( beginInput ～ endInput で使用 )
+        self._virtual_modifier = 0               # 仮想のモディファイアキー状態 ( beginInput ～ endInput で使用 )
+        self._record_status = None               # キーボードマクロの状態
+        self._record_seq = None                  # キーボードマクロのシーケンス
 
         keyhac_core.Hook.setCallback("Keyboard", self._onKey)
         
@@ -627,24 +621,24 @@ class Keymap:
 
         KeyCondition.initTables()
 
-        self.window_keymap_list = []
-        self.multi_stroke_keymap = None
-        self.current_map = {}
-        self.vk_mod_map = {}
-        self.vk_vk_map = {}
-        self.focus_path = None
-        self.focus_elm = None
-        self.modifier = 0
+        self._window_keymap_list = []
+        self._multi_stroke_keymap = None
+        self._current_map = {}
+        self._vk_mod_map = {}
+        self._vk_vk_map = {}
+        self._focus_path = None
+        self._focus_elm = None
+        self._modifier = 0
 
-        self.vk_mod_map[VK_LSHIFT   ] = MODKEY_SHIFT_L
-        self.vk_mod_map[VK_RSHIFT   ] = MODKEY_SHIFT_R
-        self.vk_mod_map[VK_LCONTROL ] = MODKEY_CTRL_L
-        self.vk_mod_map[VK_RCONTROL ] = MODKEY_CTRL_R
-        self.vk_mod_map[VK_LMENU    ] = MODKEY_ALT_L
-        self.vk_mod_map[VK_RMENU    ] = MODKEY_ALT_R
-        self.vk_mod_map[VK_LCOMMAND ] = MODKEY_CMD_L
-        self.vk_mod_map[VK_RCOMMAND ] = MODKEY_CMD_R
-        self.vk_mod_map[VK_FUNCTION ] = MODKEY_FN_L
+        self._vk_mod_map[VK_LSHIFT   ] = MODKEY_SHIFT_L
+        self._vk_mod_map[VK_RSHIFT   ] = MODKEY_SHIFT_R
+        self._vk_mod_map[VK_LCONTROL ] = MODKEY_CTRL_L
+        self._vk_mod_map[VK_RCONTROL ] = MODKEY_CTRL_R
+        self._vk_mod_map[VK_LMENU    ] = MODKEY_ALT_L
+        self._vk_mod_map[VK_RMENU    ] = MODKEY_ALT_R
+        self._vk_mod_map[VK_LCOMMAND ] = MODKEY_CMD_L
+        self._vk_mod_map[VK_RCOMMAND ] = MODKEY_CMD_R
+        self._vk_mod_map[VK_FUNCTION ] = MODKEY_FN_L
 
         # Load configuration file
         self.config = keyhac_config.Config(
@@ -670,7 +664,7 @@ class Keymap:
             print( f"ERROR : Invalid expression for argument 'dst': {dst}" )
             return
 
-        self.vk_vk_map[src] = dst
+        self._vk_vk_map[src] = dst
 
     def defineModifier( self, vk, mod ):
 
@@ -692,22 +686,21 @@ class Keymap:
             return
 
         try:
-            if vk in self.vk_mod_map:
+            if vk in self._vk_mod_map:
                 raise ValueError
         except:
             print( f"ERROR : Already defined as a modifier: {vk_org}" )
             return
 
-        self.vk_mod_map[vk] = mod
+        self._vk_mod_map[vk] = mod
 
     def sendInput(self, seq):
         for event in seq:
             keyhac_core.Hook.sendKeyboardEvent(event[0], event[1])
-        self.last_input_send_time = time.time()
 
     def _releaseModifierAll(self):
         input_seq = []
-        for vk_mod in self.vk_mod_map.items():
+        for vk_mod in self._vk_mod_map.items():
             if vk_mod[1] & MODKEY_USER_ALL:
                 continue
             input_seq.append( ("keyUp", vk_mod[0]) )
@@ -715,7 +708,7 @@ class Keymap:
 
     def defineWindowKeymap( self, focus_path_pattern=None, check_func=None ):
         window_keymap = WindowKeymap( focus_path_pattern, check_func )
-        self.window_keymap_list.append(window_keymap)
+        self._window_keymap_list.append(window_keymap)
         return window_keymap
 
     ## マルチストローク用のキーマップを定義する
@@ -724,42 +717,42 @@ class Keymap:
         return keymap
 
     def beginInput(self):
-        self.input_seq = []
-        self.virtual_modifier = self.modifier
+        self._input_seq = []
+        self._virtual_modifier = self._modifier
 
     def endInput(self):
-        self.setInput_Modifier(self.modifier)
-        self.sendInput(self.input_seq)
-        self.input_seq = []
+        self.setInput_Modifier(self._modifier)
+        self.sendInput(self._input_seq)
+        self._input_seq = []
 
     def setInput_Modifier( self, mod ):
 
         # Win と Alt の単体押しのキャンセルが必要かチェック
         # Win の単体押しは スタートメニューが開き、Alt の単体押しは メニューバーにフォーカスが移動してしまう。
         cancel_oneshot_win_alt = False
-        if ( checkModifier( self.virtual_modifier, MODKEY_ALT ) or checkModifier( self.virtual_modifier, MODKEY_WIN ) ) and mod==0:
+        if ( checkModifier( self._virtual_modifier, MODKEY_ALT ) or checkModifier( self._virtual_modifier, MODKEY_WIN ) ) and mod==0:
             cancel_oneshot_win_alt = True
-        elif self.virtual_modifier==0 and ( checkModifier( mod, MODKEY_ALT ) or checkModifier( mod, MODKEY_WIN ) ):
+        elif self._virtual_modifier==0 and ( checkModifier( mod, MODKEY_ALT ) or checkModifier( mod, MODKEY_WIN ) ):
             cancel_oneshot_win_alt = True
 
         # モディファイア押す
-        for vk_mod in self.vk_mod_map.items():
+        for vk_mod in self._vk_mod_map.items():
             if vk_mod[1] & MODKEY_USER_ALL : continue
-            if not ( vk_mod[1] & self.virtual_modifier ) and ( vk_mod[1] & mod ):
-                self.input_seq.append( ("keyDown", vk_mod[0]) )
-                self.virtual_modifier |= vk_mod[1]
+            if not ( vk_mod[1] & self._virtual_modifier ) and ( vk_mod[1] & mod ):
+                self._input_seq.append( ("keyDown", vk_mod[0]) )
+                self._virtual_modifier |= vk_mod[1]
 
         # Win と Alt の単体押しをキャンセル
         if cancel_oneshot_win_alt:
-            self.input_seq.append( ("keyDown", VK_LCONTROL) )
-            self.input_seq.append( ("keyUp", VK_LCONTROL) )
+            self._input_seq.append( ("keyDown", VK_LCONTROL) )
+            self._input_seq.append( ("keyUp", VK_LCONTROL) )
 
         # モディファイア離す
-        for vk_mod in self.vk_mod_map.items():
+        for vk_mod in self._vk_mod_map.items():
             if vk_mod[1] & MODKEY_USER_ALL : continue
-            if ( vk_mod[1] & self.virtual_modifier ) and not ( vk_mod[1] & mod ):
-                self.input_seq.append( ("keyUp", vk_mod[0]) )
-                self.virtual_modifier &= ~vk_mod[1]
+            if ( vk_mod[1] & self._virtual_modifier ) and not ( vk_mod[1] & mod ):
+                self._input_seq.append( ("keyUp", vk_mod[0]) )
+                self._virtual_modifier &= ~vk_mod[1]
 
     def setInput_FromString( self, s ):
 
@@ -792,12 +785,12 @@ class Keymap:
         self.setInput_Modifier(mod)
 
         if up==True:
-            self.input_seq.append( ("keyUp", vk) )
+            self._input_seq.append( ("keyUp", vk) )
         elif up==False:
-            self.input_seq.append( ("keyDown", vk) )
+            self._input_seq.append( ("keyDown", vk) )
         else:
-            self.input_seq.append( ("keyDown", vk) )
-            self.input_seq.append( ("keyUp", vk) )
+            self._input_seq.append( ("keyDown", vk) )
+            self._input_seq.append( ("keyUp", vk) )
 
     def _checkFocusChange(self):
     
@@ -806,7 +799,7 @@ class Keymap:
         elm = keyhac_core.UIElement.getSystemWideElement()
         elm = elm.getAttributeValue("AXFocusedUIElement")
 
-        self.focus_elm = elm
+        self._focus_elm = elm
 
         while elm:
             focus_elms.append(elm)
@@ -840,39 +833,10 @@ class Keymap:
             focus_path_components.append( f"{role}({title})" )
 
         new_focus_path = "/".join(focus_path_components)
-        if self.focus_path != new_focus_path:
+        if self._focus_path != new_focus_path:
             print("Focus path:", new_focus_path)
-            self.focus_path = new_focus_path
+            self._focus_path = new_focus_path
             self._updateKeymap()
-
-    # モディファイアのおかしな状態を修正する
-    # たとえば Win-L を押して ロック画面に行ったときに Winキーが押されっぱなしになってしまうような現象を回避
-    def _fixWierdModifierState(self):
-        
-        # 最後の Input.send() から 一定時間以上経ってなかったら、この処理をしない
-        if time.time() - self.last_input_send_time < 1.0:
-            return
-
-        for vk_mod in self.vk_mod_map.items():
-
-            if vk_mod[1] & MODKEY_USER_ALL:
-                continue
-
-            if self.modifier & vk_mod[1]:
-
-                # FIXME: 実装
-                #if not ckit.Input.isKeyPressed(vk_mod[0]):
-                if False:
-                    
-                    self.modifier &= ~vk_mod[1]
-                    
-                    #keyhac_core.Hook.fixWierdModifierState()
-    
-                    #if self.debug:
-                    if 0:
-                        print( "" )
-                        print( "FIX :", KeyCondition.vkToStr(vk_mod[0]) )
-                        print( "" )
 
     def _onKey(self, s):
         d = json.loads(s)
@@ -883,38 +847,27 @@ class Keymap:
 
     def _onKeyDown( self, vk ):
 
-        #if ckit.platform()=="win":
-        if False:
-            # FIXME : vk=0 は Macでは A キーなので特殊な用途には使えない
-            if vk==0:
-                for func in self.hook_call_list:
-                    func()
-                self.hook_call_list = []
-                return True
-
         self._checkFocusChange()
-
-        self._fixWierdModifierState()
 
         self._recordKey( vk, False )
 
         try:
-            vk = self.vk_vk_map[vk]
+            vk = self._vk_vk_map[vk]
             replaced = True
         except KeyError:
             replaced = False
 
         #self._debugKeyState(vk)
 
-        if self.last_keydown != vk:
-            self.last_keydown = vk
-            self.oneshot_canceled = False
+        if self._last_keydown != vk:
+            self._last_keydown = vk
+            self._oneshot_canceled = False
 
         try:
-            old_modifier = self.modifier
-            if vk in self.vk_mod_map:
-                self.modifier |= self.vk_mod_map[vk]
-                if self.vk_mod_map[vk] & MODKEY_USER_ALL:
+            old_modifier = self._modifier
+            if vk in self._vk_mod_map:
+                self._modifier |= self._vk_mod_map[vk]
+                if self._vk_mod_map[vk] & MODKEY_USER_ALL:
                     key = KeyCondition( vk, old_modifier, up=False )
                     self._keyAction(key)
                     return True
@@ -925,19 +878,19 @@ class Keymap:
                 return True
             elif replaced:
                 key_seq = [ ("keyDown", vk) ]
-                if self.debug : print( "REP :", key_seq )
+                if self._debug : print( "REP :", key_seq )
                 self.sendInput(key_seq)
                 return True
             else:
-                if self.send_input_on_tru:
+                if self._send_input_on_tru:
                     # 一部の環境でモディファイアが押しっぱなしになってしまう現象の回避テスト
                     # TRU でも Input.send すると問題が起きない
                     key_seq = [ ("keyDown", vk) ]
-                    if self.debug : print( "TRU :", key_seq )
+                    if self._debug : print( "TRU :", key_seq )
                     self.sendInput(key_seq)
                     return True
                 else:
-                    if self.debug : print( "TRU :", key )
+                    if self._debug : print( "TRU :", key )
                     return False
 
         except Exception as e:
@@ -949,55 +902,53 @@ class Keymap:
 
         self._checkFocusChange()
 
-        self._fixWierdModifierState()
-
         self._recordKey( vk, True )
 
         try:
-            vk = self.vk_vk_map[vk]
+            vk = self._vk_vk_map[vk]
             replaced = True
         except KeyError:
             replaced = False
 
         #self._debugKeyState(vk)
 
-        oneshot = ( vk == self.last_keydown and not self.oneshot_canceled )
-        self.last_keydown = None
-        self.oneshot_canceled = False
+        oneshot = ( vk == self._last_keydown and not self._oneshot_canceled )
+        self._last_keydown = None
+        self._oneshot_canceled = False
 
         try: # for error
             try: # for oneshot
-                if vk in self.vk_mod_map:
+                if vk in self._vk_mod_map:
 
-                    self.modifier &= ~self.vk_mod_map[vk]
+                    self._modifier &= ~self._vk_mod_map[vk]
 
-                    if self.vk_mod_map[vk] & MODKEY_USER_ALL:
-                        key = KeyCondition( vk, self.modifier, up=True )
+                    if self._vk_mod_map[vk] & MODKEY_USER_ALL:
+                        key = KeyCondition( vk, self._modifier, up=True )
                         self._keyAction(key)
                         return True
 
-                key = KeyCondition( vk, self.modifier, up=True )
+                key = KeyCondition( vk, self._modifier, up=True )
 
                 if oneshot:
-                    oneshot_key = KeyCondition( vk, self.modifier, up=False, oneshot=True )
+                    oneshot_key = KeyCondition( vk, self._modifier, up=False, oneshot=True )
 
                 if self._keyAction(key):
                     return True
                 elif replaced or ( oneshot and self._hasKeyAction(oneshot_key) ):
                     key_seq = [ ("keyUp", vk) ]
-                    if self.debug : print( "REP :", key_seq )
+                    if self._debug : print( "REP :", key_seq )
                     self.sendInput(key_seq)
                     return True
                 else:
-                    if self.send_input_on_tru:
+                    if self._send_input_on_tru:
                         # 一部の環境でモディファイアが押しっぱなしになってしまう現象の回避テスト
                         # TRU でも Input.send すると問題が起きない
                         key_seq = [ ("keyUp", vk) ]
-                        if self.debug : print( "TRU :", key_seq )
+                        if self._debug : print( "TRU :", key_seq )
                         self.sendInput(key_seq)
                         return True
                     else:
-                        if self.debug : print( "TRU :", key )
+                        if self._debug : print( "TRU :", key )
                         return False
 
             finally:
@@ -1006,7 +957,7 @@ class Keymap:
                 # Up を処理する前に Up -> Down を偽装すると、他のウインドウで
                 # モディファイアが押しっぱなしになるなどの問題があるようだ。
                 if oneshot:
-                    key = KeyCondition( vk, self.modifier, up=False, oneshot=True )
+                    key = KeyCondition( vk, self._modifier, up=False, oneshot=True )
                     self._keyAction(key)
 
         except Exception as e:
@@ -1015,30 +966,30 @@ class Keymap:
             traceback.print_exc()
 
     def _recordKey( self, vk, up ):
-        if self.record_status=="recording":
-            if len(self.record_seq)>=1000:
+        if self._record_status=="recording":
+            if len(self._record_seq)>=1000:
                 print( "ERROR : Keyboard macro is too long." )
                 return
-            self.record_seq.append( ( vk, up ) )
+            self._record_seq.append( ( vk, up ) )
 
     def _hasKeyAction( self, key ):
-        return key in self.current_map
+        return key in self._current_map
 
     def _keyAction( self, key ):
 
-        if self.debug : print( "IN  :", key )
+        if self._debug : print( "IN  :", key )
 
         try:
             try:
-                handler = self.current_map[key]
+                handler = self._current_map[key]
             except KeyError:
-                if self.multi_stroke_keymap and not key.up and not key.oneshot and not key.vk in self.vk_mod_map:
+                if self._multi_stroke_keymap and not key.up and not key.oneshot and not key.vk in self._vk_mod_map:
                     winsound.MessageBeep()
                     return True
                 else:
                     return False
         finally:
-            if not key.up and not key.oneshot and not key.vk in self.vk_mod_map:
+            if not key.up and not key.oneshot and not key.vk in self._vk_mod_map:
                 self._leaveMultiStroke()
 
         if callable(handler):
@@ -1072,44 +1023,44 @@ class Keymap:
 
     def _enterMultiStroke( self, keymap ):
 
-        self.multi_stroke_keymap = keymap
+        self._multi_stroke_keymap = keymap
         self._updateKeymap()
 
         # FIXME : toast を使う
-        #help_string = self.multi_stroke_keymap.helpString()
+        #help_string = self._multi_stroke_keymap.helpString()
         #if help_string:
         #    self.popBalloon( "MultiStroke", help_string )
 
     def _leaveMultiStroke(self):
 
-        if self.multi_stroke_keymap:
-            self.multi_stroke_keymap = None
+        if self._multi_stroke_keymap:
+            self._multi_stroke_keymap = None
             self._updateKeymap()
 
             #self.closeBalloon( "MultiStroke" )
 
     def _updateKeymap(self):
 
-        self.current_map = {}
+        self._current_map = {}
 
-        if self.multi_stroke_keymap:
-            self.current_map.update(self.multi_stroke_keymap.keymap)
+        if self._multi_stroke_keymap:
+            self._current_map.update(self._multi_stroke_keymap.keymap)
         else:
-            for window_keymap in self.window_keymap_list:
-                if window_keymap.check(self.focus_path):
-                    self.current_map.update(window_keymap.keymap)
+            for window_keymap in self._window_keymap_list:
+                if window_keymap.check(self._focus_path):
+                    self._current_map.update(window_keymap.keymap)
 
 
     # FIXME: MacOS で不要かも
     def _cancelOneshotWinAlt(self):
-        if checkModifier( self.modifier, MODKEY_ALT ) or checkModifier( self.modifier, MODKEY_WIN ):
+        if checkModifier( self._modifier, MODKEY_ALT ) or checkModifier( self._modifier, MODKEY_WIN ):
             self.beginInput()
-            self.setInput_Modifier( self.modifier | MODKEY_CTRL_L )
+            self.setInput_Modifier( self._modifier | MODKEY_CTRL_L )
             self.endInput()
 
     @property
     def focus(self):
-        return self.focus_elm
+        return self._focus_elm
 
 def configure():
     Keymap.getInstance().configure()
