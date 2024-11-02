@@ -793,8 +793,10 @@ class Keymap:
         focus_path_components = [""]
 
         special_chars_trans_table = str.maketrans({
-            "[":  r"(",
-            "]":  r")",
+            "(":  r"<",
+            ")":  r">",
+            "[":  r"<",
+            "]":  r">",
             ":":  r"-",
             "/":  r"-",
             "\n": r" ",
@@ -811,7 +813,7 @@ class Keymap:
             if title is None: title = ""
             title = title.translate(special_chars_trans_table)
 
-            focus_path_components.append( f"{role}[{title}]" )
+            focus_path_components.append( f"{role}({title})" )
 
         new_focus_path = "/".join(focus_path_components)
         if self.focus_path != new_focus_path:
