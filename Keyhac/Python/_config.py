@@ -18,7 +18,7 @@ def configure(keymap):
     # Fn-M : Zoom window (Test of UIElement.performAction)
     def command_ZoomWindow():
 
-        elm = keymap.getFocusedUIElement()
+        elm = keymap.focus
 
         while elm:
             role = elm.getAttributeValue("AXRole")

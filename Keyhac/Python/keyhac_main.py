@@ -543,7 +543,7 @@ class WindowKeymap:
         if self.focus_path_pattern and ( not focus_path or not fnmatch.fnmatch( focus_path, self.focus_path_pattern ) ) : return False
         
         try:
-            if self.check_func and ( not focus or not self.check_func(focus) ) : return False
+            if self.check_func and ( not self.focus_elm or not self.check_func(self.focus_elm) ) : return False
         except Exception as e:
             print(e)
             traceback.print_exc()
@@ -1117,7 +1117,8 @@ class Keymap:
             self.input_seq.append( ("keyDown", vk) )
             self.input_seq.append( ("keyUp", vk) )
 
-    def getFocusedUIElement(self):
+    @property
+    def focus(self):
         return self.focus_elm
 
 def configure():
