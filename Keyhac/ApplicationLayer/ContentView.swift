@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     
     @State private var isKeyboardHookEnabled: Bool = KeyhacSystem.getInstance().isKeyboardHookInstalled()
+    @State private var errorMessage: String = ""
     
     let termViewKey = UUID().uuidString
     let termViewController = SwiftTermViewController()
@@ -24,6 +25,8 @@ struct ContentView: View {
                 .toggleStyle(SwitchToggleStyle(tint: .blue))
                 .onChange(of: isKeyboardHookEnabled) { oldValue, newValue in
                     if newValue {
+                        checkProcessTrusted()
+                        
                         KeyhacSystem.getInstance().installKeyboardHook()
                         Console.getInstance().write(s: "Installed keyboard hook\n")
 
@@ -34,7 +37,13 @@ struct ContentView: View {
                         Console.getInstance().write(s: "Uninstalled keyboard hook\n")
                     }
                 }
+                
+                Spacer()
+                
+                Text(errorMessage)
+                    .foregroundColor(.red)
             }
+            .padding(.all, 2)
             
             SwiftTermView( viewController: termViewController )
                 .lookupKey(termViewKey)
@@ -81,6 +90,18 @@ struct ContentView: View {
             }
         }
         .padding(.all, 10)
+    }
+    
+    func checkProcessTrusted() {
+        let options : NSDictionary = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as NSString: true]
+        let isTrusted = AXIsProcessTrustedWithOptions(options)
+        
+        if isTrusted {
+            errorMessage = ""
+        }
+        else {
+            errorMessage = "Accessibility is not enabled."
+        }
     }
 }
 
