@@ -42,6 +42,35 @@ def configure(keymap):
     keytable_global["Fn-M"] = zoom_window
 
 
+    # User0-Left/Right/Up/Down : Move current active window
+    class MoveWindow:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+        def __call__(self):
+
+            elm = keymap.focus
+
+            while elm:
+                role = elm.getAttributeValue("AXRole")
+                if role=="AXWindow":
+                    break
+                elm = elm.getAttributeValue("AXParent")
+
+            if elm:
+                names = elm.getAttributeNames()
+                pos = elm.getAttributeValue("AXPosition")
+                pos[0] += self.x
+                pos[1] += self.y
+                elm.setAttributeValue("AXPosition", "point", pos)
+
+    keytable_global["User0-Left"]  = MoveWindow(-10,0)
+    keytable_global["User0-Right"] = MoveWindow(+10,0)
+    keytable_global["User0-Up"]    = MoveWindow(0,-10)
+    keytable_global["User0-Down"]  = MoveWindow(0,+10)
+
+
     # U0-A : Sample of assigning callable object to key
     def hello_user_modifier():
         print("Hello User Modifier!")
