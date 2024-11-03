@@ -14,7 +14,7 @@ from keyhac_const import *
 # for Xcode console
 sys.stdout.reconfigure(encoding='utf-8')
 
-keyhac_console.StandardIo.installRedirection()
+keyhac_console.StandardIo.install_redirection()
 
 class Keymap:
     
@@ -54,7 +54,7 @@ class Keymap:
 
         self._releaseModifierAll()
 
-        KeyCondition.initTables()
+        KeyCondition.init_vk_str_tables()
 
         self._focus_cond_keymap_list = []
         self._multi_stroke_keymap = None
@@ -87,14 +87,14 @@ class Keymap:
     def replace_key( self, src, dst ):
         try:
             if type(src)==str:
-                src = KeyCondition.strToVk(src)
+                src = KeyCondition.str_to_vk(src)
         except:
             print( f"ERROR : Invalid expression for argument 'src': {src}" )
             return
 
         try:
             if type(dst)==str:
-                dst = KeyCondition.strToVk(dst)
+                dst = KeyCondition.str_to_vk(dst)
         except:
             print( f"ERROR : Invalid expression for argument 'dst': {dst}" )
             return
@@ -106,14 +106,14 @@ class Keymap:
         vk_org = vk
         try:
             if type(vk)==str:
-                vk = KeyCondition.strToVk(vk)
+                vk = KeyCondition.str_to_vk(vk)
         except:
             print( f"ERROR : Invalid expression for argument 'vk': {vk}" )
             return
 
         try:
             if type(mod)==str:
-                mod = KeyCondition.strToMod( mod, force_LR=True )
+                mod = KeyCondition.str_to_mod( mod, force_LR=True )
             else:
                 raise TypeError
         except:
@@ -186,7 +186,7 @@ class Keymap:
             token = token.strip()
 
             try:
-                mod |= KeyCondition.strToMod( token, force_LR=True )
+                mod |= KeyCondition.str_to_mod( token, force_LR=True )
             except ValueError:
                 if token=="D":
                     up = False
@@ -197,7 +197,7 @@ class Keymap:
 
         token = token_list[-1].strip()
 
-        vk = KeyCondition.strToVk(token)
+        vk = KeyCondition.str_to_vk(token)
 
         self.setInput_Modifier(mod)
 

@@ -339,7 +339,7 @@ class KeyCondition:
 
     def __eq__(self,other):
         if self.vk!=other.vk : return False
-        if not KeyCondition.checkModifier( self.mod, other.mod ) : return False
+        if not KeyCondition.mod_eq( self.mod, other.mod ): return False
         if self.up!=other.up : return False
         if self.oneshot!=other.oneshot : return False
         return True
@@ -387,7 +387,7 @@ class KeyCondition:
         elif self.mod & MODKEY_USER1_L : s += "LUser1-"
         elif self.mod & MODKEY_USER1_R : s += "RUser1-"
 
-        s += KeyCondition.vkToStr(self.vk)
+        s += KeyCondition.vk_to_str(self.vk)
 
         return s
 
@@ -408,7 +408,7 @@ class KeyCondition:
             token = token.strip()
 
             try:
-                mod |= KeyCondition.strToMod(token)
+                mod |= KeyCondition.str_to_mod(token)
             except ValueError:
                 if token=="O":
                     oneshot = True
@@ -421,12 +421,12 @@ class KeyCondition:
 
         token = token_list[-1].strip()
 
-        vk = KeyCondition.strToVk(token)
+        vk = KeyCondition.str_to_vk(token)
 
         return KeyCondition( vk, mod, up=up, oneshot=oneshot )
 
     @staticmethod
-    def initTables():
+    def init_vk_str_tables():
 
         # FIXME: detect keyboard type
         keyboard_type = 0
@@ -442,7 +442,7 @@ class KeyCondition:
             KeyCondition.vk_str_table.update(KeyCondition.vk_str_table_std)
 
     @staticmethod
-    def strToVk(name):
+    def str_to_vk(name):
         try:
             vk = KeyCondition.str_vk_table[name.upper()]
         except KeyError:
@@ -453,7 +453,7 @@ class KeyCondition:
         return vk
 
     @staticmethod
-    def vkToStr(vk):
+    def vk_to_str(vk):
         try:
             name = KeyCondition.vk_str_table[vk]
         except KeyError:
@@ -461,7 +461,7 @@ class KeyCondition:
         return name
 
     @staticmethod
-    def strToMod( name, force_LR=False ):
+    def str_to_mod( name, force_LR=False ):
         try:
             mod = KeyCondition.str_mod_table[ name.upper() ]
         except KeyError:
@@ -471,7 +471,7 @@ class KeyCondition:
         return mod
 
     @staticmethod
-    def checkModifier( mod1, mod2 ):
+    def mod_eq( mod1, mod2 ):
 
         _mod1 = mod1 & 0xff
         _mod2 = mod2 & 0xff

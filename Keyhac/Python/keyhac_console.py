@@ -11,12 +11,12 @@ class StandardIo:
         self.default_stream.write(s)
 
     @staticmethod
-    def installRedirection():
+    def install_redirection():
         sys.stdout = StandardIo(sys.stdout)
         sys.stderr = StandardIo(sys.stderr)
 
     @staticmethod
-    def uninstallRedirection():
+    def uninstall_redirection():
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__
 
