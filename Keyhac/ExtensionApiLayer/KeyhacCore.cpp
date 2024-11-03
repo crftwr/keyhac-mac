@@ -83,28 +83,28 @@ static PyObject * _convertUIValueToPyObject(const UIValue & value)
         case UIValueType::cases::range:
             {
                 auto range = value.getValueRange();
-                pyvalue = Py_BuildValue( "(ii)", range[0], range[1] );
+                pyvalue = Py_BuildValue( "[ii]", range[0], range[1] );
             }
             break;
                 
         case UIValueType::cases::point:
             {
-                auto rect = value.getValueRect();
-                pyvalue = Py_BuildValue( "(ff)", rect[0], rect[1] );
+                auto point = value.getValuePoint();
+                pyvalue = Py_BuildValue( "[ff]", point[0], point[1] );
             }
             break;
                 
         case UIValueType::cases::size:
             {
-                auto rect = value.getValueRect();
-                pyvalue = Py_BuildValue( "(ff)", rect[0], rect[1] );
+                auto size = value.getValueSize();
+                pyvalue = Py_BuildValue( "[ff]", size[0], size[1] );
             }
             break;
                 
         case UIValueType::cases::rect:
             {
                 auto rect = value.getValueRect();
-                pyvalue = Py_BuildValue( "(ffff)", rect[0], rect[1], rect[2], rect[3] );
+                pyvalue = Py_BuildValue( "[ffff]", rect[0], rect[1], rect[2], rect[3] );
             }
             break;
                 
