@@ -6,8 +6,12 @@ def configure(keymap):
     # Replacing Right-Shift key with BackSpace
     keymap.replace_key( "RShift", "Back" )
 
+    # Defining user defined modifier keys
+    keymap.define_modifier( "RCmd", "RUser0" )
+    keymap.define_modifier( "RAlt", "RUser1" )
+
     # Global keymap which affects any windows
-    keytable_global = keymap.define_keytable()
+    keytable_global = keymap.define_keytable(focus_path_pattern="*")
 
     # Fn-A : Sample of assigning callable object to key
     def hello_world():
@@ -36,6 +40,14 @@ def configure(keymap):
                     elm.performAction("AXPress")
 
     keytable_global["Fn-M"] = zoom_window
+
+
+    # U0-A : Sample of assigning callable object to key
+    def hello_user_modifier():
+        print("Hello User Modifier!")
+
+    keytable_global["RUser0-A"] = hello_user_modifier
+
 
 
     # Keymap for Xcode

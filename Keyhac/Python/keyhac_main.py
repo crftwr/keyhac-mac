@@ -31,20 +31,20 @@ class Keymap:
         self._debug = False                     # デバッグモード
         self._send_input_on_tru = False         # キーの置き換えが不要だった場合もsentInputするか
 
-        self._focus_cond_keymap_list = []        # (FocusCondition, KeyTable) のリスト
-        self._multi_stroke_keymap = None         # マルチストローク用の KeyTable
-        self._current_map = {}                   # 現在フォーカスされているウインドウで有効なキーマップ
-        self._vk_mod_map = {}                    # モディファイアキーの仮想キーコードとビットのテーブル
-        self._vk_vk_map = {}                     # キーの置き換えテーブル
-        self._focus_path = None                  # 現在フォーカスされているUI要素を表す文字列
-        self._focus_elm = None                   # 現在フォーカスされているUI要素
-        self._modifier = 0                       # 押されているモディファイアキーのビットの組み合わせ
-        self._last_keydown = None                # 最後にKeyDownされた仮想キーコード
-        self._oneshot_canceled = False           # ワンショットモディファイアをキャンセルするか
-        self._input_seq = []                     # 仮想のキー入力シーケンス ( beginInput ～ endInput で使用 )
-        self._virtual_modifier = 0               # 仮想のモディファイアキー状態 ( beginInput ～ endInput で使用 )
-        self._record_status = None               # キーボードマクロの状態
-        self._record_seq = None                  # キーボードマクロのシーケンス
+        self._focus_cond_keymap_list = []       # (FocusCondition, KeyTable) のリスト
+        self._multi_stroke_keymap = None        # マルチストローク用の KeyTable
+        self._current_map = {}                  # 現在フォーカスされているウインドウで有効なキーマップ
+        self._vk_mod_map = {}                   # モディファイアキーの仮想キーコードとビットのテーブル
+        self._vk_vk_map = {}                    # キーの置き換えテーブル
+        self._focus_path = None                 # 現在フォーカスされているUI要素を表す文字列
+        self._focus_elm = None                  # 現在フォーカスされているUI要素
+        self._modifier = 0                      # 押されているモディファイアキーのビットの組み合わせ
+        self._last_keydown = None               # 最後にKeyDownされた仮想キーコード
+        self._oneshot_canceled = False          # ワンショットモディファイアをキャンセルするか
+        self._input_seq = []                    # 仮想のキー入力シーケンス ( beginInput ～ endInput で使用 )
+        self._virtual_modifier = 0              # 仮想のモディファイアキー状態 ( beginInput ～ endInput で使用 )
+        self._record_status = None              # キーボードマクロの状態
+        self._record_seq = None                 # キーボードマクロのシーケンス
 
         keyhac_core.Hook.setCallback("Keyboard", self._onKey)
         
@@ -103,8 +103,8 @@ class Keymap:
 
     def define_modifier( self, vk, mod ):
 
+        vk_org = vk
         try:
-            vk_org = vk
             if type(vk)==str:
                 vk = KeyCondition.strToVk(vk)
         except:
@@ -118,13 +118,6 @@ class Keymap:
                 raise TypeError
         except:
             print( f"ERROR : Invalid expression for argument 'mod': {mod}" )
-            return
-
-        try:
-            if vk in self._vk_mod_map:
-                raise ValueError
-        except:
-            print( f"ERROR : Already defined as a modifier: {vk_org}" )
             return
 
         self._vk_mod_map[vk] = mod
@@ -144,8 +137,9 @@ class Keymap:
 
     def define_keytable( self, name=None, focus_path_pattern=None, custom_condition_func=None ):
         keytable = KeyTable(name=name)
-        focus_condition = FocusCondition( focus_path_pattern, custom_condition_func )
-        self._focus_cond_keymap_list.append( (focus_condition, keytable) )
+        if focus_path_pattern or custom_condition_func:
+            focus_condition = FocusCondition( focus_path_pattern, custom_condition_func )
+            self._focus_cond_keymap_list.append( (focus_condition, keytable) )
         return keytable
 
     # FIXME: naming convention
