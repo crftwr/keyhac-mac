@@ -327,20 +327,20 @@ class KeyCondition:
         "RUSER1" :  MODKEY_USER1_R,
     }
 
-    def __init__( self, vk, mod=0, up=False, oneshot=False ):
+    def __init__( self, vk, mod=0, down=True, oneshot=False ):
         if type(vk)==str and len(vk)==1 : vk=ord(vk)
         self.vk = vk
         self.mod = mod
-        self.up = up
+        self.down = down
         self.oneshot = oneshot
 
     def __hash__(self):
         return self.vk
 
-    def __eq__(self,other):
+    def __eq__(self, other):
         if self.vk!=other.vk : return False
         if not KeyCondition.mod_eq( self.mod, other.mod ): return False
-        if self.up!=other.up : return False
+        if self.down!=other.down : return False
         if self.oneshot!=other.oneshot : return False
         return True
 
@@ -350,10 +350,10 @@ class KeyCondition:
 
         if self.oneshot:
             s += "O-"
-        elif self.up:
-            s += "U-"
-        else:
+        elif self.down:
             s += "D-"
+        else:
+            s += "U-"
 
         if self.mod & MODKEY_ALT : s += "Alt-"
         elif self.mod & MODKEY_ALT_L : s += "LAlt-"
@@ -398,7 +398,7 @@ class KeyCondition:
 
         vk = None
         mod=0
-        up=False
+        down=True
         oneshot=False
 
         token_list = s.split("-")
@@ -413,9 +413,9 @@ class KeyCondition:
                 if token=="O":
                     oneshot = True
                 elif token=="D":
-                    up = False
+                    down = True
                 elif token=="U":
-                    up = True
+                    down = False
                 else:
                     raise ValueError
 
@@ -423,7 +423,7 @@ class KeyCondition:
 
         vk = KeyCondition.str_to_vk(token)
 
-        return KeyCondition( vk, mod, up=up, oneshot=oneshot )
+        return KeyCondition( vk, mod, down=down, oneshot=oneshot )
 
     @staticmethod
     def init_vk_str_tables():

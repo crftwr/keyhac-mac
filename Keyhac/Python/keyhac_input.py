@@ -14,7 +14,7 @@ class InputContext:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.send()
+        self.flush()
 
     def __str__(self):
         return str(self._input_seq)
@@ -35,7 +35,7 @@ class InputContext:
                 self._input_seq.append( ("keyUp", vk_mod[0]) )
                 self._virtual_modifier &= ~vk_mod[1]
 
-    def append_keys_by_str(self, s):
+    def send_key(self, s):
 
         s = s.upper()
 
@@ -73,7 +73,7 @@ class InputContext:
             self._input_seq.append( ("keyDown", vk) )
             self._input_seq.append( ("keyUp", vk) )
 
-    def append_key_by_vk(self, vk, down=True):
+    def send_key_by_vk(self, vk, down=True):
 
         if down:
             event_name = "keyDown"
@@ -81,7 +81,7 @@ class InputContext:
             event_name = "keyUp"
         self._input_seq.append( (event_name, vk) )
 
-    def send(self):
+    def flush(self):
         self.append_keys_for_modifier(self._real_modifier)
         for event in self._input_seq:
             keyhac_core.Hook.sendKeyboardEvent(event[0], event[1])

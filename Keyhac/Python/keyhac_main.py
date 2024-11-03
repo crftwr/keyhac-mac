@@ -132,7 +132,7 @@ class Keymap:
             for vk_mod in self._vk_mod_map.items():
                 if vk_mod[1] & MODKEY_USER_ALL:
                     continue
-                input_ctx.append_key_by_vk(vk_mod[0], down=False)
+                input_ctx.send_key_by_vk(vk_mod[0], down=False)
 
     def get_input_context(self):
         return InputContext(self._modifier, self._vk_mod_map)
@@ -180,17 +180,17 @@ class Keymap:
             if vk in self._vk_mod_map:
                 self._modifier |= self._vk_mod_map[vk]
                 if self._vk_mod_map[vk] & MODKEY_USER_ALL:
-                    key = KeyCondition( vk, old_modifier, up=False )
+                    key = KeyCondition( vk, old_modifier, down=True )
                     self._do_configured_key_action(key)
                     return True
 
-            key = KeyCondition( vk, old_modifier, up=False )
+            key = KeyCondition( vk, old_modifier, down=True )
 
             if self._do_configured_key_action(key):
                 return True
             elif replaced:
                 with self.get_input_context() as input_ctx:
-                    input_ctx.append_key_by_vk( vk, down=True )
+                    input_ctx.send_key_by_vk( vk, down=True )
                     if self._debug : print( "REP :", input_ctx )
                 return True
             else:
@@ -198,7 +198,7 @@ class Keymap:
                     # 一部の環境でモディファイアが押しっぱなしになってしまう現象の回避テスト
                     # TRU でも Input.send すると問題が起きない
                     with self.get_input_context() as input_ctx:
-                        input_ctx.append_key_by_vk( vk, down=True )
+                        input_ctx.send_key_by_vk( vk, down=True )
                         if self._debug : print( "TRU :", input_ctx )
                     return True
                 else:
@@ -233,20 +233,20 @@ class Keymap:
                 if vk in self._vk_mod_map:
                     self._modifier &= ~self._vk_mod_map[vk]
                     if self._vk_mod_map[vk] & MODKEY_USER_ALL:
-                        key = KeyCondition( vk, self._modifier, up=True )
+                        key = KeyCondition( vk, self._modifier, down=False )
                         self._do_configured_key_action(key)
                         return True
 
-                key = KeyCondition( vk, self._modifier, up=True )
+                key = KeyCondition( vk, self._modifier, down=False )
 
                 if oneshot:
-                    oneshot_key = KeyCondition( vk, self._modifier, up=False, oneshot=True )
+                    oneshot_key = KeyCondition( vk, self._modifier, down=True, oneshot=True )
 
                 if self._do_configured_key_action(key):
                     return True
                 elif replaced or ( oneshot and self._is_key_configured(oneshot_key) ):
                     with self.get_input_context() as input_ctx:
-                        input_ctx.append_key_by_vk( vk, down=False )
+                        input_ctx.send_key_by_vk( vk, down=False )
                         if self._debug : print( "REP :", input_ctx )
                     return True
                 else:
@@ -254,7 +254,7 @@ class Keymap:
                         # 一部の環境でモディファイアが押しっぱなしになってしまう現象の回避テスト
                         # TRU でも Input.send すると問題が起きない
                         with self.get_input_context() as input_ctx:
-                            input_ctx.append_key_by_vk( vk, down=False )
+                            input_ctx.send_key_by_vk( vk, down=False )
                             if self._debug : print( "TRU :", input_ctx )
                         return True
                     else:
@@ -267,7 +267,7 @@ class Keymap:
                 # Up を処理する前に Up -> Down を偽装すると、他のウインドウで
                 # モディファイアが押しっぱなしになるなどの問題があるようだ。
                 if oneshot:
-                    key = KeyCondition( vk, self._modifier, up=False, oneshot=True )
+                    key = KeyCondition( vk, self._modifier, down=True, oneshot=True )
                     self._do_configured_key_action(key)
 
         except Exception as e:
@@ -314,7 +314,7 @@ class Keymap:
             with self.get_input_context() as input_ctx:
                 for item in action:
                     if type(item)==str:
-                        input_ctx.append_keys_by_str(item)
+                        input_ctx.send_key(item)
                     else:
                         raise TypeError;
 
