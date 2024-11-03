@@ -41,12 +41,10 @@ class Keymap:
         self._modifier = 0                      # 押されているモディファイアキーのビットの組み合わせ
         self._last_keydown = None               # 最後にKeyDownされた仮想キーコード
         self._oneshot_canceled = False          # ワンショットモディファイアをキャンセルするか
-        self._input_seq = []                    # 仮想のキー入力シーケンス ( beginInput ～ endInput で使用 )
-        self._virtual_modifier = 0              # 仮想のモディファイアキー状態 ( beginInput ～ endInput で使用 )
         self._record_status = None              # キーボードマクロの状態
         self._record_seq = None                 # キーボードマクロのシーケンス
 
-        keyhac_core.Hook.setCallback("Keyboard", self._onKey)
+        keyhac_core.Hook.setCallback("Keyboard", self._on_key)
         
         print("Welcome to Keyhac")
 
@@ -122,13 +120,6 @@ class Keymap:
 
         self._vk_mod_map[vk] = mod
 
-    def _release_modifier_all(self):
-        with self.get_input_context() as input_ctx:
-            for vk_mod in self._vk_mod_map.items():
-                if vk_mod[1] & MODKEY_USER_ALL:
-                    continue
-                input_ctx.append_key_by_vk(vk_mod[0], down=False)
-
     def define_keytable( self, name=None, focus_path_pattern=None, custom_condition_func=None ):
         keytable = KeyTable(name=name)
         if focus_path_pattern or custom_condition_func:
@@ -136,10 +127,17 @@ class Keymap:
             self._keytable_list.append( (focus_condition, keytable) )
         return keytable
 
+    def _release_modifier_all(self):
+        with self.get_input_context() as input_ctx:
+            for vk_mod in self._vk_mod_map.items():
+                if vk_mod[1] & MODKEY_USER_ALL:
+                    continue
+                input_ctx.append_key_by_vk(vk_mod[0], down=False)
+
     def get_input_context(self):
         return InputContext(self._modifier, self._vk_mod_map)
 
-    def _checkFocusChange(self):
+    def _check_focus_change(self):
     
         elm = keyhac_core.UIElement.getSystemWideElement()
         elm = elm.getAttributeValue("AXFocusedUIElement")
@@ -152,18 +150,18 @@ class Keymap:
             self._focus_path = new_focus_path
             self._update_unified_keytable()
 
-    def _onKey(self, s):
+    def _on_key(self, s):
         d = json.loads(s)
         if d["type"]=="keyDown":
-            return self._onKeyDown(d["keyCode"])
+            return self._on_key_down(d["keyCode"])
         elif d["type"]=="keyUp":
-            return self._onKeyUp(d["keyCode"])
+            return self._on_key_up(d["keyCode"])
 
-    def _onKeyDown( self, vk ):
+    def _on_key_down( self, vk ):
 
-        self._checkFocusChange()
+        self._check_focus_change()
 
-        self._recordKey( vk, False )
+        self._record_key( vk, False )
 
         try:
             vk = self._vk_vk_map[vk]
@@ -212,11 +210,11 @@ class Keymap:
             print( e )
             traceback.print_exc()
 
-    def _onKeyUp( self, vk ):
+    def _on_key_up( self, vk ):
 
-        self._checkFocusChange()
+        self._check_focus_change()
 
-        self._recordKey( vk, True )
+        self._record_key( vk, True )
 
         try:
             vk = self._vk_vk_map[vk]
@@ -279,7 +277,7 @@ class Keymap:
             print( e )
             traceback.print_exc()
 
-    def _recordKey( self, vk, up ):
+    def _record_key( self, vk, up ):
         if self._record_status=="recording":
             if len(self._record_seq)>=1000:
                 print( "ERROR : Keyboard macro is too long." )
