@@ -22,6 +22,7 @@ const char * keyhacCoreModuleName = MODULE_NAME;
 // ------------------------------------------
 
 extern PyTypeObject UIElement_Type;
+#define UIElement_Check(op) PyObject_TypeCheck(op, &UIElement_Type)
 
 struct UIElement_Object
 {
@@ -58,12 +59,19 @@ static PyObject * _convertUIValueToPyObject(const UIValue & value)
             }
             break;
                 
-        case UIValueType::cases::number:
+        case UIValueType::cases::int_:
             {
-                long i = value.getValueNumber();
+                long i = value.getValueInt();
                 pyvalue = PyLong_FromLong(i);
             }
-                break;
+            break;
+                
+        case UIValueType::cases::float_:
+            {
+                double f = value.getValueFloat();
+                pyvalue = PyFloat_FromDouble(f);
+            }
+            break;
                 
         case UIValueType::cases::string:
             {
@@ -246,6 +254,205 @@ static PyObject * UIElement_getAttributeValue(UIElement_Object * self, PyObject 
     }
 }
 
+static PyObject * UIElement_setAttributeValue(UIElement_Object * self, PyObject * args)
+{
+    PyObject * pyattr_name;
+    PyObject * pytype_name;
+    PyObject * pyvalue;
+    if( ! PyArg_ParseTuple(args, "UUO", &pyattr_name, &pytype_name, &pyvalue) )
+    {
+        return NULL;
+    }
+    
+    const char * attr_name = PyUnicode_AsUTF8AndSize(pyattr_name, NULL);
+    std::string type_name = PyUnicode_AsUTF8AndSize(pytype_name, NULL);
+
+    if(type_name=="bool")
+    {
+        if( ! PyBool_Check(pyvalue) )
+        {
+            PyErr_SetString( PyExc_TypeError, "value must be a boolean object.");
+            return NULL;
+        }
+        
+        auto value = UIValue::fromBool( pyvalue == Py_True );
+        self->impl.setAttributeValue(attr_name, value);
+    }
+    else if(type_name=="number")
+    {
+        if( PyFloat_Check(pyvalue) )
+        {
+            auto value = UIValue::fromFloat( PyFloat_AsDouble(pyvalue) );
+            self->impl.setAttributeValue(attr_name, value);
+        }
+        else if(PyLong_Check(pyvalue))
+        {
+            auto value = UIValue::fromInt( PyLong_Check(pyvalue) );
+            self->impl.setAttributeValue(attr_name, value);
+        }
+        else
+        {
+            PyErr_SetString( PyExc_TypeError, "value must be int/float.");
+            return NULL;
+        }
+    }
+    else if(type_name=="string")
+    {
+        if( ! PyUnicode_Check(pyvalue) )
+        {
+            PyErr_SetString( PyExc_TypeError, "value must be a string object.");
+            return NULL;
+        }
+        
+        auto value = UIValue::fromString( PyUnicode_AsUTF8AndSize(pyvalue, NULL) );
+        self->impl.setAttributeValue(attr_name, value);
+    }
+    else if(type_name=="range")
+    {
+        if( ! PySequence_Check(pyvalue) )
+        {
+            PyErr_SetString( PyExc_TypeError, "value must be a sequence object.");
+            return NULL;
+        }
+        
+        if( PySequence_Length(pyvalue)!=2 )
+        {
+            PyErr_SetString( PyExc_TypeError, "length of value must be a 2.");
+            return NULL;
+        }
+        
+        auto value = swift::Array<swift::Int>::init();
+        for( int i=0 ; i<2 ; ++i )
+        {
+            PyObject * pyitem = PySequence_GetItem(pyvalue, i);
+
+            if( ! PyLong_Check(pyitem) )
+            {
+                PyErr_SetString( PyExc_TypeError, "value must be a sequence of int.");
+                Py_XDECREF(pyitem);
+                return NULL;
+            }
+            
+            value.append(PyLong_AsLong(pyitem));
+
+            Py_XDECREF(pyitem);
+        }
+
+        auto uivalue = UIValue::fromRange(value);
+        self->impl.setAttributeValue(attr_name, uivalue);
+    }
+    else if(type_name=="point")
+    {
+        if( ! PySequence_Check(pyvalue) )
+        {
+            PyErr_SetString( PyExc_TypeError, "value must be a sequence object.");
+            return NULL;
+        }
+        
+        if( PySequence_Length(pyvalue)!=2 )
+        {
+            PyErr_SetString( PyExc_TypeError, "length of value must be a 2.");
+            return NULL;
+        }
+        
+        auto value = swift::Array<double>::init();
+        for( int i=0 ; i<2 ; ++i )
+        {
+            PyObject * pyitem = PySequence_GetItem(pyvalue, i);
+
+            if( ! PyNumber_Check(pyitem) )
+            {
+                PyErr_SetString( PyExc_TypeError, "value must be a sequence of numbers.");
+                Py_XDECREF(pyitem);
+                return NULL;
+            }
+            
+            value.append(PyFloat_AsDouble(pyitem));
+
+            Py_XDECREF(pyitem);
+        }
+
+        auto uivalue = UIValue::fromPoint(value);
+        self->impl.setAttributeValue(attr_name, uivalue);
+    }
+    else if(type_name=="size")
+    {
+        if( ! PySequence_Check(pyvalue) )
+        {
+            PyErr_SetString( PyExc_TypeError, "value must be a sequence object.");
+            return NULL;
+        }
+        
+        if( PySequence_Length(pyvalue)!=2 )
+        {
+            PyErr_SetString( PyExc_TypeError, "length of value must be a 2.");
+            return NULL;
+        }
+        
+        auto value = swift::Array<double>::init();
+        for( int i=0 ; i<2 ; ++i )
+        {
+            PyObject * pyitem = PySequence_GetItem(pyvalue, i);
+
+            if( ! PyNumber_Check(pyitem) )
+            {
+                PyErr_SetString( PyExc_TypeError, "value must be a sequence of numbers.");
+                Py_XDECREF(pyitem);
+                return NULL;
+            }
+            
+            value.append(PyFloat_AsDouble(pyitem));
+
+            Py_XDECREF(pyitem);
+        }
+
+        auto uivalue = UIValue::fromSize(value);
+        self->impl.setAttributeValue(attr_name, uivalue);
+    }
+    else if(type_name=="rect")
+    {
+        if( ! PySequence_Check(pyvalue) )
+        {
+            PyErr_SetString( PyExc_TypeError, "value must be a sequence object.");
+            return NULL;
+        }
+        
+        if( PySequence_Length(pyvalue)!=4 )
+        {
+            PyErr_SetString( PyExc_TypeError, "length of value must be a 4.");
+            return NULL;
+        }
+        
+        auto value = swift::Array<double>::init();
+        for( int i=0 ; i<4 ; ++i )
+        {
+            PyObject * pyitem = PySequence_GetItem(pyvalue, i);
+
+            if( ! PyNumber_Check(pyitem) )
+            {
+                PyErr_SetString( PyExc_TypeError, "value must be a sequence of numbers.");
+                Py_XDECREF(pyitem);
+                return NULL;
+            }
+            
+            value.append(PyFloat_AsDouble(pyitem));
+
+            Py_XDECREF(pyitem);
+        }
+
+        auto uivalue = UIValue::fromRect(value);
+        self->impl.setAttributeValue(attr_name, uivalue);
+    }
+    else
+    {
+        PyErr_SetString( PyExc_ValueError, "unknown or unsupported type");
+        return NULL;
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject * UIElement_getActionNames(UIElement_Object * self, PyObject * args)
 {
     if( ! PyArg_ParseTuple(args,"") )
@@ -288,6 +495,7 @@ static PyMethodDef UIElement_methods[] = {
     { "getSystemWideElement", (PyCFunction)UIElement_getSystemWideElement, METH_STATIC|METH_VARARGS, "" },
     { "getAttributeNames", (PyCFunction)UIElement_getAttributeNames, METH_VARARGS, "" },
     { "getAttributeValue", (PyCFunction)UIElement_getAttributeValue, METH_VARARGS, "" },
+    { "setAttributeValue", (PyCFunction)UIElement_setAttributeValue, METH_VARARGS, "" },
     { "getActionNames", (PyCFunction)UIElement_getActionNames, METH_VARARGS, "" },
     { "performAction", (PyCFunction)UIElement_performAction, METH_VARARGS, "" },
     {NULL,NULL}

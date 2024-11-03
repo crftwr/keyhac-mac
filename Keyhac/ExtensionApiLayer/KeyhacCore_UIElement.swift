@@ -13,7 +13,8 @@ import Cocoa
 public enum UIValueType {
     case uiElement
     case bool
-    case number
+    case int
+    case float
     case string
     case range
     case point
@@ -26,13 +27,49 @@ public enum UIValueType {
 
 public struct UIValue {
     
-    private var value: AnyObject?
+    fileprivate var value: AnyObject?
     
     public init() {
     }
     
     public init(_ value: AnyObject) {
         self.value = value
+    }
+    
+    public static func fromBool(_ value: Bool) -> UIValue {
+        return .init(value as AnyObject)
+    }
+    
+    public static func fromInt(_ value: Int) -> UIValue {
+        return .init(value as AnyObject)
+    }
+    
+    public static func fromFloat(_ value: Double) -> UIValue {
+        return .init(value as AnyObject)
+    }
+    
+    public static func fromString(_ value: String) -> UIValue {
+        return .init(value as AnyObject)
+    }
+    
+    public static func fromRange(_ value: [Int]) -> UIValue {
+        let range: CFRange = CFRange.init(location:value[0], length:value[1])
+        return .init(range as AnyObject)
+    }
+    
+    public static func fromPoint(_ value: [Double]) -> UIValue {
+        let point: CGPoint = CGPoint.init(x:value[0], y:value[1])
+        return .init(point as AnyObject)
+    }
+    
+    public static func fromSize(_ value: [Double]) -> UIValue {
+        let size: CGSize = CGSize.init(width:value[0], height:value[1])
+        return .init(size as AnyObject)
+    }
+    
+    public static func fromRect(_ value: [Double]) -> UIValue {
+        let rect: CGRect = CGRect.init(x:value[0], y:value[1], width:value[2], height:value[3])
+        return .init(rect as AnyObject)
     }
     
     public func getType() -> UIValueType {
@@ -42,7 +79,13 @@ public struct UIValue {
         let type = CFGetTypeID(value)
         switch type {
         case CFNumberGetTypeID():
-            return .number
+            let cfnumber = value as! CFNumber
+            if CFNumberIsFloatType(cfnumber) {
+                return .float
+            }
+            else {
+                return .int
+            }
         case CFBooleanGetTypeID():
             return .bool
         case CFStringGetTypeID():
@@ -79,9 +122,14 @@ public struct UIValue {
         return value as! Bool
     }
     
-    public func getValueNumber() -> Int {
+    public func getValueInt() -> Int {
         guard let value else { return 0 }
         return value as! Int
+    }
+    
+    public func getValueFloat() -> Double {
+        guard let value else { return 0 }
+        return value as! Double
     }
     
     public func getValueString() -> String {
@@ -199,6 +247,25 @@ public class UIElement {
         default:
             print("AXUIElementCopyAttributeValue failed: \(name) - \(result)")
             return nil
+        }
+    }
+    
+    public func setAttributeValue(name: String, value: UIValue) {
+        guard let elm else {
+            return
+        }
+        
+        guard let value = value.value else {
+            return
+        }
+
+        let result = AXUIElementSetAttributeValue(elm, name as CFString, value)
+
+        switch result {
+        case .success:
+            break
+        default:
+            print("AXUIElementSetAttributeValue failed: \(name) - \(result)")
         }
     }
 
