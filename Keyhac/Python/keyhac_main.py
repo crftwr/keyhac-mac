@@ -181,12 +181,12 @@ class Keymap:
                 self._modifier |= self._vk_mod_map[vk]
                 if self._vk_mod_map[vk] & MODKEY_USER_ALL:
                     key = KeyCondition( vk, old_modifier, up=False )
-                    self._keyAction(key)
+                    self._do_configured_key_action(key)
                     return True
 
             key = KeyCondition( vk, old_modifier, up=False )
 
-            if self._keyAction(key):
+            if self._do_configured_key_action(key):
                 return True
             elif replaced:
                 with self.get_input_context() as input_ctx:
@@ -231,12 +231,10 @@ class Keymap:
         try: # for error
             try: # for oneshot
                 if vk in self._vk_mod_map:
-
                     self._modifier &= ~self._vk_mod_map[vk]
-
                     if self._vk_mod_map[vk] & MODKEY_USER_ALL:
                         key = KeyCondition( vk, self._modifier, up=True )
-                        self._keyAction(key)
+                        self._do_configured_key_action(key)
                         return True
 
                 key = KeyCondition( vk, self._modifier, up=True )
@@ -244,9 +242,9 @@ class Keymap:
                 if oneshot:
                     oneshot_key = KeyCondition( vk, self._modifier, up=False, oneshot=True )
 
-                if self._keyAction(key):
+                if self._do_configured_key_action(key):
                     return True
-                elif replaced or ( oneshot and self._hasKeyAction(oneshot_key) ):
+                elif replaced or ( oneshot and self._is_key_configured(oneshot_key) ):
                     with self.get_input_context() as input_ctx:
                         input_ctx.append_key_by_vk( vk, down=False )
                         if self._debug : print( "REP :", input_ctx )
@@ -270,7 +268,7 @@ class Keymap:
                 # モディファイアが押しっぱなしになるなどの問題があるようだ。
                 if oneshot:
                     key = KeyCondition( vk, self._modifier, up=False, oneshot=True )
-                    self._keyAction(key)
+                    self._do_configured_key_action(key)
 
         except Exception as e:
             print( "ERROR : Unexpected error happened :" )
@@ -284,52 +282,47 @@ class Keymap:
                 return
             self._record_seq.append( ( vk, up ) )
 
-    def _hasKeyAction( self, key ):
+    def _is_key_configured( self, key ):
         return key in self._unified_keytable
 
-    def _keyAction( self, key ):
+    def _do_configured_key_action( self, key ):
 
         if self._debug : print( "IN  :", key )
 
-        try:
-            try:
-                handler = self._unified_keytable[key]
-            except KeyError:
-                if self._multi_stroke_keytable and not key.up and not key.oneshot and not key.vk in self._vk_mod_map:
-                    winsound.MessageBeep()
-                    return True
-                else:
-                    return False
-        finally:
-            if not key.up and not key.oneshot and not key.vk in self._vk_mod_map:
-                self._leaveMultiStroke()
+        action = None
+        if key in self._unified_keytable:
+            action = self._unified_keytable[key]
 
-        if callable(handler):
-            handler()
+        left_multi_stroke = False
+        if self._multi_stroke_keytable and not key.up and not key.oneshot and not key.vk in self._vk_mod_map:
+            self._leave_multi_stroke()
+            left_multi_stroke = True
 
-        elif isinstance(handler, KeyTable):
-            self._enterMultiStroke(handler)
+        if action is None:
+            return left_multi_stroke
+        
+        if callable(action):
+            action()
+
+        elif isinstance(action, KeyTable):
+            self._enter_multi_stroke(action)
 
         else:
-            if type(handler)!=list and type(handler)!=tuple:
-                handler = [handler]
+            if type(action)!=list and type(action)!=tuple:
+                action = [action]
 
-            self.beginInput()
-
-            for item in handler:
-
-                if type(item)==str:
-                    self.setInput_FromString(item)
-                else:
-                    raise TypeError;
-
-            self.endInput()
+            with self.get_input_context() as input_ctx:
+                for item in action:
+                    if type(item)==str:
+                        input_ctx.append_keys_by_str(item)
+                    else:
+                        raise TypeError;
 
         return True
 
-    def _enterMultiStroke( self, keymap ):
+    def _enter_multi_stroke( self, keytable ):
 
-        self._multi_stroke_keytable = keymap
+        self._multi_stroke_keytable = keytable
         self._update_unified_keytable()
 
         # FIXME : toast を使う
@@ -337,7 +330,7 @@ class Keymap:
         #if help_string:
         #    self.popBalloon( "MultiStroke", help_string )
 
-    def _leaveMultiStroke(self):
+    def _leave_multi_stroke(self):
 
         if self._multi_stroke_keytable:
             self._multi_stroke_keytable = None
