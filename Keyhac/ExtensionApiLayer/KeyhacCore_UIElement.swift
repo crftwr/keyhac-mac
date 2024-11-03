@@ -37,39 +37,47 @@ public struct UIValue {
     }
     
     public static func fromBool(_ value: Bool) -> UIValue {
-        return .init(value as AnyObject)
+        let cfbool: CFBoolean = value ? kCFBooleanTrue : kCFBooleanFalse
+        return .init(cfbool as AnyObject)
     }
     
     public static func fromInt(_ value: Int) -> UIValue {
-        return .init(value as AnyObject)
+        let cfnumber: CFNumber = value as CFNumber
+        return .init(cfnumber as AnyObject)
     }
     
     public static func fromFloat(_ value: Double) -> UIValue {
-        return .init(value as AnyObject)
+        let cfnumber: CFNumber = value as CFNumber
+        return .init(cfnumber as AnyObject)
     }
     
     public static func fromString(_ value: String) -> UIValue {
-        return .init(value as AnyObject)
+        let cfstr: CFString = value as CFString
+        return .init(cfstr as AnyObject)
     }
     
     public static func fromRange(_ value: [Int]) -> UIValue {
-        let range: CFRange = CFRange.init(location:value[0], length:value[1])
-        return .init(range as AnyObject)
+        var cfrange: CFRange = CFRange.init(location:value[0], length:value[1])
+        let axrange = AXValueCreate(AXValueType.cfRange, &cfrange)
+        return .init(axrange as AnyObject)
     }
     
     public static func fromPoint(_ value: [Double]) -> UIValue {
-        let point: CGPoint = CGPoint.init(x:value[0], y:value[1])
-        return .init(point as AnyObject)
+        var cgpoint: CGPoint = CGPoint.init(x:value[0], y:value[1])
+        let axpoint = AXValueCreate(AXValueType.cgPoint, &cgpoint)
+        return .init(axpoint as AnyObject)
     }
     
     public static func fromSize(_ value: [Double]) -> UIValue {
-        let size: CGSize = CGSize.init(width:value[0], height:value[1])
-        return .init(size as AnyObject)
+        var cgsize: CGSize = CGSize.init(width:value[0], height:value[1])
+        let axsize = AXValueCreate(AXValueType.cgSize, &cgsize)
+        return .init(axsize as AnyObject)
     }
     
     public static func fromRect(_ value: [Double]) -> UIValue {
-        let rect: CGRect = CGRect.init(x:value[0], y:value[1], width:value[2], height:value[3])
-        return .init(rect as AnyObject)
+        var cgrect: CGRect = CGRect.init(x:value[0], y:value[1], width:value[2], height:value[3])
+        let axrect = AXValueCreate(AXValueType.cgRect, &cgrect)
+        return .init(axrect as AnyObject)
     }
     
     public func getType() -> UIValueType {
