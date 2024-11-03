@@ -8,6 +8,7 @@ import keyhac_config
 import keyhac_console
 from keyhac_key import KeyCondition, KeyTable
 from keyhac_focus import FocusCondition
+from keyhac_input import InputContext
 from keyhac_const import *
 
 # for Xcode console
@@ -121,18 +122,12 @@ class Keymap:
 
         self._vk_mod_map[vk] = mod
 
-    # FIXME: naming convention
-    def sendInput(self, seq):
-        for event in seq:
-            keyhac_core.Hook.sendKeyboardEvent(event[0], event[1])
-
     def _release_modifier_all(self):
-        input_seq = []
-        for vk_mod in self._vk_mod_map.items():
-            if vk_mod[1] & MODKEY_USER_ALL:
-                continue
-            input_seq.append( ("keyUp", vk_mod[0]) )
-        self.sendInput(input_seq)
+        with self.get_input_context() as input_ctx:
+            for vk_mod in self._vk_mod_map.items():
+                if vk_mod[1] & MODKEY_USER_ALL:
+                    continue
+                input_ctx.append_key_by_vk(vk_mod[0], down=False)
 
     def define_keytable( self, name=None, focus_path_pattern=None, custom_condition_func=None ):
         keytable = KeyTable(name=name)
@@ -141,72 +136,8 @@ class Keymap:
             self._keytable_list.append( (focus_condition, keytable) )
         return keytable
 
-    # FIXME: naming convention
-    def beginInput(self):
-        self._input_seq = []
-        self._virtual_modifier = self._modifier
-
-    # FIXME: naming convention
-    def endInput(self):
-        self.setInput_Modifier(self._modifier)
-        self.sendInput(self._input_seq)
-        self._input_seq = []
-
-    # FIXME: naming convention
-    def setInput_Modifier( self, mod ):
-
-        # モディファイア押す
-        for vk_mod in self._vk_mod_map.items():
-            if vk_mod[1] & MODKEY_USER_ALL : continue
-            if not ( vk_mod[1] & self._virtual_modifier ) and ( vk_mod[1] & mod ):
-                self._input_seq.append( ("keyDown", vk_mod[0]) )
-                self._virtual_modifier |= vk_mod[1]
-
-        # モディファイア離す
-        for vk_mod in self._vk_mod_map.items():
-            if vk_mod[1] & MODKEY_USER_ALL : continue
-            if ( vk_mod[1] & self._virtual_modifier ) and not ( vk_mod[1] & mod ):
-                self._input_seq.append( ("keyUp", vk_mod[0]) )
-                self._virtual_modifier &= ~vk_mod[1]
-
-    # FIXME: naming convention
-    def setInput_FromString( self, s ):
-
-        s = s.upper()
-
-        vk = None
-        mod = 0
-        up = None
-
-        token_list = s.split("-")
-
-        for token in token_list[:-1]:
-
-            token = token.strip()
-
-            try:
-                mod |= KeyCondition.str_to_mod( token, force_LR=True )
-            except ValueError:
-                if token=="D":
-                    up = False
-                elif token=="U":
-                    up = True
-                else:
-                    raise ValueError
-
-        token = token_list[-1].strip()
-
-        vk = KeyCondition.str_to_vk(token)
-
-        self.setInput_Modifier(mod)
-
-        if up==True:
-            self._input_seq.append( ("keyUp", vk) )
-        elif up==False:
-            self._input_seq.append( ("keyDown", vk) )
-        else:
-            self._input_seq.append( ("keyDown", vk) )
-            self._input_seq.append( ("keyUp", vk) )
+    def get_input_context(self):
+        return InputContext(self._modifier, self._vk_mod_map)
 
     def _checkFocusChange(self):
     
@@ -260,17 +191,17 @@ class Keymap:
             if self._keyAction(key):
                 return True
             elif replaced:
-                key_seq = [ ("keyDown", vk) ]
-                if self._debug : print( "REP :", key_seq )
-                self.sendInput(key_seq)
+                with self.get_input_context() as input_ctx:
+                    input_ctx.append_key_by_vk( vk, down=True )
+                    if self._debug : print( "REP :", input_ctx )
                 return True
             else:
                 if self._send_input_on_tru:
                     # 一部の環境でモディファイアが押しっぱなしになってしまう現象の回避テスト
                     # TRU でも Input.send すると問題が起きない
-                    key_seq = [ ("keyDown", vk) ]
-                    if self._debug : print( "TRU :", key_seq )
-                    self.sendInput(key_seq)
+                    with self.get_input_context() as input_ctx:
+                        input_ctx.append_key_by_vk( vk, down=True )
+                        if self._debug : print( "TRU :", input_ctx )
                     return True
                 else:
                     if self._debug : print( "TRU :", key )
@@ -318,17 +249,17 @@ class Keymap:
                 if self._keyAction(key):
                     return True
                 elif replaced or ( oneshot and self._hasKeyAction(oneshot_key) ):
-                    key_seq = [ ("keyUp", vk) ]
-                    if self._debug : print( "REP :", key_seq )
-                    self.sendInput(key_seq)
+                    with self.get_input_context() as input_ctx:
+                        input_ctx.append_key_by_vk( vk, down=False )
+                        if self._debug : print( "REP :", input_ctx )
                     return True
                 else:
                     if self._send_input_on_tru:
                         # 一部の環境でモディファイアが押しっぱなしになってしまう現象の回避テスト
                         # TRU でも Input.send すると問題が起きない
-                        key_seq = [ ("keyUp", vk) ]
-                        if self._debug : print( "TRU :", key_seq )
-                        self.sendInput(key_seq)
+                        with self.get_input_context() as input_ctx:
+                            input_ctx.append_key_by_vk( vk, down=False )
+                            if self._debug : print( "TRU :", input_ctx )
                         return True
                     else:
                         if self._debug : print( "TRU :", key )
