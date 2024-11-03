@@ -325,27 +325,6 @@ class KeyCondition:
         "RCMD"   :  MODKEY_CMD_R,
         "RUSER0" :  MODKEY_USER0_R,
         "RUSER1" :  MODKEY_USER1_R,
-
-        #"A" :  MODKEY_ALT,
-        #"C" :  MODKEY_CTRL,
-        #"S" :  MODKEY_SHIFT,
-        #"W" :  MODKEY_WIN,
-        #"U0" : MODKEY_USER0,
-        #"U1" : MODKEY_USER1,
-
-        #"LA" :  MODKEY_ALT_L,
-        #"LC" :  MODKEY_CTRL_L,
-        #"LS" :  MODKEY_SHIFT_L,
-        #"LW" :  MODKEY_WIN_L,
-        #"LU0" : MODKEY_USER0_L,
-        #"LU1" : MODKEY_USER1_L,
-
-        #"RA" :  MODKEY_ALT_R,
-        #"RC" :  MODKEY_CTRL_R,
-        #"RS" :  MODKEY_SHIFT_R,
-        #"RW" :  MODKEY_WIN_R,
-        #"RU0" : MODKEY_USER0_R,
-        #"RU1" : MODKEY_USER1_R,
     }
 
     def __init__( self, vk, mod=0, up=False, oneshot=False ):
@@ -413,7 +392,7 @@ class KeyCondition:
         return s
 
     @staticmethod
-    def fromString(s):
+    def from_str(s):
 
         s = s.upper()
 
@@ -449,6 +428,7 @@ class KeyCondition:
     @staticmethod
     def initTables():
 
+        # FIXME: detect keyboard type
         keyboard_type = 0
 
         KeyCondition.str_vk_table = KeyCondition.str_vk_table_common
@@ -523,7 +503,7 @@ class KeyTable:
 
     def __setitem__( self, key, value ):
         try:
-            key = KeyCondition.fromString(key)
+            key = KeyCondition.from_str(key)
         except ValueError:
             print( "ERROR : Invalid key expression :", key )
             return
@@ -532,7 +512,7 @@ class KeyTable:
 
     def __getitem__( self, key ):
         try:
-            key = KeyCondition.fromString(key)
+            key = KeyCondition.from_str(key)
         except ValueError:
             print( "ERROR : Invalid key expression :", key )
             return
@@ -541,7 +521,7 @@ class KeyTable:
 
     def __delitem__( self, key ):
         try:
-            key = KeyCondition.fromString(key)
+            key = KeyCondition.from_str(key)
         except ValueError:
             print( "ERROR : Invalid key expression :", key )
             return

@@ -211,45 +211,12 @@ class Keymap:
 
     def _checkFocusChange(self):
     
-        focus_elms = []
-
         elm = keyhac_core.UIElement.getSystemWideElement()
         elm = elm.getAttributeValue("AXFocusedUIElement")
 
         self._focus_elm = elm
+        new_focus_path = FocusCondition.get_focus_path(elm)
 
-        while elm:
-            focus_elms.append(elm)
-            elm = elm.getAttributeValue("AXParent")
-
-        focus_path_components = [""]
-
-        special_chars_trans_table = str.maketrans({
-            "(":  r"<",
-            ")":  r">",
-            "/":  r"-",
-            "*":  r"-",
-            "?":  r"-",
-            "[":  r"<",
-            "]":  r">",
-            ":":  r"-",
-            "\n": r" ",
-            "\t": r" ",
-        })
-
-        for elm in reversed(focus_elms):
-
-            role = elm.getAttributeValue("AXRole")
-            if role is None: role = ""
-            role = role.translate(special_chars_trans_table)
-
-            title = elm.getAttributeValue("AXTitle")
-            if title is None: title = ""
-            title = title.translate(special_chars_trans_table)
-
-            focus_path_components.append( f"{role}({title})" )
-
-        new_focus_path = "/".join(focus_path_components)
         if self._focus_path != new_focus_path:
             print("Focus path:", new_focus_path)
             self._focus_path = new_focus_path
