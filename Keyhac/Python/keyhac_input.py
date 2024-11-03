@@ -19,7 +19,7 @@ class InputContext:
     def __str__(self):
         return str(self._input_seq)
 
-    def append_keys_for_modifier(self, mod):
+    def send_modifier_keys(self, mod):
 
         # モディファイア押す
         for vk_mod in self._vk_mod_map.items():
@@ -63,7 +63,7 @@ class InputContext:
 
         vk = KeyCondition.str_to_vk(token)
 
-        self.append_keys_for_modifier(mod)
+        self.send_modifier_keys(mod)
 
         if up==True:
             self._input_seq.append( ("keyUp", vk) )
@@ -82,7 +82,7 @@ class InputContext:
         self._input_seq.append( (event_name, vk) )
 
     def flush(self):
-        self.append_keys_for_modifier(self._real_modifier)
+        self.send_modifier_keys(self._real_modifier)
         for event in self._input_seq:
             keyhac_core.Hook.sendKeyboardEvent(event[0], event[1])
         self._input_seq = []
