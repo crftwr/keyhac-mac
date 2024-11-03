@@ -1,7 +1,6 @@
 import sys
 import os
 import json
-import fnmatch
 import traceback
 
 import keyhac_core
@@ -31,9 +30,9 @@ class Keymap:
         self._debug = False                     # デバッグモード
         self._send_input_on_tru = False         # キーの置き換えが不要だった場合もsentInputするか
 
-        self._focus_cond_keymap_list = []       # (FocusCondition, KeyTable) のリスト
-        self._multi_stroke_keymap = None        # マルチストローク用の KeyTable
-        self._current_map = {}                  # 現在フォーカスされているウインドウで有効なキーマップ
+        self._keytable_list = []                # (FocusCondition, KeyTable) のリスト
+        self._multi_stroke_keytable = None      # マルチストローク用の KeyTable
+        self._unified_keytable = {}             # 現在フォーカスされているウインドウで有効なキーマップ
         self._vk_mod_map = {}                   # モディファイアキーの仮想キーコードとビットのテーブル
         self._vk_vk_map = {}                    # キーの置き換えテーブル
         self._focus_path = None                 # 現在フォーカスされているUI要素を表す文字列
@@ -52,13 +51,13 @@ class Keymap:
 
     def configure(self):
 
-        self._releaseModifierAll()
+        self._release_modifier_all()
 
         KeyCondition.init_vk_str_tables()
 
-        self._focus_cond_keymap_list = []
-        self._multi_stroke_keymap = None
-        self._current_map = {}
+        self._keytable_list = []
+        self._multi_stroke_keytable = None
+        self._unified_keytable = {}
         self._vk_mod_map = {}
         self._vk_vk_map = {}
         self._focus_path = None
@@ -127,7 +126,7 @@ class Keymap:
         for event in seq:
             keyhac_core.Hook.sendKeyboardEvent(event[0], event[1])
 
-    def _releaseModifierAll(self):
+    def _release_modifier_all(self):
         input_seq = []
         for vk_mod in self._vk_mod_map.items():
             if vk_mod[1] & MODKEY_USER_ALL:
@@ -139,7 +138,7 @@ class Keymap:
         keytable = KeyTable(name=name)
         if focus_path_pattern or custom_condition_func:
             focus_condition = FocusCondition( focus_path_pattern, custom_condition_func )
-            self._focus_cond_keymap_list.append( (focus_condition, keytable) )
+            self._keytable_list.append( (focus_condition, keytable) )
         return keytable
 
     # FIXME: naming convention
@@ -220,7 +219,7 @@ class Keymap:
         if self._focus_path != new_focus_path:
             print("Focus path:", new_focus_path)
             self._focus_path = new_focus_path
-            self._updateKeymap()
+            self._update_unified_keytable()
 
     def _onKey(self, s):
         d = json.loads(s)
@@ -357,7 +356,7 @@ class Keymap:
             self._record_seq.append( ( vk, up ) )
 
     def _hasKeyAction( self, key ):
-        return key in self._current_map
+        return key in self._unified_keytable
 
     def _keyAction( self, key ):
 
@@ -365,9 +364,9 @@ class Keymap:
 
         try:
             try:
-                handler = self._current_map[key]
+                handler = self._unified_keytable[key]
             except KeyError:
-                if self._multi_stroke_keymap and not key.up and not key.oneshot and not key.vk in self._vk_mod_map:
+                if self._multi_stroke_keytable and not key.up and not key.oneshot and not key.vk in self._vk_mod_map:
                     winsound.MessageBeep()
                     return True
                 else:
@@ -401,32 +400,32 @@ class Keymap:
 
     def _enterMultiStroke( self, keymap ):
 
-        self._multi_stroke_keymap = keymap
-        self._updateKeymap()
+        self._multi_stroke_keytable = keymap
+        self._update_unified_keytable()
 
         # FIXME : toast を使う
-        #help_string = self._multi_stroke_keymap.helpString()
+        #help_string = self._multi_stroke_keytable.helpString()
         #if help_string:
         #    self.popBalloon( "MultiStroke", help_string )
 
     def _leaveMultiStroke(self):
 
-        if self._multi_stroke_keymap:
-            self._multi_stroke_keymap = None
-            self._updateKeymap()
+        if self._multi_stroke_keytable:
+            self._multi_stroke_keytable = None
+            self._update_unified_keytable()
 
             #self.closeBalloon( "MultiStroke" )
 
-    def _updateKeymap(self):
+    def _update_unified_keytable(self):
 
-        self._current_map = {}
+        self._unified_keytable = {}
 
-        if self._multi_stroke_keymap:
-            self._current_map.update(self._multi_stroke_keymap.table)
+        if self._multi_stroke_keytable:
+            self._unified_keytable.update(self._multi_stroke_keytable.table)
         else:
-            for focus_condition, keytable in self._focus_cond_keymap_list:
+            for focus_condition, keytable in self._keytable_list:
                 if focus_condition.check(self._focus_path, self._focus_elm):
-                    self._current_map.update(keytable.table)
+                    self._unified_keytable.update(keytable.table)
 
     @property
     def focus(self):
