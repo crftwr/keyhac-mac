@@ -204,6 +204,26 @@ static UIElement_Object * UIElement_getSystemWideElement( PyObject * self, PyObj
     return pyelm;
 }
 
+static PyObject * UIElement_getRunningApplications( PyObject * self, PyObject * args )
+{
+    if( ! PyArg_ParseTuple(args,"") )
+        return NULL;
+    
+    PyObject * pyapplications = PyList_New(0);
+
+    auto applications = UIElement::getRunningApplications();
+    for( swift::Int i=applications.getStartIndex() ; i<applications.getEndIndex() ; ++i )
+    {
+        auto application = applications[i];
+
+        PyObject* pyitem = (PyObject*)_createPyUIElement(application);
+        PyList_Append( pyapplications, pyitem );
+        Py_XDECREF(pyitem);
+    }
+    
+    return pyapplications;
+}
+
 static PyObject * UIElement_getAttributeNames(UIElement_Object * self, PyObject * args)
 {
     if( ! PyArg_ParseTuple(args,"") )
@@ -498,6 +518,7 @@ static PyObject * UIElement_performAction(UIElement_Object * self, PyObject * ar
 
 static PyMethodDef UIElement_methods[] = {
     { "getSystemWideElement", (PyCFunction)UIElement_getSystemWideElement, METH_STATIC|METH_VARARGS, "" },
+    { "getRunningApplications", (PyCFunction)UIElement_getRunningApplications, METH_STATIC|METH_VARARGS, "" },
     { "getAttributeNames", (PyCFunction)UIElement_getAttributeNames, METH_VARARGS, "" },
     { "getAttributeValue", (PyCFunction)UIElement_getAttributeValue, METH_VARARGS, "" },
     { "setAttributeValue", (PyCFunction)UIElement_setAttributeValue, METH_VARARGS, "" },

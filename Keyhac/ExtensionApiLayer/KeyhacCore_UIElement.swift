@@ -224,6 +224,25 @@ public class UIElement {
         return UIElement(elm)
     }
     
+    public static func getRunningApplications() -> [UIElement] {
+        
+        var applications: [UIElement] = []
+        
+        NSWorkspace.shared.runningApplications.forEach {
+            
+            if let bundleIdentifier = $0.bundleIdentifier {
+                print(bundleIdentifier)
+            }
+            
+            // create AXUIElement from the process id
+            let axelement = AXUIElementCreateApplication($0.processIdentifier)
+            
+            applications.append(UIElement(axelement))
+        }
+
+        return applications
+    }
+    
     public func getAttributeNames() -> [String] {
         
         guard let elm else {
