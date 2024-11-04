@@ -91,6 +91,21 @@ def configure(keymap):
     keytable_global["User0-Up"]    = MoveWindow(0,-10)
     keytable_global["User0-Down"]  = MoveWindow(0,+10)
 
+    # -----------------------------------------------------
+    # User0-T : activate Terminal application
+    def activate_app():
+        for app in UIElement.getRunningApplications():
+            title = app.getAttributeValue("AXTitle")
+            if title == "Terminal":
+                break
+        else:
+            return
+
+        app.setAttributeValue( "AXFrontmost", "bool", True )
+
+    keytable_global["User0-T"] = activate_app
+
+
     # =====================================================
     # Key table for Xcode
     # =====================================================
@@ -120,15 +135,16 @@ def configure(keymap):
 
     # Use custom logic to detect terminal kind of applications
     def is_terminal_window(elm):
-        
         try:
             window_elm = elm.getAttributeValue("AXWindow")
-            app_elm = window_elm.getAttributeValue("AXParent")
-            app_title = app_elm.getAttributeValue("AXTitle")
+            if window_elm:
+                app_elm = window_elm.getAttributeValue("AXParent")
+                if app_elm:
+                    app_title = app_elm.getAttributeValue("AXTitle")
+                    return app_title in ("Terminal", "iTerm2")
+            return False
         except KeyError:
             return False
-
-        return app_title in ("Terminal", "iTerm2")
 
     keytable_terminal = keymap.define_keytable( custom_condition_func = is_terminal_window )
 
