@@ -243,6 +243,8 @@ static PyObject * UIElement_getAttributeValue(UIElement_Object * self, PyObject 
         pyvalue = _convertUIValueToPyObject(value);
     }
     
+    // FIXME: handle missing attribute as KeyError
+    
     if(pyvalue)
     {
         return pyvalue;
@@ -267,6 +269,8 @@ static PyObject * UIElement_setAttributeValue(UIElement_Object * self, PyObject 
     const char * attr_name = PyUnicode_AsUTF8AndSize(pyattr_name, NULL);
     std::string type_name = PyUnicode_AsUTF8AndSize(pytype_name, NULL);
 
+    // FIXME: handle missing attribute as KeyError
+    
     if(type_name=="bool")
     {
         if( ! PyBool_Check(pyvalue) )
@@ -486,6 +490,7 @@ static PyObject * UIElement_performAction(UIElement_Object * self, PyObject * ar
     self->impl.performAction(action);
     
     // FIXME: handle error
+    // FIXME: handle missing attribute as KeyError
 
     Py_INCREF(Py_None);
     return Py_None;
