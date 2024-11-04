@@ -92,19 +92,24 @@ def configure(keymap):
     keytable_global["User0-Down"]  = MoveWindow(0,+10)
 
     # -----------------------------------------------------
-    # User0-T : activate Terminal application
-    def activate_app():
-        for app in UIElement.getRunningApplications():
-            title = app.getAttributeValue("AXTitle")
-            if title == "Terminal":
-                break
-        else:
-            return
+    # User0-T : activate one of running applications
+    class ActivateApplication:
+        def __init__(self, app_title):
+            self.app_title = app_title
 
-        app.setAttributeValue( "AXFrontmost", "bool", True )
+        def __call__(self):
+            for app in UIElement.getRunningApplications():
+                title = app.getAttributeValue("AXTitle")
+                if title == self.app_title:
+                    break
+            else:
+                return
 
-    keytable_global["User0-T"] = activate_app
+            app.setAttributeValue( "AXFrontmost", "bool", True )
 
+    keytable_global["User0-T"] = ActivateApplication("Terminal")
+    keytable_global["User0-F"] = ActivateApplication("Finder")
+    keytable_global["User0-C"] = ActivateApplication("Code")
 
     # =====================================================
     # Key table for Xcode
