@@ -139,8 +139,7 @@ class Keymap:
 
     def _check_focus_change(self):
     
-        elm = keyhac_core.UIElement.getSystemWideElement()
-        elm = elm.getAttributeValue("AXFocusedUIElement")
+        elm = keyhac_core.UIElement.getFocusedElement()
 
         self._focus_elm = elm
         new_focus_path = FocusCondition.get_focus_path(elm)

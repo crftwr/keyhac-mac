@@ -224,16 +224,33 @@ public class UIElement {
         return UIElement(elm)
     }
     
+    public static func getFocusedElement() -> UIElement? {
+        let systemwide: AXUIElement = AXUIElementCreateSystemWide()
+
+        var focusedElement: AnyObject?
+        AXUIElementCopyAttributeValue(systemwide, "AXFocusedUIElement" as CFString, &focusedElement)
+        
+        guard let focusedElement else { return nil }
+
+        return UIElement(focusedElement as! AXUIElement)
+    }
+    
+    public static func getFocusedApplication() -> UIElement? {
+        let systemwide: AXUIElement = AXUIElementCreateSystemWide()
+
+        var focusedApp: AnyObject?
+        AXUIElementCopyAttributeValue(systemwide, "AXFocusedApplication" as CFString, &focusedApp)
+        
+        guard let focusedApp else { return nil }
+
+        return UIElement(focusedApp as! AXUIElement)
+    }
+    
     public static func getRunningApplications() -> [UIElement] {
         
         var applications: [UIElement] = []
         
-        NSWorkspace.shared.runningApplications.forEach {
-            
-            if let bundleIdentifier = $0.bundleIdentifier {
-                print(bundleIdentifier)
-            }
-            
+        NSWorkspace.shared.runningApplications.forEach {            
             // create AXUIElement from the process id
             let axelement = AXUIElementCreateApplication($0.processIdentifier)
             
@@ -272,6 +289,7 @@ public class UIElement {
             guard let value else { return nil }
             return UIValue(value)
         default:
+            // FIXME: propagate the error to Python layer
             print("AXUIElementCopyAttributeValue failed: \(name) - \(result)")
             return nil
         }
@@ -292,6 +310,7 @@ public class UIElement {
         case .success:
             break
         default:
+            // FIXME: propagate the error to Python layer
             print("AXUIElementSetAttributeValue failed: \(name) - \(result)")
         }
     }
@@ -336,7 +355,7 @@ public class UIElement {
         case .success:
             return
         default:
-            // FIXME: print human readable error message, consider raising Python exception
+            // FIXME: propagate the error to Python layer
             print("AXUIElementPerformAction failed: \(action) - \(result)")
             return
         }
