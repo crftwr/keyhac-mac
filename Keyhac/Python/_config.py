@@ -12,7 +12,10 @@ def configure(keymap):
     keymap.define_modifier( "RCmd", "RUser0" )
     keymap.define_modifier( "RAlt", "RUser1" )
 
-    # Global keymap which affects any windows
+    # =====================================================
+    # Global key table
+    # =====================================================
+
     keytable_global = keymap.define_keytable(focus_path_pattern="*")
 
     # -----------------------------------------------------
@@ -88,8 +91,10 @@ def configure(keymap):
     keytable_global["User0-Up"]    = MoveWindow(0,-10)
     keytable_global["User0-Down"]  = MoveWindow(0,+10)
 
-    # -----------------------------------------------------
-    # Keymap for Xcode
+    # =====================================================
+    # Key table for Xcode
+    # =====================================================
+
     keytable_xcode = keymap.define_keytable( focus_path_pattern="/AXApplication(Xcode)/*/AXTextArea()" )
 
     # -----------------------------------------------------
@@ -107,3 +112,29 @@ def configure(keymap):
     # Test of multi-stroke key binding
     keytable_xcode["Ctrl-X"] = keymap.define_keytable(name="Ctrl-X")
     keytable_xcode["Ctrl-X"]["Ctrl-O"] = "Cmd-O"
+
+
+    # =====================================================
+    # Custom focus condition
+    # =====================================================
+
+    # Use custom logic to detect terminal kind of applications
+    def is_terminal_window(elm):
+        
+        try:
+            window_elm = elm.getAttributeValue("AXWindow")
+            app_elm = window_elm.getAttributeValue("AXParent")
+            app_title = app_elm.getAttributeValue("AXTitle")
+        except KeyError:
+            return False
+
+        return app_title in ("Terminal", "iTerm2")
+
+    keytable_terminal = keymap.define_keytable( custom_condition_func = is_terminal_window )
+
+    # -----------------------------------------------------
+    # Fn-A : overriding global keytable configuration
+    def hello_terminal():
+        print("Hello Terminal!")
+
+    keytable_terminal["Fn-A"] = hello_terminal
