@@ -196,7 +196,7 @@ public class Hook {
             case .keyDown, .keyUp:
                 // Overwrite event flags based on virtual modifier state
                 // FIXME: consider CapsLock state
-                event.flags = fixupEventFlagMask(src: modifier)
+                event.flags = virtualModifierStateToEventFlag(src: modifier)
             case .flagsChanged:
                 // Update virtual modifier state based on real modifier status change
                 if typeString == "keyDown" {
@@ -214,7 +214,7 @@ public class Hook {
         return Unmanaged.passUnretained(event)
     }
     
-    func fixupEventFlagMask(src: CGEventFlags) -> CGEventFlags
+    func virtualModifierStateToEventFlag(src: CGEventFlags) -> CGEventFlags
     {
         var dst = src
         
@@ -252,73 +252,6 @@ public class Hook {
         default:
             return CGEventFlags(rawValue: 0)
         }
-    }
-
-    /*
-    func lookupKeyState( const KeyMap & keys, vk: Int ) -> Bool {
-        // GetKeys / KeyMap では、左右のモディファイアキーの区別がつかないので、
-        // どちらかが押されていたら、両方押されているとみなす。
-        switch(vk)
-        {
-        case kVK_RightControl:
-            vk = kVK_Control;
-            break;
-            
-        case kVK_RightShift:
-            vk = kVK_Shift;
-            break;
-            
-        case kVK_RightCommand:
-            vk = kVK_Command;
-            break;
-            
-        case kVK_RightOption:
-            vk = kVK_Option;
-            break;
-            
-        default:
-            break;
-        }
-        
-        return (keys[ vk / 32 ].bigEndianValue & (1<<(vk%32))) != 0;
-    }
-    */
-
-    public func fixWierdModifierState() {
-        
-        /*
-        KeyMap keys;
-        getKeys(keys);
-        
-        if( ! LookupKeyState(keys,kVK_Control) )
-        {
-            modifier = (CGEventFlags)( modifier & ~VkToFlag(kVK_Control) );
-            modifier = (CGEventFlags)( modifier & ~VkToFlag(kVK_RightControl) );
-        }
-        
-        if( ! LookupKeyState(keys,kVK_Shift) )
-        {
-            modifier = (CGEventFlags)( modifier & ~VkToFlag(kVK_Shift) );
-            modifier = (CGEventFlags)( modifier & ~VkToFlag(kVK_RightShift) );
-        }
-        
-        if( ! LookupKeyState(keys,kVK_Command) )
-        {
-            modifier = (CGEventFlags)( modifier & ~VkToFlag(kVK_Command) );
-            modifier = (CGEventFlags)( modifier & ~VkToFlag(kVK_RightCommand) );
-        }
-        
-        if( ! LookupKeyState(keys,kVK_Option) )
-        {
-            modifier = (CGEventFlags)( modifier & ~VkToFlag(kVK_Option) );
-            modifier = (CGEventFlags)( modifier & ~VkToFlag(kVK_RightOption) );
-        }
-        
-        if( ! LookupKeyState(keys,kVK_Function) )
-        {
-            modifier = (CGEventFlags)( modifier & ~VkToFlag(kVK_Function) );
-        }
-        */
     }
 
     public func sendKeyboardEvent(type: String, keyCode: Int) {
