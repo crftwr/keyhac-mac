@@ -145,32 +145,29 @@ public class Hook {
     
     func keyboardCallbackSwift(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         
-        foo: do {
-        
+        process_event: do {
             let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
 
+            // get event type - keyDown or keyUp
             let typeString: String
             switch type {
-            case .keyDown: typeString = "keyDown"
-            case .keyUp: typeString = "keyUp"
+            case .keyDown:
+                typeString = "keyDown"
+            case .keyUp:
+                typeString = "keyUp"
             case .flagsChanged:
-                let flags = event.flags
                 let changed_flags = keyCodeToFlag(keyCode: keyCode);
-
                 if changed_flags.isEmpty {
-                    // FIXME : 普通のモディファイアキー以外の理由で kCGEventFlagsChanged
-                    // が来たときも、modifier を更新するべき
-                    
-                    break foo
+                    print("FlagsChanged event came but keyCodeToFlag() returned empty.")
+                    break process_event
                 }
-                
-                typeString = flags.intersection(changed_flags).isEmpty ? "keyUp" : "keyDown"
-            default: typeString = "unknown"
+                typeString = event.flags.intersection(changed_flags).isEmpty ? "keyUp" : "keyDown"
+            default:
+                typeString = "unknown"
             }
             
-            // 自分で挿入したイベントはスクリプト処理しない
+            // Don't pass the event to Python if it is injected event by Keyhac itself
             let injected_by_self = event.getIntegerValueField(.eventSourceStateID) == eventSource!.sourceStateID.rawValue
-            
             if !injected_by_self {
                 
                 if self.keyboardCallback.ptr() != nil {
@@ -187,21 +184,21 @@ public class Hook {
                     }
                     
                     if pyresult.ptr() != nil && PythonBridge.parsePythonInt(pyresult) != 0 {
-                        // Python側で処理済みなのでイベントを捨てる
+                        // Dispose event as it was processed in Python
                         event.type = .null
-                        break foo
+                        break process_event
                     }
                 }
             }
 
-            // Pythonで処理されなかったキーに対してはモディファイアキーの処理を行う
+            // For key events that were not processed in Python
             switch type {
             case .keyDown, .keyUp:
-                // 仮想のモディファイアキーの状態をイベントに設定する
+                // Overwrite event flags based on virtual modifier state
+                // FIXME: consider CapsLock state
                 event.flags = fixupEventFlagMask(src: modifier)
-                    
             case .flagsChanged:
-                // 仮想のモディファイア状態を更新する
+                // Update virtual modifier state based on real modifier status change
                 if typeString == "keyDown" {
                     modifier.insert(keyCodeToFlag(keyCode: keyCode))
                 }
@@ -213,6 +210,7 @@ public class Hook {
                 break
             }
         }
+        
         return Unmanaged.passUnretained(event)
     }
     
