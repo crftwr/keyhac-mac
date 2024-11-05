@@ -16,6 +16,7 @@ public class Hook {
     var eventTap: CFMachPort?
     var runLoopSource: CFRunLoopSource?
     var eventSource: CGEventSource?
+    var sanityCheckTimer: Timer?
     
     var modifier: CGEventFlags = CGEventFlags()
     var keyboardCallback = PyObjectPtr()
@@ -88,6 +89,13 @@ public class Hook {
         CFRunLoopAddSource(CFRunLoopGetCurrent(), self.runLoopSource, .commonModes)
         CGEvent.tapEnable(tap: self.eventTap!, enable: true)
         
+        // start a timer to check and restore keyboard hook
+        sanityCheckTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
+            if self.checkAndRestoreKeyboardHook() {
+                print("Re-enabled keyboard hook")
+            }
+        }
+        
         self.eventSource = CGEventSource(stateID: CGEventSourceStateID.privateState)
     }
     
@@ -96,6 +104,11 @@ public class Hook {
         if self.eventSource == nil {
             print("Keyboard hook is not installed.")
             return
+        }
+        
+        if let sanityCheckTimer = self.sanityCheckTimer {
+            sanityCheckTimer.invalidate()
+            self.sanityCheckTimer = nil
         }
         
         if let eventTap = self.eventTap {
@@ -115,7 +128,7 @@ public class Hook {
         return self.eventSource != nil
     }
     
-    public func shouldKeyboardHookBeReinstalled() -> Bool {
+    public func checkAndRestoreKeyboardHook() -> Bool {
         
         guard let eventTap = self.eventTap else {
             return false
@@ -124,6 +137,8 @@ public class Hook {
         if CGEvent.tapIsEnabled(tap: eventTap) {
             return false
         }
+        
+        CGEvent.tapEnable(tap: eventTap, enable: true)
         
         return true
     }

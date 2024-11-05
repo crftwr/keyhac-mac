@@ -1,4 +1,5 @@
 import sys
+import time
 import urllib.parse
 import subprocess
 from keyhac import *
@@ -24,6 +25,13 @@ def configure(keymap):
         print("Hello World!")
 
     keytable_global["Fn-A"] = hello_world
+
+    # -----------------------------------------------------
+    # User0-Z : Keyboard hook timeout and restoration test
+    def test_timeout():
+        time.sleep(3)
+
+    keytable_global["User0-Z"] = test_timeout
 
     # -----------------------------------------------------
     # User0-D : Lookup selected words in the dictionary app
