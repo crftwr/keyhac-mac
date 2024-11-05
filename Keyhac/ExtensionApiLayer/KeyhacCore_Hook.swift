@@ -115,6 +115,19 @@ public class Hook {
         return self.eventSource != nil
     }
     
+    public func shouldKeyboardHookBeReinstalled() -> Bool {
+        
+        guard let eventTap = self.eventTap else {
+            return false
+        }
+        
+        if CGEvent.tapIsEnabled(tap: eventTap) {
+            return false
+        }
+        
+        return true
+    }
+    
     func keyboardCallbackSwift(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         
         foo: do {
