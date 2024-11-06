@@ -42,6 +42,11 @@ public class Hook {
     NX_ALPHASHIFTMASK:      0x00010000
     */
     
+    enum KeyEventDirection {
+        case keyDown
+        case keyUp
+    }
+    
     var eventTap: CFMachPort?
     var runLoopSource: CFRunLoopSource?
     var eventSource: CGEventSource?
@@ -178,13 +183,13 @@ public class Hook {
             let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
 
             // get event type - keyDown or keyUp
-            let typeString: String
+            let keyEventDirection: KeyEventDirection
             switch type {
             case .keyDown:
-                typeString = "keyDown"
+                keyEventDirection = .keyDown
 
             case .keyUp:
-                typeString = "keyUp"
+                keyEventDirection = .keyUp
 
             case .flagsChanged:
                 
@@ -203,10 +208,11 @@ public class Hook {
                 }
 
                 // Distinguish keyDown or keyUp
-                typeString = event.flags.intersection(changedFlags).isEmpty ? "keyUp" : "keyDown"
+                keyEventDirection = event.flags.intersection(changedFlags).isEmpty ? .keyUp : .keyDown
 
             default:
-                typeString = "unknown"
+                print("Unexpected event type - \(type)")
+                break process_event
             }
             
             // Don't pass the event to Python if it is injected event by Keyhac itself
@@ -215,7 +221,7 @@ public class Hook {
                 
                 if self.keyboardCallback.ptr() != nil {
                     let json = """
-                    {"type": "\(typeString)", "keyCode": \(keyCode)}
+                    {"type": "\(keyEventDirection)", "keyCode": \(keyCode)}
                     """
 
                     var arg = PythonBridge.buildPythonString(json)
@@ -243,10 +249,10 @@ public class Hook {
 
             case .flagsChanged:
                 // Update virtual modifier state based on real modifier status change
-                if typeString == "keyDown" {
+                switch keyEventDirection {
+                case .keyDown:
                     virtualModifier.insert(keyCodeToEventFlags(keyCode: keyCode))
-                }
-                else {
+                case .keyUp:
                     virtualModifier.remove(keyCodeToEventFlags(keyCode: keyCode))
                 }
 
