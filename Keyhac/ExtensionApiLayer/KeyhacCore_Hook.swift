@@ -13,12 +13,41 @@ public class Hook {
     private static let instance = Hook()
     public static func getInstance() -> Hook { return instance }
 
+    enum VK: Int64 {
+        case CAPITAL = 0x39
+    }
+    
+    static let modifierFlags = CGEventFlags(rawValue: UInt64(
+        NX_DEVICELCTLKEYMASK | NX_DEVICERCTLKEYMASK | NX_COMMANDMASK |
+        NX_DEVICELSHIFTKEYMASK | NX_DEVICERSHIFTKEYMASK | NX_SHIFTMASK |
+        NX_DEVICELALTKEYMASK | NX_DEVICERALTKEYMASK | NX_ALTERNATEMASK |
+        NX_DEVICELCMDKEYMASK | NX_DEVICERCMDKEYMASK | NX_COMMANDMASK |
+        NX_SECONDARYFNMASK
+    ))
+
+    /*
+    NX_DEVICELCTLKEYMASK:   0x00000001
+    NX_DEVICERCTLKEYMASK:   0x00002000
+    NX_COMMANDMASK:         0x00100000
+    NX_DEVICELSHIFTKEYMASK: 0x00000002
+    NX_DEVICERSHIFTKEYMASK: 0x00000004
+    NX_SHIFTMASK:           0x00020000
+    NX_DEVICELALTKEYMASK:   0x00000020
+    NX_DEVICERALTKEYMASK:   0x00000040
+    NX_ALTERNATEMASK:       0x00080000
+    NX_DEVICELCMDKEYMASK:   0x00000008
+    NX_DEVICERCMDKEYMASK:   0x00000010
+    NX_COMMANDMASK:         0x00100000
+    NX_SECONDARYFNMASK:     0x00800000
+    NX_ALPHASHIFTMASK:      0x00010000
+    */
+    
     var eventTap: CFMachPort?
     var runLoopSource: CFRunLoopSource?
     var eventSource: CGEventSource?
     var sanityCheckTimer: Timer?
     
-    var modifier: CGEventFlags = CGEventFlags()
+    var virtualModifier: CGEventFlags = CGEventFlags()
     var keyboardCallback = PyObjectPtr()
     
     public func setCallback(name: String, callback: PyObjectPtr?){
@@ -153,15 +182,29 @@ public class Hook {
             switch type {
             case .keyDown:
                 typeString = "keyDown"
+
             case .keyUp:
                 typeString = "keyUp"
+
             case .flagsChanged:
-                let changed_flags = keyCodeToFlag(keyCode: keyCode);
-                if changed_flags.isEmpty {
-                    print("FlagsChanged event came but keyCodeToFlag() returned empty.")
+                
+                // CapsLock key is special, skip processing
+                if keyCode == VK.CAPITAL.rawValue {
                     break process_event
                 }
-                typeString = event.flags.intersection(changed_flags).isEmpty ? "keyUp" : "keyDown"
+
+                // Modifier flag to be updated by this key
+                let changedFlags = keyCodeToEventFlags(keyCode: keyCode);
+                
+                // Flag changed for unknown reason, skip processing
+                if changedFlags.isEmpty {
+                    print("Flag changed for unknown reason - vk=\(keyCode)")
+                    break process_event
+                }
+
+                // Distinguish keyDown or keyUp
+                typeString = event.flags.intersection(changedFlags).isEmpty ? "keyUp" : "keyDown"
+
             default:
                 typeString = "unknown"
             }
@@ -194,16 +237,17 @@ public class Hook {
             // For key events that were not processed in Python
             switch type {
             case .keyDown, .keyUp:
-                // Overwrite event flags based on virtual modifier state
-                // FIXME: consider CapsLock state
-                event.flags = virtualModifierStateToEventFlag(src: modifier)
+                // Overwrite modifier key flags
+                event.flags = event.flags.subtracting(Hook.modifierFlags)
+                event.flags = event.flags.union(virtualModifierStateToEventFlags(src: virtualModifier))
+
             case .flagsChanged:
                 // Update virtual modifier state based on real modifier status change
                 if typeString == "keyDown" {
-                    modifier.insert(keyCodeToFlag(keyCode: keyCode))
+                    virtualModifier.insert(keyCodeToEventFlags(keyCode: keyCode))
                 }
                 else {
-                    modifier.remove(keyCodeToFlag(keyCode: keyCode))
+                    virtualModifier.remove(keyCodeToEventFlags(keyCode: keyCode))
                 }
 
             default:
@@ -214,7 +258,7 @@ public class Hook {
         return Unmanaged.passUnretained(event)
     }
     
-    func virtualModifierStateToEventFlag(src: CGEventFlags) -> CGEventFlags
+    func virtualModifierStateToEventFlags(src: CGEventFlags) -> CGEventFlags
     {
         var dst = src
         
@@ -227,28 +271,30 @@ public class Hook {
         return dst;
     }
 
-    func keyCodeToFlag( keyCode: Int64 ) -> CGEventFlags
+    func keyCodeToEventFlags( keyCode: Int64 ) -> CGEventFlags
     {
         switch(keyCode)
         {
-        case 0x3B: // kVK_Control
+        case 0x3B: // Left Control
             return CGEventFlags(rawValue: UInt64(NX_DEVICELCTLKEYMASK))
-        case 0x3E: // kVK_RightControl
+        case 0x3E: // Right Control
             return CGEventFlags(rawValue: UInt64(NX_DEVICERCTLKEYMASK))
-        case 0x38: // kVK_Shift
+        case 0x38: // Left Shift
             return CGEventFlags(rawValue: UInt64(NX_DEVICELSHIFTKEYMASK))
-        case 0x3C: // kVK_RightShift
+        case 0x3C: // Right Shift
             return CGEventFlags(rawValue: UInt64(NX_DEVICERSHIFTKEYMASK))
-        case 0x37: // kVK_Command
+        case 0x37: // Left Command
             return CGEventFlags(rawValue: UInt64(NX_DEVICELCMDKEYMASK))
-        case 0x36: // kVK_RightCommand
+        case 0x36: // Right Command
             return CGEventFlags(rawValue: UInt64(NX_DEVICERCMDKEYMASK))
-        case 0x3A: // kVK_Option
+        case 0x3A: // Left Option
             return CGEventFlags(rawValue: UInt64(NX_DEVICELALTKEYMASK))
-        case 0x3D: // kVK_RightOption
+        case 0x3D: // Right Option
             return CGEventFlags(rawValue: UInt64(NX_DEVICERALTKEYMASK))
-        case 0x3F: // kVK_Function
+        case 0x3F: // Function
             return CGEventFlags(rawValue: UInt64(NX_SECONDARYFNMASK))
+        case 0x39: // Caps Lock
+            return CGEventFlags(rawValue: UInt64(NX_ALPHASHIFTMASK))
         default:
             return CGEventFlags(rawValue: 0)
         }
