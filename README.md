@@ -5,6 +5,10 @@
 Keyhac is a utility application for macOS that allows you to customize keyboard actions for any application using the Python scripting language.
 Keyhac gives you the flexibility to customize the behavior of various applications.
 
+### Download
+
+Download from [Releases](https://github.com/crftwr/keyhac-mac/releases) page.
+
 ### Features
 
 - Replace a key with another key
