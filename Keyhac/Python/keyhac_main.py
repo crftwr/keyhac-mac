@@ -168,6 +168,8 @@ class Keymap:
             return self._on_key_down(d["keyCode"])
         elif d["type"]=="keyUp":
             return self._on_key_up(d["keyCode"])
+        elif d["type"]=="hookRestored":
+            return self._on_key_hook_restored()
 
     def _on_key_down( self, vk ):
 
@@ -286,6 +288,10 @@ class Keymap:
             print( "ERROR : Unexpected error happened :" )
             print( e )
             traceback.print_exc()
+
+    def _on_key_hook_restored(self):
+        print("WARNING: Key hook timed out and has been restored.")
+        self._modifier = 0
 
     def _record_key( self, vk, up ):
         if self._record_status=="recording":

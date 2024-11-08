@@ -174,6 +174,24 @@ public class Hook {
         
         CGEvent.tapEnable(tap: eventTap, enable: true)
         
+        // Notify that hook restored
+        if self.keyboardCallback.ptr() != nil {
+            let json = """
+            {"type": "hookRestored"}
+            """
+
+            var arg = PythonBridge.buildPythonString(json)
+            var pyresult = PythonBridge.invokeCallable(self.keyboardCallback, arg)
+            
+            defer {
+                arg.DecRef()
+                pyresult.DecRef()
+            }
+            
+            if pyresult.ptr() != nil && PythonBridge.parsePythonInt(pyresult) != 0 {
+            }
+        }
+        
         return true
     }
     
