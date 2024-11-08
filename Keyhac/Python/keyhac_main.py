@@ -137,9 +137,22 @@ class Keymap:
     def get_input_context(self):
         return InputContext(self._modifier, self._vk_mod_map)
 
+    def _get_focused_element(self):
+
+        app = keyhac_core.UIElement.getFocusedApplication()
+        if not app: return None
+
+        focus = app.getAttributeValue("AXFocusedUIElement")
+        if focus: return focus
+
+        window = app.getAttributeValue("AXFocusedWindow")
+        if window: return window
+        
+        return app
+
     def _check_focus_change(self):
-    
-        elm = keyhac_core.UIElement.getFocusedElement()
+        
+        elm = self._get_focused_element()
 
         self._focus_elm = elm
         new_focus_path = FocusCondition.get_focus_path(elm)

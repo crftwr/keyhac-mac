@@ -219,33 +219,18 @@ public class UIElement {
         //print("UIElement.deinit()")
     }
     
-    public static func getSystemWideElement() -> UIElement {
-        let elm: AXUIElement = AXUIElementCreateSystemWide()
-        return UIElement(elm)
-    }
-    
-    public static func getFocusedElement() -> UIElement? {
-        let systemwide: AXUIElement = AXUIElementCreateSystemWide()
-
-        var focusedElement: AnyObject?
-        AXUIElementCopyAttributeValue(systemwide, "AXFocusedUIElement" as CFString, &focusedElement)
-        
-        guard let focusedElement else { return nil }
-
-        return UIElement(focusedElement as! AXUIElement)
-    }
-    
     public static func getFocusedApplication() -> UIElement? {
-        let systemwide: AXUIElement = AXUIElementCreateSystemWide()
-
-        var focusedApp: AnyObject?
-        AXUIElementCopyAttributeValue(systemwide, "AXFocusedApplication" as CFString, &focusedApp)
+        let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier
         
-        guard let focusedApp else { return nil }
+        guard let pid else {
+            return nil
+        }
+        
+        let axapp = AXUIElementCreateApplication(pid)
 
-        return UIElement(focusedApp as! AXUIElement)
+        return UIElement(axapp as AXUIElement)
     }
-    
+
     public static func getRunningApplications() -> [UIElement] {
         
         var applications: [UIElement] = []

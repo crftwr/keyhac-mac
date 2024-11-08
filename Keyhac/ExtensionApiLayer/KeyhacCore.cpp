@@ -193,40 +193,6 @@ static void UIElement_dealloc(UIElement_Object * self)
     ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
 }
 
-static UIElement_Object * UIElement_getSystemWideElement( PyObject * self, PyObject * args )
-{
-    if( ! PyArg_ParseTuple(args,"") )
-        return NULL;
-    
-    UIElement elm = UIElement::getSystemWideElement();
-    UIElement_Object * pyelm = _createPyUIElement(elm);
-    
-    return pyelm;
-}
-
-static PyObject * UIElement_getFocusedElement( PyObject * self, PyObject * args )
-{
-    if( ! PyArg_ParseTuple(args,"") )
-        return NULL;
-    
-    PyObject * pyelm = NULL;
-    auto elm = UIElement::getFocusedElement();
-    if(elm)
-    {
-        pyelm = (PyObject*)_createPyUIElement(elm.get());
-    }
-    
-    if(pyelm)
-    {
-        return pyelm;
-    }
-    else
-    {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-}
-
 static PyObject * UIElement_getFocusedApplication( PyObject * self, PyObject * args )
 {
     if( ! PyArg_ParseTuple(args,"") )
@@ -563,8 +529,6 @@ static PyObject * UIElement_performAction(UIElement_Object * self, PyObject * ar
 }
 
 static PyMethodDef UIElement_methods[] = {
-    { "getSystemWideElement", (PyCFunction)UIElement_getSystemWideElement, METH_STATIC|METH_VARARGS, "" },
-    { "getFocusedElement", (PyCFunction)UIElement_getFocusedElement, METH_STATIC|METH_VARARGS, "" },
     { "getFocusedApplication", (PyCFunction)UIElement_getFocusedApplication, METH_STATIC|METH_VARARGS, "" },
     { "getRunningApplications", (PyCFunction)UIElement_getRunningApplications, METH_STATIC|METH_VARARGS, "" },
     { "getAttributeNames", (PyCFunction)UIElement_getAttributeNames, METH_VARARGS, "" },
