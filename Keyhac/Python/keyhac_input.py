@@ -23,14 +23,14 @@ class InputContext:
 
         # モディファイア押す
         for vk_mod in self._vk_mod_map.items():
-            if vk_mod[1] & MODKEY_USER_ALL : continue
+            if vk_mod[1] & MODKEY_USER_ALL: continue
             if not ( vk_mod[1] & self._virtual_modifier ) and ( vk_mod[1] & mod ):
                 self._input_seq.append( ("keyDown", vk_mod[0]) )
                 self._virtual_modifier |= vk_mod[1]
 
         # モディファイア離す
         for vk_mod in self._vk_mod_map.items():
-            if vk_mod[1] & MODKEY_USER_ALL : continue
+            if vk_mod[1] & MODKEY_USER_ALL: continue
             if ( vk_mod[1] & self._virtual_modifier ) and not ( vk_mod[1] & mod ):
                 self._input_seq.append( ("keyUp", vk_mod[0]) )
                 self._virtual_modifier &= ~vk_mod[1]

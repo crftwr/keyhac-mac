@@ -20,21 +20,21 @@ def configure(keymap):
     keytable_global = keymap.define_keytable(focus_path_pattern="*")
 
     # -----------------------------------------------------
-    # Fn-A : Sample of assigning callable object to key
+    # Fn-A: Sample of assigning callable object to key
     def hello_world():
         print("Hello World!")
 
     keytable_global["Fn-A"] = hello_world
 
     # -----------------------------------------------------
-    # User0-Z : Keyboard hook timeout and restoration test
+    # User0-Z: Keyboard hook timeout and restoration test
     def test_timeout():
         time.sleep(3)
 
     keytable_global["User0-Z"] = test_timeout
 
     # -----------------------------------------------------
-    # User0-D : Lookup selected words in the dictionary app
+    # User0-D: Lookup selected words in the dictionary app
     def lookup_dictionary():
 
         elm = keymap.focus
@@ -48,7 +48,7 @@ def configure(keymap):
     keytable_global["User0-D"] = lookup_dictionary
 
     # -----------------------------------------------------
-    # Fn-M : Zoom window (Test of UIElement.performAction)
+    # Fn-M: Zoom window (Test of UIElement.performAction)
     def zoom_window():
 
         elm = keymap.focus
@@ -71,7 +71,7 @@ def configure(keymap):
     keytable_global["Fn-M"] = zoom_window
 
     # -----------------------------------------------------
-    # User0-Left/Right/Up/Down : Move current active window
+    # User0-Left/Right/Up/Down: Move current active window
     class MoveWindow:
         def __init__(self, x, y):
             self.x = x
@@ -100,7 +100,7 @@ def configure(keymap):
     keytable_global["User0-Down"]  = MoveWindow(0,+10)
 
     # -----------------------------------------------------
-    # User0-T : activate one of running applications
+    # User0-T: activate one of running applications
     class ActivateApplication:
         def __init__(self, app_title):
             self.app_title = app_title
@@ -126,14 +126,14 @@ def configure(keymap):
     keytable_xcode = keymap.define_keytable( focus_path_pattern="/AXApplication(Xcode)/*/AXTextArea()" )
 
     # -----------------------------------------------------
-    # Fn-A : overriding global keytable configuration
+    # Fn-A: overriding global keytable configuration
     def hello_xcode():
         print("Hello Xcode!")
 
     keytable_xcode["Fn-A"] = hello_xcode
 
     # -----------------------------------------------------
-    # Fn-L : Select whole line
+    # Fn-L: Select whole line
     keytable_xcode["Fn-L"] = "Cmd-Left", "Cmd-Left", "Shift-Cmd-Right"
 
     # -----------------------------------------------------
@@ -162,7 +162,7 @@ def configure(keymap):
     keytable_terminal = keymap.define_keytable( custom_condition_func = is_terminal_window )
 
     # -----------------------------------------------------
-    # Fn-A : overriding global keytable configuration
+    # Fn-A: overriding global keytable configuration
     def hello_terminal():
         print("Hello Terminal!")
 

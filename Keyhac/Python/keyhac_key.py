@@ -328,7 +328,7 @@ class KeyCondition:
     }
 
     def __init__( self, vk, mod=0, down=True, oneshot=False ):
-        if type(vk)==str and len(vk)==1 : vk=ord(vk)
+        if type(vk)==str and len(vk)==1: vk=ord(vk)
         self.vk = vk
         self.mod = mod
         self.down = down
@@ -338,10 +338,10 @@ class KeyCondition:
         return self.vk
 
     def __eq__(self, other):
-        if self.vk!=other.vk : return False
+        if self.vk!=other.vk: return False
         if not KeyCondition.mod_eq( self.mod, other.mod ): return False
-        if self.down!=other.down : return False
-        if self.oneshot!=other.oneshot : return False
+        if self.down!=other.down: return False
+        if self.oneshot!=other.oneshot: return False
         return True
 
     def __str__(self):
@@ -355,37 +355,37 @@ class KeyCondition:
         else:
             s += "U-"
 
-        if self.mod & MODKEY_ALT : s += "Alt-"
-        elif self.mod & MODKEY_ALT_L : s += "LAlt-"
-        elif self.mod & MODKEY_ALT_R : s += "RAlt-"
+        if self.mod & MODKEY_ALT: s += "Alt-"
+        elif self.mod & MODKEY_ALT_L: s += "LAlt-"
+        elif self.mod & MODKEY_ALT_R: s += "RAlt-"
 
-        if self.mod & MODKEY_CTRL : s += "Ctrl-"
-        elif self.mod & MODKEY_CTRL_L : s += "LCtrl-"
-        elif self.mod & MODKEY_CTRL_R : s += "RCtrl-"
+        if self.mod & MODKEY_CTRL: s += "Ctrl-"
+        elif self.mod & MODKEY_CTRL_L: s += "LCtrl-"
+        elif self.mod & MODKEY_CTRL_R: s += "RCtrl-"
 
-        if self.mod & MODKEY_SHIFT : s += "Shift-"
-        elif self.mod & MODKEY_SHIFT_L : s += "LShift-"
-        elif self.mod & MODKEY_SHIFT_R : s += "RShift-"
+        if self.mod & MODKEY_SHIFT: s += "Shift-"
+        elif self.mod & MODKEY_SHIFT_L: s += "LShift-"
+        elif self.mod & MODKEY_SHIFT_R: s += "RShift-"
 
-        if self.mod & MODKEY_WIN : s += "Win-"
-        elif self.mod & MODKEY_WIN_L : s += "LWin-"
-        elif self.mod & MODKEY_WIN_R : s += "RWin-"
+        if self.mod & MODKEY_WIN: s += "Win-"
+        elif self.mod & MODKEY_WIN_L: s += "LWin-"
+        elif self.mod & MODKEY_WIN_R: s += "RWin-"
 
-        if self.mod & MODKEY_CMD : s += "Cmd-"
-        elif self.mod & MODKEY_CMD_L : s += "LCmd-"
-        elif self.mod & MODKEY_CMD_R : s += "RCmd-"
+        if self.mod & MODKEY_CMD: s += "Cmd-"
+        elif self.mod & MODKEY_CMD_L: s += "LCmd-"
+        elif self.mod & MODKEY_CMD_R: s += "RCmd-"
 
-        if self.mod & MODKEY_FN : s += "Fn-"
-        elif self.mod & MODKEY_FN_L : s += "LFn-"
-        elif self.mod & MODKEY_FN_R : s += "RFn-"
+        if self.mod & MODKEY_FN: s += "Fn-"
+        elif self.mod & MODKEY_FN_L: s += "LFn-"
+        elif self.mod & MODKEY_FN_R: s += "RFn-"
 
-        if self.mod & MODKEY_USER0 : s += "User0-"
-        elif self.mod & MODKEY_USER0_L : s += "LUser0-"
-        elif self.mod & MODKEY_USER0_R : s += "RUser0-"
+        if self.mod & MODKEY_USER0: s += "User0-"
+        elif self.mod & MODKEY_USER0_L: s += "LUser0-"
+        elif self.mod & MODKEY_USER0_R: s += "RUser0-"
 
-        if self.mod & MODKEY_USER1 : s += "User1-"
-        elif self.mod & MODKEY_USER1_L : s += "LUser1-"
-        elif self.mod & MODKEY_USER1_R : s += "RUser1-"
+        if self.mod & MODKEY_USER1: s += "User1-"
+        elif self.mod & MODKEY_USER1_L: s += "LUser1-"
+        elif self.mod & MODKEY_USER1_R: s += "RUser1-"
 
         s += KeyCondition.vk_to_str(self.vk)
 
@@ -505,7 +505,7 @@ class KeyTable:
         try:
             key = KeyCondition.from_str(key)
         except ValueError:
-            print( "ERROR : Invalid key expression :", key )
+            print( "ERROR: Invalid key expression :", key )
             return
 
         self.table[key] = value
@@ -514,7 +514,7 @@ class KeyTable:
         try:
             key = KeyCondition.from_str(key)
         except ValueError:
-            print( "ERROR : Invalid key expression :", key )
+            print( "ERROR: Invalid key expression :", key )
             return
 
         return self.table[key]
@@ -523,7 +523,7 @@ class KeyTable:
         try:
             key = KeyCondition.from_str(key)
         except ValueError:
-            print( "ERROR : Invalid key expression :", key )
+            print( "ERROR: Invalid key expression :", key )
             return
 
         del self.table[key]

@@ -87,14 +87,14 @@ class Keymap:
             if type(src)==str:
                 src = KeyCondition.str_to_vk(src)
         except:
-            print( f"ERROR : Invalid expression for argument 'src': {src}" )
+            print( f"ERROR: Invalid expression for argument 'src': {src}" )
             return
 
         try:
             if type(dst)==str:
                 dst = KeyCondition.str_to_vk(dst)
         except:
-            print( f"ERROR : Invalid expression for argument 'dst': {dst}" )
+            print( f"ERROR: Invalid expression for argument 'dst': {dst}" )
             return
 
         self._vk_vk_map[src] = dst
@@ -106,7 +106,7 @@ class Keymap:
             if type(vk)==str:
                 vk = KeyCondition.str_to_vk(vk)
         except:
-            print( f"ERROR : Invalid expression for argument 'vk': {vk}" )
+            print( f"ERROR: Invalid expression for argument 'vk': {vk}" )
             return
 
         try:
@@ -115,7 +115,7 @@ class Keymap:
             else:
                 raise TypeError
         except:
-            print( f"ERROR : Invalid expression for argument 'mod': {mod}" )
+            print( f"ERROR: Invalid expression for argument 'mod': {mod}" )
             return
 
         self._vk_mod_map[vk] = mod
@@ -205,7 +205,7 @@ class Keymap:
             elif replaced:
                 with self.get_input_context() as input_ctx:
                     input_ctx.send_key_by_vk( vk, down=True )
-                    if self._debug : print( "REP :", input_ctx )
+                    if self._debug: print( "REP:", input_ctx )
                 return True
             else:
                 if self._send_input_on_tru:
@@ -213,14 +213,14 @@ class Keymap:
                     # TRU でも Input.send すると問題が起きない
                     with self.get_input_context() as input_ctx:
                         input_ctx.send_key_by_vk( vk, down=True )
-                        if self._debug : print( "TRU :", input_ctx )
+                        if self._debug: print( "TRU:", input_ctx )
                     return True
                 else:
-                    if self._debug : print( "TRU :", key )
+                    if self._debug: print( "TRU:", key )
                     return False
 
         except Exception as e:
-            print( "ERROR : Unexpected error happened :" )
+            print( "ERROR: Unexpected error happened :" )
             print( e )
             traceback.print_exc()
 
@@ -261,7 +261,7 @@ class Keymap:
                 elif replaced or ( oneshot and self._is_key_configured(oneshot_key) ):
                     with self.get_input_context() as input_ctx:
                         input_ctx.send_key_by_vk( vk, down=False )
-                        if self._debug : print( "REP :", input_ctx )
+                        if self._debug: print( "REP:", input_ctx )
                     return True
                 else:
                     if self._send_input_on_tru:
@@ -269,10 +269,10 @@ class Keymap:
                         # TRU でも Input.send すると問題が起きない
                         with self.get_input_context() as input_ctx:
                             input_ctx.send_key_by_vk( vk, down=False )
-                            if self._debug : print( "TRU :", input_ctx )
+                            if self._debug: print( "TRU:", input_ctx )
                         return True
                     else:
-                        if self._debug : print( "TRU :", key )
+                        if self._debug: print( "TRU:", key )
                         return False
 
             finally:
@@ -285,7 +285,7 @@ class Keymap:
                     self._do_configured_key_action(key)
 
         except Exception as e:
-            print( "ERROR : Unexpected error happened :" )
+            print( "ERROR: Unexpected error happened :" )
             print( e )
             traceback.print_exc()
 
@@ -296,7 +296,7 @@ class Keymap:
     def _record_key( self, vk, up ):
         if self._record_status=="recording":
             if len(self._record_seq)>=1000:
-                print( "ERROR : Keyboard macro is too long." )
+                print( "ERROR: Keyboard macro is too long." )
                 return
             self._record_seq.append( ( vk, up ) )
 
@@ -305,7 +305,7 @@ class Keymap:
 
     def _do_configured_key_action( self, key ):
 
-        if self._debug : print( "IN  :", key )
+        if self._debug: print( "IN :", key )
 
         action = None
         if key in self._unified_keytable:
@@ -343,7 +343,7 @@ class Keymap:
         self._multi_stroke_keytable = keytable
         self._update_unified_keytable()
 
-        # FIXME : toast を使う
+        # FIXME: toast を使う
         #help_string = self._multi_stroke_keytable.helpString()
         #if help_string:
         #    self.popBalloon( "MultiStroke", help_string )

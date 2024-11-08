@@ -9,10 +9,12 @@ class FocusCondition:
 
     def check( self, focus_path, focus_elm ):
 
-        if self.focus_path_pattern and ( not focus_path or not fnmatch.fnmatch( focus_path, self.focus_path_pattern ) ) : return False
+        if self.focus_path_pattern and ( not focus_path or not fnmatch.fnmatch( focus_path, self.focus_path_pattern ) ):
+            return False
         
         try:
-            if self.custom_condition_func and ( not focus_elm or not self.custom_condition_func(focus_elm) ) : return False
+            if self.custom_condition_func and ( not focus_elm or not self.custom_condition_func(focus_elm) ):
+                return False
         except Exception as e:
             print(e)
             traceback.print_exc()

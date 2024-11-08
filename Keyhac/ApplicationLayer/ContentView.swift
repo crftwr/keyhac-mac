@@ -93,7 +93,7 @@ struct ContentView: View {
     }
     
     func checkProcessTrusted() {
-        let options : NSDictionary = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as NSString: true]
+        let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as NSString: true]
         let isTrusted = AXIsProcessTrustedWithOptions(options)
         
         if isTrusted {
