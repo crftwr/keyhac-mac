@@ -1,6 +1,8 @@
 import fnmatch
 import traceback
 
+from keyhac_const import CONSOLE_STYLE_DEFAULT, CONSOLE_STYLE_ERROR
+
 class FocusCondition:
 
     def __init__( self, focus_path_pattern=None, custom_condition_func=None ):
@@ -16,8 +18,12 @@ class FocusCondition:
             if self.custom_condition_func and ( not focus_elm or not self.custom_condition_func(focus_elm) ):
                 return False
         except Exception as e:
-            print(e)
+
+            print(CONSOLE_STYLE_ERROR)
+            print("ERROR: running custom focus condition function failed:")
             traceback.print_exc()
+            print(CONSOLE_STYLE_DEFAULT)
+
             return False
 
         return True

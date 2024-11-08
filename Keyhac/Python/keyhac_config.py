@@ -2,6 +2,8 @@ import os
 import shutil
 import traceback
 
+from keyhac_const import CONSOLE_STYLE_DEFAULT, CONSOLE_STYLE_ERROR
+
 class Config:
 
     def __init__(self, filename, default_config_filename):
@@ -24,7 +26,10 @@ class Config:
             compiled_code = compile(fileimage, os.path.basename(self.filename), "exec")
             exec(compiled_code, self.config_namespace, self.config_namespace)
         except:
+            print(CONSOLE_STYLE_ERROR)
+            print("ERROR: loading configuration file failed:")
             traceback.print_exc()
+            print(CONSOLE_STYLE_DEFAULT)
 
     def call(self, funcname, *args):
 
@@ -36,4 +41,7 @@ class Config:
         try:
             func(*args)
         except:
+            print(CONSOLE_STYLE_ERROR)
+            print("ERROR: running configuration function failed:")
             traceback.print_exc()
+            print(CONSOLE_STYLE_DEFAULT)

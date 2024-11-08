@@ -505,7 +505,7 @@ class KeyTable:
         try:
             key = KeyCondition.from_str(key)
         except ValueError:
-            print( "ERROR: Invalid key expression :", key )
+            print(CONSOLE_STYLE_ERROR + f"ERROR: Invalid key expression: {key}" + CONSOLE_STYLE_DEFAULT)
             return
 
         self.table[key] = value
@@ -514,7 +514,7 @@ class KeyTable:
         try:
             key = KeyCondition.from_str(key)
         except ValueError:
-            print( "ERROR: Invalid key expression :", key )
+            print(CONSOLE_STYLE_ERROR + f"ERROR: Invalid key expression: {key}" + CONSOLE_STYLE_DEFAULT)
             return
 
         return self.table[key]
@@ -523,7 +523,7 @@ class KeyTable:
         try:
             key = KeyCondition.from_str(key)
         except ValueError:
-            print( "ERROR: Invalid key expression :", key )
+            print(CONSOLE_STYLE_ERROR + f"ERROR: Invalid key expression: {key}" + CONSOLE_STYLE_DEFAULT)
             return
 
         del self.table[key]

@@ -46,7 +46,7 @@ class Keymap:
 
         keyhac_core.Hook.setCallback("Keyboard", self._on_key)
         
-        print("Welcome to Keyhac")
+        print(CONSOLE_STYLE_TITLE + "Welcome to Keyhac" + CONSOLE_STYLE_DEFAULT);
 
     def configure(self):
 
@@ -80,21 +80,21 @@ class Keymap:
         )
         self.config.call("configure", self)
         
-        print("Keymap configuration succeeded.")
+        print(CONSOLE_STYLE_TITLE + "Keymap configuration succeeded." + CONSOLE_STYLE_DEFAULT)
 
     def replace_key( self, src, dst ):
         try:
             if type(src)==str:
                 src = KeyCondition.str_to_vk(src)
         except:
-            print( f"ERROR: Invalid expression for argument 'src': {src}" )
+            print(CONSOLE_STYLE_ERROR + f"ERROR: Invalid expression for argument 'src': {src}" + CONSOLE_STYLE_DEFAULT)
             return
 
         try:
             if type(dst)==str:
                 dst = KeyCondition.str_to_vk(dst)
         except:
-            print( f"ERROR: Invalid expression for argument 'dst': {dst}" )
+            print(CONSOLE_STYLE_ERROR + f"ERROR: Invalid expression for argument 'dst': {dst}" + CONSOLE_STYLE_DEFAULT)
             return
 
         self._vk_vk_map[src] = dst
@@ -106,7 +106,7 @@ class Keymap:
             if type(vk)==str:
                 vk = KeyCondition.str_to_vk(vk)
         except:
-            print( f"ERROR: Invalid expression for argument 'vk': {vk}" )
+            print(CONSOLE_STYLE_ERROR + f"ERROR: Invalid expression for argument 'vk': {vk}" + CONSOLE_STYLE_DEFAULT)
             return
 
         try:
@@ -115,7 +115,7 @@ class Keymap:
             else:
                 raise TypeError
         except:
-            print( f"ERROR: Invalid expression for argument 'mod': {mod}" )
+            print(CONSOLE_STYLE_ERROR + f"ERROR: Invalid expression for argument 'mod': {mod}" + CONSOLE_STYLE_DEFAULT)
             return
 
         self._vk_mod_map[vk] = mod
@@ -158,7 +158,7 @@ class Keymap:
         new_focus_path = FocusCondition.get_focus_path(elm)
 
         if self._focus_path != new_focus_path:
-            print("Focus path:", new_focus_path)
+            print(CONSOLE_STYLE_TITLE + "Focus path:" + CONSOLE_STYLE_DEFAULT, new_focus_path)
             self._focus_path = new_focus_path
             self._update_unified_keytable()
 
@@ -220,9 +220,10 @@ class Keymap:
                     return False
 
         except Exception as e:
-            print( "ERROR: Unexpected error happened :" )
-            print( e )
+            print(CONSOLE_STYLE_ERROR)
+            print("ERROR: Unexpected error happened:")
             traceback.print_exc()
+            print(CONSOLE_STYLE_DEFAULT)
 
     def _on_key_up( self, vk ):
 
@@ -285,18 +286,23 @@ class Keymap:
                     self._do_configured_key_action(key)
 
         except Exception as e:
-            print( "ERROR: Unexpected error happened :" )
-            print( e )
+            print(CONSOLE_STYLE_ERROR)
+            print("ERROR: Unexpected error happened:")
             traceback.print_exc()
+            print(CONSOLE_STYLE_DEFAULT)
+
+
 
     def _on_key_hook_restored(self):
-        print("WARNING: Key hook timed out and has been restored.")
+        print(CONSOLE_STYLE_WARNING + "WARNING: Key hook timed out and has been restored." + CONSOLE_STYLE_DEFAULT)
+        
+        # Modifier key state is not reliable anymore. Resetting.
         self._modifier = 0
 
     def _record_key( self, vk, up ):
         if self._record_status=="recording":
             if len(self._record_seq)>=1000:
-                print( "ERROR: Keyboard macro is too long." )
+                print(CONSOLE_STYLE_ERROR + "ERROR: Keyboard macro is too long." + CONSOLE_STYLE_DEFAULT)
                 return
             self._record_seq.append( ( vk, up ) )
 
