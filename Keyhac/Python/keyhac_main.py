@@ -72,15 +72,22 @@ class Keymap:
         self._vk_mod_map[VK_LCOMMAND ] = MODKEY_CMD_L
         self._vk_mod_map[VK_RCOMMAND ] = MODKEY_CMD_R
         self._vk_mod_map[VK_FUNCTION ] = MODKEY_FN_L
-
-        # Load configuration file
-        self.config = keyhac_config.Config(
-            os.path.expanduser("~/.keyhac/config.py"),
-            os.path.join(os.path.dirname(__file__), "_config.py")
-        )
-        self.config.call("configure", self)
         
-        print(CONSOLE_STYLE_TITLE + "Keymap configuration succeeded." + CONSOLE_STYLE_DEFAULT)
+        print("Loading configuration script.")
+
+        try:
+            # Load configuration file
+            self.config = keyhac_config.Config(
+                os.path.expanduser("~/.keyhac/config.py"),
+                os.path.join(os.path.dirname(__file__), "_config.py")
+            )
+            self.config.call("configure", self)
+        except:
+            print(CONSOLE_STYLE_ERROR)
+            print("ERROR: loading configuration script failed:")
+            traceback.print_exc()
+            print(CONSOLE_STYLE_DEFAULT)
+            return
 
     def replace_key( self, src, dst ):
         try:
