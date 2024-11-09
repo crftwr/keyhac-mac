@@ -27,11 +27,25 @@ def configure(keymap):
     keytable_global["Fn-A"] = hello_world
 
     # -----------------------------------------------------
-    # User0-Z: Keyboard hook timeout and restoration test
-    def test_timeout():
-        time.sleep(3)
+    # User0-Z: Test of threaded action
 
-    keytable_global["User0-Z"] = test_timeout
+    class ThreadedActionTest(ThreadedAction):
+        def __init__(self):
+            print("ThreadedActionTest.__init__")
+
+        def starting(self):
+            print("ThreadedActionTest starting")
+
+        def run(self):
+            print("ThreadedActionTest run 1")
+            time.sleep(3)
+            print("ThreadedActionTest run 2")
+
+        def finished(self):
+            print("ThreadedActionTest finished")
+
+    keytable_global["User0-Z"] = ThreadedActionTest()
+
 
     # -----------------------------------------------------
     # User0-D: Lookup selected words in the dictionary app
