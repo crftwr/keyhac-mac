@@ -177,8 +177,8 @@ public class Hook {
         // Notify that hook restored
         if self.keyboardCallback.ptr() != nil {
             
-            let gil = PythonBridge.getInstance().acquireGil()
-            defer { PythonBridge.getInstance().releaseGil(gil) }
+            var gil = PyGIL(true);
+            defer { gil.Release() }
 
             let json = """
             {"type": "hookRestored"}
@@ -201,8 +201,8 @@ public class Hook {
     
     func keyboardCallbackSwift(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         
-        let gil = PythonBridge.getInstance().acquireGil()
-        defer { PythonBridge.getInstance().releaseGil(gil) }
+        var gil = PyGIL(true);
+        defer { gil.Release() }
 
         process_event: do {
             let keyCode = event.getIntegerValueField(.keyboardEventKeycode)

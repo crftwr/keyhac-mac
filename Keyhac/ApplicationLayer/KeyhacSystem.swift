@@ -52,10 +52,10 @@ class KeyhacSystem {
         """
         
         if let pythonBridge = PythonBridge.getInstance() {
-            
-            let gil = pythonBridge.acquireGil()
-            defer { pythonBridge.releaseGil(gil) }
-            
+
+            var gil = PyGIL(true);
+            defer { gil.Release() }
+
             pythonBridge.runString(code)
         }
     }
@@ -68,8 +68,8 @@ class KeyhacSystem {
         
         if let pythonBridge = PythonBridge.getInstance() {
 
-            let gil = pythonBridge.acquireGil()
-            defer { pythonBridge.releaseGil(gil) }
+            var gil = PyGIL(true);
+            defer { gil.Release() }
 
             pythonBridge.runString(code)
         }

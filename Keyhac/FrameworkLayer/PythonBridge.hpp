@@ -49,7 +49,19 @@ private:
     PyThreadState * state;
 };
 
-typedef int PyGilState;
+class PyGIL
+{
+public:
+    PyGIL(bool acquire=false);
+    ~PyGIL();
+    
+    void Acquire();
+    void Release();
+
+private:
+    bool acquired;
+    int state;
+};
 
 typedef PyObject * (*PythonModuleInitFunc)();
 
@@ -91,9 +103,6 @@ public:
     static int parsePythonInt(const PyObjectPtr & obj);
     
     static std::string getVersion();
-    
-    PyGilState acquireGil();
-    void releaseGil(PyGilState gil_state);
 
 } SWIFT_UNSAFE_REFERENCE;
 

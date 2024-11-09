@@ -74,6 +74,43 @@ void PyAllowThread::End()
 
 // ------------------------------------------
 
+PyGIL::PyGIL(bool acquire)
+    :
+    acquired(false),
+    state(0)
+{
+    if(acquire)
+    {
+        Acquire();
+    }
+}
+
+PyGIL::~PyGIL()
+{
+    Release();
+}
+    
+void PyGIL::Acquire()
+{
+    if(!acquired)
+    {
+        state = PyGILState_Ensure();
+        acquired = true;
+    }
+}
+
+void PyGIL::Release()
+{
+    if(acquired)
+    {
+        PyGILState_Release((PyGILState_STATE)state);
+        acquired = false;
+    }
+}
+
+
+// ------------------------------------------
+
 PythonBridge * PythonBridge::instance;
 
 void PythonBridge::create( const char * module_name, PythonModuleInitFunc module_init_func)
@@ -156,14 +193,4 @@ std::string PythonBridge::getVersion()
     char buf[64];
     snprintf(buf, sizeof(buf), "%d.%d.%d", PY_MAJOR_VERSION, PY_MINOR_VERSION, PY_MICRO_VERSION);
     return std::string(buf);
-}
-
-PyGilState PythonBridge::acquireGil()
-{
-    return PyGILState_Ensure();
-}
-
-void PythonBridge::releaseGil(PyGilState gil_state)
-{
-    PyGILState_Release((PyGILState_STATE)gil_state);
 }
