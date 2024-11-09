@@ -220,6 +220,10 @@ public class UIElement {
     }
     
     public static func getFocusedApplication() -> UIElement? {
+        
+        var py_allow_thread = PyAllowThread(true)
+        defer { py_allow_thread.End() }
+
         let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier
         
         guard let pid else {
@@ -233,6 +237,9 @@ public class UIElement {
 
     public static func getRunningApplications() -> [UIElement] {
         
+        var py_allow_thread = PyAllowThread(true)
+        defer { py_allow_thread.End() }
+
         var applications: [UIElement] = []
         
         NSWorkspace.shared.runningApplications.forEach {            
@@ -251,6 +258,9 @@ public class UIElement {
             return []
         }
         
+        var py_allow_thread = PyAllowThread(true)
+        defer { py_allow_thread.End() }
+
         var names: CFArray?
         let result = AXUIElementCopyAttributeNames(elm, &names)
         if result != .success {
@@ -267,6 +277,7 @@ public class UIElement {
         }
         
         var py_allow_thread = PyAllowThread(true)
+        defer { py_allow_thread.End() }
         
         var value: AnyObject?
         let result = AXUIElementCopyAttributeValue(elm, name as CFString, &value)
@@ -291,6 +302,9 @@ public class UIElement {
             return
         }
 
+        var py_allow_thread = PyAllowThread(true)
+        defer { py_allow_thread.End() }
+
         let result = AXUIElementSetAttributeValue(elm, name as CFString, value)
 
         switch result {
@@ -308,6 +322,9 @@ public class UIElement {
             return []
         }
         
+        var py_allow_thread = PyAllowThread(true)
+        defer { py_allow_thread.End() }
+
         var names: CFArray?
         let result = AXUIElementCopyActionNames(elm, &names)
         if result != .success {
@@ -323,6 +340,9 @@ public class UIElement {
             return nil
         }
         
+        var py_allow_thread = PyAllowThread(true)
+        defer { py_allow_thread.End() }
+
         var description: CFString?
         let result = AXUIElementCopyActionDescription(elm, action as CFString, &description)
         if result != .success {
@@ -337,6 +357,9 @@ public class UIElement {
             return
         }
         
+        var py_allow_thread = PyAllowThread(true)
+        defer { py_allow_thread.End() }
+
         let result = AXUIElementPerformAction(elm, action as CFString)
         switch result {
         case .success:
