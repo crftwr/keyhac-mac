@@ -68,13 +68,19 @@ PythonBridge::PythonBridge(const char * module_name, PythonModuleInitFunc module
     }
     
     Py_Initialize();
+    
+    py_thread_state = PyEval_SaveThread();
 }
     
 PythonBridge::~PythonBridge()
 {
     printf("PythonBridge::~PythonBridge\n");
     
+    PyEval_RestoreThread((PyThreadState*)py_thread_state);
+    
     Py_Finalize();
+    
+    
 }
 
 int PythonBridge::runString(const char * code)
@@ -121,4 +127,14 @@ std::string PythonBridge::getVersion()
     char buf[64];
     snprintf(buf, sizeof(buf), "%d.%d.%d", PY_MAJOR_VERSION, PY_MINOR_VERSION, PY_MICRO_VERSION);
     return std::string(buf);
+}
+
+PyGilState PythonBridge::acquireGil()
+{
+    return PyGILState_Ensure();
+}
+
+void PythonBridge::releaseGil(PyGilState gil_state)
+{
+    PyGILState_Release((PyGILState_STATE)gil_state);
 }

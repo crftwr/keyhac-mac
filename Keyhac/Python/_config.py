@@ -28,18 +28,16 @@ def configure(keymap):
 
     # -----------------------------------------------------
     # User0-Z: Test of threaded action
-
     class ThreadedActionTest(ThreadedAction):
         def __init__(self):
-            print("ThreadedActionTest.__init__")
+            pass
 
         def starting(self):
             print("ThreadedActionTest starting")
 
         def run(self):
-            print("ThreadedActionTest run 1")
+            print("ThreadedActionTest running")
             time.sleep(3)
-            print("ThreadedActionTest run 2")
 
         def finished(self):
             print("ThreadedActionTest finished")
@@ -115,11 +113,11 @@ def configure(keymap):
 
     # -----------------------------------------------------
     # User0-T: activate one of running applications
-    class ActivateApplication:
+    class ActivateApplication(ThreadedAction):
         def __init__(self, app_title):
             self.app_title = app_title
 
-        def __call__(self):
+        def run(self):
             for app in UIElement.getRunningApplications():
                 title = app.getAttributeValue("AXTitle")
                 if title == self.app_title:

@@ -33,6 +33,7 @@ private:
     PyObject * p;
 };
 
+typedef int PyGilState;
 
 typedef PyObject * (*PythonModuleInitFunc)();
 
@@ -60,6 +61,8 @@ private:
 
     static PythonBridge * instance;
     
+    void * py_thread_state;
+    
 public:
     int runString(const char * code);
     
@@ -72,6 +75,9 @@ public:
     static int parsePythonInt(const PyObjectPtr & obj);
     
     static std::string getVersion();
+    
+    PyGilState acquireGil();
+    void releaseGil(PyGilState gil_state);
 
 } SWIFT_UNSAFE_REFERENCE;
 
