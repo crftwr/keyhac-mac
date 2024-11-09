@@ -16,6 +16,9 @@
 extern "C" {
     struct _object;
     typedef struct _object PyObject;
+
+    struct _ts;
+    typedef struct _ts PyThreadState;
 }
 
 class PyObjectPtr
@@ -31,6 +34,19 @@ public:
 
 private:
     PyObject * p;
+};
+
+class PyAllowThread
+{
+public:
+    PyAllowThread(bool begin=false);
+    ~PyAllowThread();
+    
+    void Begin();
+    void End();
+
+private:
+    PyThreadState * state;
 };
 
 typedef int PyGilState;

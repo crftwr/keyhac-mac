@@ -39,6 +39,41 @@ void PyObjectPtr::DecRef()
 
 // ------------------------------------------
 
+PyAllowThread::PyAllowThread(bool begin)
+    :
+    state(NULL)
+{
+    if(begin)
+    {
+        Begin();
+    }
+}
+
+PyAllowThread::~PyAllowThread()
+{
+    End();
+}
+    
+void PyAllowThread::Begin()
+{
+    if(!state)
+    {
+        state = PyEval_SaveThread();
+    }
+}
+
+void PyAllowThread::End()
+{
+    if(state)
+    {
+        PyEval_RestoreThread(state);
+        state = NULL;
+    }
+}
+
+
+// ------------------------------------------
+
 PythonBridge * PythonBridge::instance;
 
 void PythonBridge::create( const char * module_name, PythonModuleInitFunc module_init_func)
@@ -59,8 +94,6 @@ void PythonBridge::destroy()
 
 PythonBridge::PythonBridge(const char * module_name, PythonModuleInitFunc module_init_func)
 {
-    printf("PythonBridge::PythonBridge\n");
-    
     if (PyImport_AppendInittab(module_name, module_init_func) == -1)
     {
         printf("Error: could not extend in-built modules table\n");
@@ -74,13 +107,9 @@ PythonBridge::PythonBridge(const char * module_name, PythonModuleInitFunc module
     
 PythonBridge::~PythonBridge()
 {
-    printf("PythonBridge::~PythonBridge\n");
-    
     PyEval_RestoreThread((PyThreadState*)py_thread_state);
     
     Py_Finalize();
-    
-    
 }
 
 int PythonBridge::runString(const char * code)

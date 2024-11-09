@@ -266,6 +266,8 @@ public class UIElement {
             return nil
         }
         
+        var py_allow_thread = PyAllowThread(true)
+        
         var value: AnyObject?
         let result = AXUIElementCopyAttributeValue(elm, name as CFString, &value)
         
