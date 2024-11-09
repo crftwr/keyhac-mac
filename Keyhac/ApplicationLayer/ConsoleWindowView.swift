@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct ConsoleWindowView: View {
     
     @State private var isKeyboardHookEnabled: Bool = KeyhacSystem.getInstance().isKeyboardHookInstalled()
     @State private var errorMessage: String = ""
@@ -47,7 +47,7 @@ struct ContentView: View {
             
             SwiftTermView( viewController: termViewController )
                 .lookupKey(termViewKey)
-                .frame(width: 400, height: 400, alignment: .center)
+                .frame(minWidth: 100, minHeight: 50, alignment: .center)
 
             HStack {
                 Button("Edit config.py"){
@@ -83,11 +83,8 @@ struct ContentView: View {
                         Console.getInstance().write(s: errorMessage)
                     }
                 }
-
-                Button("Quit"){
-                    NSApplication.shared.terminate(nil)
-                }
             }
+            .padding(.all, 2)
         }
         .padding(.all, 10)
     }
@@ -103,8 +100,4 @@ struct ContentView: View {
             errorMessage = "Accessibility is not enabled."
         }
     }
-}
-
-#Preview {
-    ContentView()
 }
