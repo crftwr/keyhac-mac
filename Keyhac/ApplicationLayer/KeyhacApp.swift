@@ -24,5 +24,10 @@ struct KeyhacApp: App {
         Window("Keyhac Console", id: "console") {
             ConsoleWindowView()
         }
+
+        Window("About Keyhac", id: "about") {
+            AboutWindowView()
+        }
+        .windowResizability(.contentSize)
     }
 }

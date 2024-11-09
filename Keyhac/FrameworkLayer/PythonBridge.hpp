@@ -9,6 +9,8 @@
 #define PythonBridge_hpp
 
 #include <stdio.h>
+#include <string>
+
 #include <swift/bridging>
 
 extern "C" {
@@ -68,6 +70,8 @@ public:
     static PyObjectPtr buildPythonString(const char * s);
     
     static int parsePythonInt(const PyObjectPtr & obj);
+    
+    static std::string getVersion();
 
 } SWIFT_UNSAFE_REFERENCE;
 

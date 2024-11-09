@@ -170,7 +170,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\npython3 $PROJECT_DIR/Keyhac/BuildScripts/copy_python_stdlibs.py\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\npython3 $PROJECT_DIR/Keyhac/BuildScripts/copy_python_stdlibs.py\npython3 $PROJECT_DIR/Keyhac/BuildScripts/copy_copyright_notices.py\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

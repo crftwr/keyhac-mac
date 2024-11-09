@@ -115,3 +115,10 @@ int PythonBridge::parsePythonInt(const PyObjectPtr & obj)
     }
     return i;
 }
+
+std::string PythonBridge::getVersion()
+{
+    char buf[64];
+    snprintf(buf, sizeof(buf), "%d.%d.%d", PY_MAJOR_VERSION, PY_MINOR_VERSION, PY_MICRO_VERSION);
+    return std::string(buf);
+}
