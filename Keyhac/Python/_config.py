@@ -60,6 +60,21 @@ def configure(keymap):
     keytable_global["User0-D"] = lookup_dictionary
 
     # -----------------------------------------------------
+    # User0-G: Search selected words on Google
+    def search_google():
+
+        elm = keymap.focus
+
+        if "AXSelectedText" in elm.getAttributeNames():
+            words = elm.getAttributeValue("AXSelectedText")
+            print(f"Searching on Google: {words}")
+            words = urllib.parse.quote(words)
+            cmd = ["open", f"https://www.google.com/search?q={words}"]
+            subprocess.run(cmd)
+
+    keytable_global["User0-G"] = search_google
+
+    # -----------------------------------------------------
     # Fn-M: Zoom window (Test of UIElement.performAction)
     def zoom_window():
 
