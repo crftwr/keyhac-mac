@@ -112,24 +112,31 @@ def configure(keymap):
     keytable_global["User0-Down"]  = MoveWindow(0,+10)
 
     # -----------------------------------------------------
-    # User0-T: activate one of running applications
-    class ActivateApplication(ThreadedAction):
-        def __init__(self, app_title):
-            self.app_title = app_title
+    # User0-T/F/C: activate one of running applications
+    class ActivateOrLaunchApplication(ThreadedAction):
+        def __init__(self, app_name):
+            self.app_name = app_name
 
         def run(self):
+
+            # Find the application is already running and it has a window, activate it
             for app in UIElement.getRunningApplications():
                 title = app.getAttributeValue("AXTitle")
-                if title == self.app_title:
+                if title == self.app_name:
+                    if app.getAttributeValue("AXWindows"):
+                        app.setAttributeValue( "AXFrontmost", "bool", True )
+                        return
                     break
-            else:
-                return
 
-            app.setAttributeValue( "AXFrontmost", "bool", True )
+            # if the application is not running, launch it
+            cmd = ["open", "-a", self.app_name]
+            print(f"Launching {self.app_name}")
+            subprocess.run(cmd)
 
-    keytable_global["User0-T"] = ActivateApplication("Terminal")
-    keytable_global["User0-F"] = ActivateApplication("Finder")
-    keytable_global["User0-C"] = ActivateApplication("Code")
+    keytable_global["User0-T"] = ActivateOrLaunchApplication("Terminal")
+    keytable_global["User0-F"] = ActivateOrLaunchApplication("ForkLift")
+    keytable_global["User0-C"] = ActivateOrLaunchApplication("Code")
+
 
     # =====================================================
     # Key table for Xcode
