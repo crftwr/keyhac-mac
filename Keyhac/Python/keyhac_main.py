@@ -203,11 +203,13 @@ class Keymap:
                 self._modifier |= self._vk_mod_map[vk]
                 if self._vk_mod_map[vk] & MODKEY_USER_ALL:
                     key = KeyCondition( vk, old_modifier, down=True )
+                    self._setLastKeyText(key)
                     self._do_configured_key_action(key)
                     return True
 
             key = KeyCondition( vk, old_modifier, down=True )
 
+            self._setLastKeyText(key)
             if self._do_configured_key_action(key):
                 return True
             elif replaced:
@@ -295,6 +297,11 @@ class Keymap:
             print()
             logger.error(f"Unexpected error happened:\n{traceback.format_exc()}")
 
+    def _setLastKeyText(self, key):
+        s = str(key)
+        if s.startswith("D-"): s = s[2:]
+        keyhac_core.Console.setText("lastKey", s)
+
     def _on_key_hook_restored(self):
         logger.warning("Key hook timed out and has been restored.")
 
@@ -315,8 +322,6 @@ class Keymap:
 
         logger.debug(f"Input {key}")
         
-        keyhac_core.Console.setText("lastKey", str(key))
-
         action = None
         if key in self._unified_keytable:
             action = self._unified_keytable[key]
