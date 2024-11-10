@@ -1,7 +1,8 @@
 import traceback
 from concurrent.futures import ThreadPoolExecutor
+import keyhac_console
 
-from keyhac_const import CONSOLE_STYLE_DEFAULT, CONSOLE_STYLE_ERROR
+logger = keyhac_console.getLogger("Action")
 
 class ThreadedAction:
 
@@ -19,10 +20,7 @@ class ThreadedAction:
         try:
             self.finished(future.result())
         except Exception as e:
-            print(CONSOLE_STYLE_ERROR)
-            print("ERROR: running custom focus condition function failed:")
-            traceback.print_exc()
-            print(CONSOLE_STYLE_DEFAULT)
+            logger.error(f"Threaded action failed:\n{traceback.format_exc()}\n")
 
     def starting(self):
         pass

@@ -1,4 +1,7 @@
 from keyhac_const import *
+import keyhac_console
+
+logger = keyhac_console.getLogger("Key")
 
 class KeyCondition:
 
@@ -505,7 +508,7 @@ class KeyTable:
         try:
             key = KeyCondition.from_str(key)
         except ValueError:
-            print(CONSOLE_STYLE_ERROR + f"ERROR: Invalid key expression: {key}" + CONSOLE_STYLE_DEFAULT)
+            logger.error(f"Invalid key expression: {key}")
             return
 
         self.table[key] = value
@@ -514,7 +517,7 @@ class KeyTable:
         try:
             key = KeyCondition.from_str(key)
         except ValueError:
-            print(CONSOLE_STYLE_ERROR + f"ERROR: Invalid key expression: {key}" + CONSOLE_STYLE_DEFAULT)
+            logger.error(f"Invalid key expression: {key}")
             return
 
         return self.table[key]
@@ -523,7 +526,7 @@ class KeyTable:
         try:
             key = KeyCondition.from_str(key)
         except ValueError:
-            print(CONSOLE_STYLE_ERROR + f"ERROR: Invalid key expression: {key}" + CONSOLE_STYLE_DEFAULT)
+            logger.error(f"Invalid key expression: {key}")
             return
 
         del self.table[key]

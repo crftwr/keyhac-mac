@@ -1,7 +1,8 @@
 import fnmatch
 import traceback
+import keyhac_console
 
-from keyhac_const import CONSOLE_STYLE_DEFAULT, CONSOLE_STYLE_ERROR
+logger = keyhac_console.getLogger("Focus")
 
 class FocusCondition:
 
@@ -18,12 +19,7 @@ class FocusCondition:
             if self.custom_condition_func and ( not focus_elm or not self.custom_condition_func(focus_elm) ):
                 return False
         except Exception as e:
-
-            print(CONSOLE_STYLE_ERROR)
-            print("ERROR: running custom focus condition function failed:")
-            traceback.print_exc()
-            print(CONSOLE_STYLE_DEFAULT)
-
+            logger.error(f"Running custom focus condition function failed:\n{traceback.format_exc()}\n")
             return False
 
         return True

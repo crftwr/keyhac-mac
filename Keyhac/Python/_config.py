@@ -42,14 +42,14 @@ def configure(keymap):
             pass
 
         def starting(self):
-            print("ThreadedActionTest starting")
+            logger.info("ThreadedActionTest starting")
 
         def run(self):
-            print("ThreadedActionTest running")
+            logger.info("ThreadedActionTest running")
             time.sleep(3)
 
         def finished(self, result):
-            print(f"ThreadedActionTest finished. result={result}")
+            logger.info(f"ThreadedActionTest finished. result={result}")
 
     keytable_global["User0-Z"] = ThreadedActionTest()
 
@@ -76,7 +76,7 @@ def configure(keymap):
 
         if "AXSelectedText" in elm.getAttributeNames():
             words = elm.getAttributeValue("AXSelectedText")
-            print(f"Searching on Google: {words}")
+            logger.info(f"Searching on Google: {words}")
             words = urllib.parse.quote(words)
             cmd = ["open", f"https://www.google.com/search?q={words}"]
             subprocess.run(cmd)
@@ -101,7 +101,6 @@ def configure(keymap):
                 elm = elm.getAttributeValue("AXZoomButton")
                 if elm:
                     actions = elm.getActionNames()
-                    print(actions)
                     elm.performAction("AXPress")
 
     keytable_global["Fn-M"] = zoom_window
@@ -154,7 +153,7 @@ def configure(keymap):
 
             # If the application is not running, launch it
             cmd = ["open", "-a", self.app_name]
-            print(f"Launching {self.app_name}")
+            logger.info(f"Launching {self.app_name}")
             subprocess.run(cmd)
 
     keytable_global["User0-T"] = ActivateOrLaunchApplication("Terminal")

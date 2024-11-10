@@ -13,7 +13,7 @@ from keyhac_const import *
 
 keyhac_console.initializeConsole()
 
-logger = keyhac_console.getLogger("keyhac_main")
+logger = keyhac_console.getLogger("Keymap")
 
 class Keymap:
     
@@ -45,7 +45,7 @@ class Keymap:
 
         keyhac_core.Hook.setCallback("Keyboard", self._on_key)
         
-        print(CONSOLE_STYLE_TITLE + "Welcome to Keyhac" + CONSOLE_STYLE_DEFAULT);
+        print("\n" + CONSOLE_STYLE_TITLE + "Welcome to Keyhac" + CONSOLE_STYLE_DEFAULT + "\n")
 
     def configure(self):
 
@@ -72,7 +72,7 @@ class Keymap:
         self._vk_mod_map[VK_RCOMMAND ] = MODKEY_CMD_R
         self._vk_mod_map[VK_FUNCTION ] = MODKEY_FN_L
         
-        print("Loading configuration script.")
+        logger.info("Loading configuration script.")
 
         # Create "~/.keyhac" and "extensions" directories
         os.makedirs(os.path.expanduser("~/.keyhac/extensions"), exist_ok=True)
@@ -85,10 +85,7 @@ class Keymap:
             )
             self.config.call("configure", self)
         except:
-            print(CONSOLE_STYLE_ERROR)
-            print("ERROR: loading configuration script failed:")
-            traceback.print_exc()
-            print(CONSOLE_STYLE_DEFAULT)
+            logger.error(f"Loading configuration script failed:\n{traceback.format_exc()}\n")
             return
 
     def replace_key( self, src, dst ):
@@ -96,14 +93,14 @@ class Keymap:
             if type(src)==str:
                 src = KeyCondition.str_to_vk(src)
         except:
-            print(CONSOLE_STYLE_ERROR + f"ERROR: Invalid expression for argument 'src': {src}" + CONSOLE_STYLE_DEFAULT)
+            logger.error(f"Invalid key expression for argument 'src': {src}")
             return
 
         try:
             if type(dst)==str:
                 dst = KeyCondition.str_to_vk(dst)
         except:
-            print(CONSOLE_STYLE_ERROR + f"ERROR: Invalid expression for argument 'dst': {dst}" + CONSOLE_STYLE_DEFAULT)
+            logger.error(f"Invalid key expression for argument 'dst': {dst}")
             return
 
         self._vk_vk_map[src] = dst
@@ -115,7 +112,7 @@ class Keymap:
             if type(vk)==str:
                 vk = KeyCondition.str_to_vk(vk)
         except:
-            print(CONSOLE_STYLE_ERROR + f"ERROR: Invalid expression for argument 'vk': {vk}" + CONSOLE_STYLE_DEFAULT)
+            logger.error(f"Invalid key expression for argument 'vk': {vk}")
             return
 
         try:
@@ -124,7 +121,7 @@ class Keymap:
             else:
                 raise TypeError
         except:
-            print(CONSOLE_STYLE_ERROR + f"ERROR: Invalid expression for argument 'mod': {mod}" + CONSOLE_STYLE_DEFAULT)
+            logger.error(f"Invalid key expression for argument 'mod': {mod}")
             return
 
         self._vk_mod_map[vk] = mod
@@ -167,7 +164,7 @@ class Keymap:
         new_focus_path = FocusCondition.get_focus_path(elm)
 
         if self._focus_path != new_focus_path:
-            print(CONSOLE_STYLE_TITLE + "Focus path:" + CONSOLE_STYLE_DEFAULT, new_focus_path)
+            logger.info(CONSOLE_STYLE_TITLE + "Focus path:" + CONSOLE_STYLE_DEFAULT + new_focus_path)
             keyhac_core.Console.setText("focusPath", new_focus_path)
             self._focus_path = new_focus_path
             self._update_unified_keytable()
@@ -215,7 +212,7 @@ class Keymap:
             elif replaced:
                 with self.get_input_context() as input_ctx:
                     input_ctx.send_key_by_vk( vk, down=True )
-                    if self._debug: print( "REP:", input_ctx )
+                    logger.debug(f"Replaced {key} -> {input_ctx}")
                 return True
             else:
                 if self._send_input_on_tru:
@@ -223,17 +220,14 @@ class Keymap:
                     # TRU でも Input.send すると問題が起きない
                     with self.get_input_context() as input_ctx:
                         input_ctx.send_key_by_vk( vk, down=True )
-                        if self._debug: print( "TRU:", input_ctx )
+                        logger.debug(f"Pass-through {key} -> {input_ctx}")
                     return True
                 else:
-                    if self._debug: print( "TRU:", key )
+                    logger.debug(f"Pass-through {key}")
                     return False
 
         except Exception as e:
-            print(CONSOLE_STYLE_ERROR)
-            print("ERROR: Unexpected error happened:")
-            traceback.print_exc()
-            print(CONSOLE_STYLE_DEFAULT)
+            logger.error(f"Unexpected error happened:\n{traceback.format_exc()}\n")
 
     def _on_key_up( self, vk ):
 
@@ -272,7 +266,7 @@ class Keymap:
                 elif replaced or ( oneshot and self._is_key_configured(oneshot_key) ):
                     with self.get_input_context() as input_ctx:
                         input_ctx.send_key_by_vk( vk, down=False )
-                        if self._debug: print( "REP:", input_ctx )
+                        logger.debug(f"Replaced {key} -> {input_ctx}")
                     return True
                 else:
                     if self._send_input_on_tru:
@@ -280,10 +274,10 @@ class Keymap:
                         # TRU でも Input.send すると問題が起きない
                         with self.get_input_context() as input_ctx:
                             input_ctx.send_key_by_vk( vk, down=False )
-                            if self._debug: print( "TRU:", input_ctx )
+                            logger.debug(f"Pass-through {key} -> {input_ctx}")
                         return True
                     else:
-                        if self._debug: print( "TRU:", key )
+                        logger.debug(f"Pass-through {key}")
                         return False
 
             finally:
@@ -296,23 +290,18 @@ class Keymap:
                     self._do_configured_key_action(key)
 
         except Exception as e:
-            print(CONSOLE_STYLE_ERROR)
-            print("ERROR: Unexpected error happened:")
-            traceback.print_exc()
-            print(CONSOLE_STYLE_DEFAULT)
-
-
+            logger.error(f"Unexpected error happened:\n{traceback.format_exc()}\n")
 
     def _on_key_hook_restored(self):
-        print(CONSOLE_STYLE_WARNING + "WARNING: Key hook timed out and has been restored." + CONSOLE_STYLE_DEFAULT)
-        
+        logger.warning("Key hook timed out and has been restored.")
+
         # Modifier key state is not reliable anymore. Resetting.
         self._modifier = 0
 
     def _record_key( self, vk, up ):
         if self._record_status=="recording":
             if len(self._record_seq)>=1000:
-                print(CONSOLE_STYLE_ERROR + "ERROR: Keyboard macro is too long." + CONSOLE_STYLE_DEFAULT)
+                logger.error(f"Keyboard macro is too long.")
                 return
             self._record_seq.append( ( vk, up ) )
 
@@ -321,7 +310,7 @@ class Keymap:
 
     def _do_configured_key_action( self, key ):
 
-        if self._debug: print( "IN :", key )
+        logger.debug(f"Input {key}")
         
         keyhac_core.Console.setText("lastKey", str(key))
 
@@ -338,6 +327,7 @@ class Keymap:
             return left_multi_stroke
         
         if callable(action):
+            logger.debug(f"Calling {action}")
             action()
 
         elif isinstance(action, KeyTable):
@@ -346,6 +336,8 @@ class Keymap:
         else:
             if type(action)!=list and type(action)!=tuple:
                 action = [action]
+
+            logger.debug(f"Sending {action}")
 
             with self.get_input_context() as input_ctx:
                 for item in action:
@@ -358,6 +350,8 @@ class Keymap:
 
     def _enter_multi_stroke( self, keytable ):
 
+        logger.debug(f"Entering multi-stroke keytable - {keytable}")
+
         self._multi_stroke_keytable = keytable
         self._update_unified_keytable()
 
@@ -369,6 +363,9 @@ class Keymap:
     def _leave_multi_stroke(self):
 
         if self._multi_stroke_keytable:
+    
+            logger.debug(f"Leaving multi-stroke keytable - {self._multi_stroke_keytable}")
+
             self._multi_stroke_keytable = None
             self._update_unified_keytable()
 
