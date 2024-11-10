@@ -75,6 +75,9 @@ class Keymap:
         
         print("Loading configuration script.")
 
+        # Create "~/.keyhac" and "extensions" directories
+        os.makedirs(os.path.expanduser("~/.keyhac/extensions"), exist_ok=True)
+
         try:
             # Load configuration file
             self.config = keyhac_config.Config(

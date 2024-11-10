@@ -53,6 +53,7 @@ class KeyhacSystem {
             bundle_resource_path,
             os.path.join(bundle_resource_path, "PythonLibs/python3.12"),
             os.path.join(bundle_resource_path, "PythonLibs/python3.12/lib-dynload"),
+            os.path.join(os.path.expanduser("~/.keyhac/extensions")),
         ]
         
         import keyhac_main
