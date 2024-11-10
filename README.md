@@ -8,15 +8,28 @@ Keyhac gives you the flexibility to customize the behavior of various applicatio
 
 ### Download & Install
 
-Download a installation package (`Keyhac-x.yy.zip`) from the [Releases](https://github.com/crftwr/keyhac-mac/releases) page.
-Extract the Zip file, and copy `Keyapp.app` to `/Applications/`.
+1. Download the installation package (`Keyhac-x.yy.zip`) from the [Releases](https://github.com/crftwr/keyhac-mac/releases) page.
+1. Extract the Zip file and copy `Keyapp.app` to `/Applications/`.
+1. Launch Keyhac from LaunchPad or Spotlight.
+1. When the "Accessibility Access" dialog appears, select "Open System Settings" and enable accessibility control for Keyhac.
+1. Open Keyhac's console window from the "Keyboard" icon int the menu bar extra space.
+1. Enable keyboard hook with the toggle switch in the top-left of the console window.
 
+
+### How to configure
+
+1. Open and edit `~/keyhac/config.py` in your preferred text editor. You can use "Edit config.py" from the menu bar.
+1. Open Keyhac's console window from the "Keyboard" icon int the menu bar extra space.
+1. Operate the toggle switch off → on to reload the configuration file.
+1. Verify the configured behavior.
+
+For how to write the configuration file (`config.py`), see the [Keyhac User Guide Document](docs/index.md).
 
 ### Features
 
 - Replace a key with another key
 - Differentiate key bindings for focused applications and focused UI elements
-- Handle multi-stroke keys (e.g., Ctrl-X → Ctrl-O )
+- Handle multi-stroke keys (e.g., Ctrl-X + Ctrl-O )
 - Move active window by keyboard
 - Activate an application by keyboard
 - Launch an application by keyboard
