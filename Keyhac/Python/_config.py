@@ -119,7 +119,7 @@ def configure(keymap):
 
         def run(self):
 
-            # Find the application is already running and it has a window, activate it
+            # If the application is already running and it has a window, activate it
             for app in UIElement.getRunningApplications():
                 title = app.getAttributeValue("AXTitle")
                 if title == self.app_name:
@@ -128,7 +128,7 @@ def configure(keymap):
                         return
                     break
 
-            # if the application is not running, launch it
+            # If the application is not running, launch it
             cmd = ["open", "-a", self.app_name]
             print(f"Launching {self.app_name}")
             subprocess.run(cmd)
@@ -145,7 +145,7 @@ def configure(keymap):
     keytable_xcode = keymap.define_keytable( focus_path_pattern="/AXApplication(Xcode)/*/AXTextArea()" )
 
     # -----------------------------------------------------
-    # Fn-A: overriding global keytable configuration
+    # Fn-A: Overriding global keytable configuration
     def hello_xcode():
         print("Hello Xcode!")
 
@@ -156,7 +156,7 @@ def configure(keymap):
     keytable_xcode["Fn-L"] = "Cmd-Left", "Cmd-Left", "Shift-Cmd-Right"
 
     # -----------------------------------------------------
-    # Test of multi-stroke key binding
+    # Test of Multi-stroke key binding
     keytable_xcode["Ctrl-X"] = keymap.define_keytable(name="Ctrl-X")
     keytable_xcode["Ctrl-X"]["Ctrl-O"] = "Cmd-O"
 
@@ -181,7 +181,7 @@ def configure(keymap):
     keytable_terminal = keymap.define_keytable( custom_condition_func = is_terminal_window )
 
     # -----------------------------------------------------
-    # Fn-A: overriding global keytable configuration
+    # Fn-A: Overriding global keytable configuration
     def hello_terminal():
         print("Hello Terminal!")
 
