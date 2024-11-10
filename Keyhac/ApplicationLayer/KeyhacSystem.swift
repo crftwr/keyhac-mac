@@ -57,6 +57,9 @@ class KeyhacSystem {
         ]
         
         import keyhac_main
+
+        sys.argv = [keyhac_main.__file__]
+
         keyhac_main.configure()
         """
         
