@@ -1,6 +1,8 @@
 import sys
 import logging
 import keyhac_core
+from keyhac_const import CONSOLE_STYLE_DEFAULT, CONSOLE_STYLE_ERROR, CONSOLE_STYLE_WARNING
+
 
 class StandardIo:
     
@@ -29,9 +31,21 @@ class ConsoleLoggingHandler(logging.Handler):
 
     def emit(self, record):
         try:
-            s = self.format(record) + "\n"
+            if record.levelno >= logging.ERROR:
+                highlight_start = CONSOLE_STYLE_ERROR
+                highlight_end   = CONSOLE_STYLE_DEFAULT
+            elif record.levelno >= logging.WARNING:
+                highlight_start = CONSOLE_STYLE_WARNING
+                highlight_end   = CONSOLE_STYLE_DEFAULT
+            else:
+                highlight_start = ""
+                highlight_end   = ""
+
+            s = f"{highlight_start}{self.format(record)}{highlight_end}\n"
+
             keyhac_core.Console.write(s, record.levelno)
             sys.__stdout__.write(s)
+        
         except:
             self.handleError(record)
 
