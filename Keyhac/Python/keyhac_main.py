@@ -330,7 +330,11 @@ class Keymap:
             return left_multi_stroke
         
         if callable(action):
-            logger.debug(f"Calling {action}")
+            if hasattr(action, "__name__"):
+                action_name = action.__name__
+            else:
+                action_name = repr(action)
+            logger.debug(f"Calling {action_name}")
             action()
 
         elif isinstance(action, KeyTable):
