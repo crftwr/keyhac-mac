@@ -94,8 +94,8 @@ struct ConsoleWindowView: View {
                         }
 
                     Button("Copy") {
-                        print("Copied")
-                        lastKeyString = "Test"
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(lastKeyString, forType: .string)
                     }
                 }
                 
@@ -115,8 +115,8 @@ struct ConsoleWindowView: View {
                         }
 
                     Button("Copy") {
-                        print("Copied")
-                        focusPathString = "Hello"
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(focusPathString, forType: .string)
                     }
                 }
             }
