@@ -28,10 +28,10 @@ Download from [Releases](https://github.com/crftwr/keyhac-mac/releases) page.
 <br/><img src="images/menubar-extra.png" alt="menubar-extra" style="width:300px;"/>
 
 **Console window**
-<br/><img src="images/console-window.png" alt="console-window" style="width:500px;"/>
+<br/><img src="images/console-window.png" alt="console-window" style="width:400px;"/>
 
 **Debug logging level**
-<br/><img src="images/debug-logging.png" alt="debug-logging" style="width:500px;"/>
+<br/><img src="images/debug-logging.png" alt="debug-logging" style="width:400px;"/>
 
 
 ### Sample configuration
