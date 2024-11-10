@@ -20,8 +20,7 @@ struct ConsoleWindowView: View {
     @State var lastKeyString: String = ""
     @State var focusPathString: String = ""
 
-    //var updateTimer: Timer?
-    let updateTimer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+    @State var updateTimer: Timer?
 
     var body: some View {
         VStack {
@@ -72,10 +71,6 @@ struct ConsoleWindowView: View {
             SwiftTermView( viewController: termViewController )
                 .lookupKey(termViewKey)
                 .frame(minWidth: 100, minHeight: 50, alignment: .center)
-                .onReceive(updateTimer) { _ in
-                    let s = Console.getInstance().pullBuffer()
-                    termViewController.terminal.feed(text: s)
-                }
             
             Grid {
                 GridRow {
@@ -89,9 +84,6 @@ struct ConsoleWindowView: View {
                                 .stroke(.gray, lineWidth: 1)
                         )
                         .textSelection(.enabled)
-                        .onReceive(updateTimer) { _ in
-                            lastKeyString = Console.getInstance().pullText(name: "lastKey")
-                        }
 
                     Button("Copy") {
                         NSPasteboard.general.clearContents()
@@ -110,9 +102,6 @@ struct ConsoleWindowView: View {
                                 .stroke(.gray, lineWidth: 1)
                         )
                         .textSelection(.enabled)
-                        .onReceive(updateTimer) { _ in
-                            focusPathString = Console.getInstance().pullText(name: "focusPath")
-                        }
 
                     Button("Copy") {
                         NSPasteboard.general.clearContents()
@@ -123,5 +112,31 @@ struct ConsoleWindowView: View {
             .padding(.all, 4)
         }
         .padding(.all, 10)
+        .onAppear() {
+            updateTimer?.invalidate()
+            updateTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
+                onUpdateTimer()
+            }
+        }
+        .onDisappear() {
+            updateTimer?.invalidate()
+        }
+    }
+    
+    func onUpdateTimer() {
+        let newOut = Console.getInstance().pullBuffer()
+        if !newOut.isEmpty {
+            termViewController.terminal.feed(text: newOut)
+        }
+
+        let newLastKeyString = Console.getInstance().pullText(name: "lastKey")
+        if lastKeyString != newLastKeyString {
+            lastKeyString = newLastKeyString
+        }
+
+        let newFocusPathString = Console.getInstance().pullText(name: "focusPath")
+        if focusPathString != newFocusPathString {
+            focusPathString = newFocusPathString
+        }
     }
 }
