@@ -39,8 +39,8 @@ def configure(keymap):
             print("ThreadedActionTest running")
             time.sleep(3)
 
-        def finished(self):
-            print("ThreadedActionTest finished")
+        def finished(self, result):
+            print(f"ThreadedActionTest finished. result={result}")
 
     keytable_global["User0-Z"] = ThreadedActionTest()
 
