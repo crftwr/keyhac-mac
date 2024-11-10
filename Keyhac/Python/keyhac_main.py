@@ -169,6 +169,7 @@ class Keymap:
 
         if self._focus_path != new_focus_path:
             print(CONSOLE_STYLE_TITLE + "Focus path:" + CONSOLE_STYLE_DEFAULT, new_focus_path)
+            keyhac_core.Console.setText("focusPath", new_focus_path)
             self._focus_path = new_focus_path
             self._update_unified_keytable()
 
@@ -322,6 +323,8 @@ class Keymap:
     def _do_configured_key_action( self, key ):
 
         if self._debug: print( "IN :", key )
+        
+        keyhac_core.Console.setText("lastKey", str(key))
 
         action = None
         if key in self._unified_keytable:

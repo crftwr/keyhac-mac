@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ConsoleWindowView: View, ConsoleVisualizeDelegate {
+struct ConsoleWindowView: View {
     
     @State private var isKeyboardHookEnabled: Bool = KeyhacSystem.getInstance().isKeyboardHookInstalled()
     
@@ -19,11 +19,10 @@ struct ConsoleWindowView: View, ConsoleVisualizeDelegate {
 
     @State var lastKeyString: String = ""
     @State var focusPathString: String = ""
-    
-    init() {
-        Console.getInstance().delegate = self
-    }
-    
+
+    //var updateTimer: Timer?
+    let updateTimer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+
     var body: some View {
         VStack {
             
@@ -73,6 +72,10 @@ struct ConsoleWindowView: View, ConsoleVisualizeDelegate {
             SwiftTermView( viewController: termViewController )
                 .lookupKey(termViewKey)
                 .frame(minWidth: 100, minHeight: 50, alignment: .center)
+                .onReceive(updateTimer) { _ in
+                    let s = Console.getInstance().pullBuffer()
+                    termViewController.terminal.feed(text: s)
+                }
             
             Grid {
                 GridRow {
@@ -86,9 +89,13 @@ struct ConsoleWindowView: View, ConsoleVisualizeDelegate {
                                 .stroke(.gray, lineWidth: 1)
                         )
                         .textSelection(.enabled)
+                        .onReceive(updateTimer) { _ in
+                            lastKeyString = Console.getInstance().pullText(name: "lastKey")
+                        }
 
                     Button("Copy") {
                         print("Copied")
+                        lastKeyString = "Test"
                     }
                 }
                 
@@ -97,35 +104,24 @@ struct ConsoleWindowView: View, ConsoleVisualizeDelegate {
                     Text(focusPathString)
                         .padding(.all, 2)
                         .frame(maxWidth: .infinity)
+                        .lineLimit(1)
                         .overlay(
                             RoundedRectangle(cornerRadius: 4)
                                 .stroke(.gray, lineWidth: 1)
                         )
                         .textSelection(.enabled)
-                    
+                        .onReceive(updateTimer) { _ in
+                            focusPathString = Console.getInstance().pullText(name: "focusPath")
+                        }
+
                     Button("Copy") {
                         print("Copied")
+                        focusPathString = "Hello"
                     }
                 }
             }
             .padding(.all, 4)
         }
         .padding(.all, 10)
-    }
-    
-    func write(s: String) {
-        let s2 = s.replacingOccurrences(of: "\n", with: "\r\n")
-        termViewController.terminal.feed(text: s2)
-    }
-    
-    func setText(name: String, text: String) {
-        switch name {
-        case "lastKey":
-            lastKeyString = text
-        case "focusPath":
-            focusPathString = text
-        default:
-            break
-        }
     }
 }

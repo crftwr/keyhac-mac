@@ -10,7 +10,6 @@ import SwiftUI
 struct MenuView: View {
 
     @Environment(\.openWindow) private var openWindow
-    @State private var boolTest: Bool = false
 
     var body: some View {
         

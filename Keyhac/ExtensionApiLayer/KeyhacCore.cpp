@@ -706,8 +706,27 @@ static PyObject * Console_write(Console_Object * self, PyObject* args)
     return Py_None;
 }
 
+static PyObject * Console_setText(Console_Object * self, PyObject* args)
+{
+    PyObject * pyname;
+    PyObject * pytext;
+    if( ! PyArg_ParseTuple(args, "UU", &pyname, &pytext) )
+    {
+        return NULL;
+    }
+    
+    const char * name = PyUnicode_AsUTF8AndSize(pyname, NULL);
+    const char * text = PyUnicode_AsUTF8AndSize(pytext, NULL);
+
+    Keyhac::Console::getInstance().setText(name, text);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMethodDef Console_methods[] = {
     { "write", (PyCFunction)Console_write, METH_STATIC|METH_VARARGS, "" },
+    { "setText", (PyCFunction)Console_setText, METH_STATIC|METH_VARARGS, "" },
     {NULL,NULL}
 };
 
