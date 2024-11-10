@@ -4,7 +4,7 @@ import urllib.parse
 import subprocess
 from keyhac import *
 
-logger = getLogger("config")
+logger = getLogger("Config")
 
 def configure(keymap):
 

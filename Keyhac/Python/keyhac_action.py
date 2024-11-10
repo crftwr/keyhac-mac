@@ -20,7 +20,8 @@ class ThreadedAction:
         try:
             self.finished(future.result())
         except Exception as e:
-            logger.error(f"Threaded action failed:\n{traceback.format_exc()}\n")
+            print()
+            logger.error(f"Threaded action failed:\n{traceback.format_exc()}")
 
     def starting(self):
         pass

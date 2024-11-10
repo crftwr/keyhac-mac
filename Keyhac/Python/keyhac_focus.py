@@ -19,7 +19,8 @@ class FocusCondition:
             if self.custom_condition_func and ( not focus_elm or not self.custom_condition_func(focus_elm) ):
                 return False
         except Exception as e:
-            logger.error(f"Running custom focus condition function failed:\n{traceback.format_exc()}\n")
+            print()
+            logger.error(f"Running custom focus condition function failed:\n{traceback.format_exc()}")
             return False
 
         return True

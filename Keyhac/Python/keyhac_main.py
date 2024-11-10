@@ -85,7 +85,8 @@ class Keymap:
             )
             self.config.call("configure", self)
         except:
-            logger.error(f"Loading configuration script failed:\n{traceback.format_exc()}\n")
+            print()
+            logger.error(f"Loading configuration script failed:\n{traceback.format_exc()}")
             return
 
     def replace_key( self, src, dst ):
@@ -227,7 +228,8 @@ class Keymap:
                     return False
 
         except Exception as e:
-            logger.error(f"Unexpected error happened:\n{traceback.format_exc()}\n")
+            print()
+            logger.error(f"Unexpected error happened:\n{traceback.format_exc()}")
 
     def _on_key_up( self, vk ):
 
@@ -290,7 +292,8 @@ class Keymap:
                     self._do_configured_key_action(key)
 
         except Exception as e:
-            logger.error(f"Unexpected error happened:\n{traceback.format_exc()}\n")
+            print()
+            logger.error(f"Unexpected error happened:\n{traceback.format_exc()}")
 
     def _on_key_hook_restored(self):
         logger.warning("Key hook timed out and has been restored.")
