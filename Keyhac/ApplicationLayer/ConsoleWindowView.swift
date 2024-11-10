@@ -115,6 +115,7 @@ struct ConsoleWindowView: View {
                         .padding(.all, 2)
                         .frame(maxWidth: .infinity)
                         .lineLimit(1)
+                        .truncationMode(.middle)
                         .overlay(
                             RoundedRectangle(cornerRadius: 4)
                                 .stroke(.gray, lineWidth: 1)
