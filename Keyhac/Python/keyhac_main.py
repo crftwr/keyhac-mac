@@ -165,7 +165,7 @@ class Keymap:
         new_focus_path = FocusCondition.get_focus_path(elm)
 
         if self._focus_path != new_focus_path:
-            logger.info(CONSOLE_STYLE_TITLE + "Focus path:" + CONSOLE_STYLE_DEFAULT + new_focus_path)
+            logger.debug(f"Focus path: {new_focus_path}")
             keyhac_core.Console.setText("focusPath", new_focus_path)
             self._focus_path = new_focus_path
             self._update_unified_keytable()
@@ -215,7 +215,7 @@ class Keymap:
             elif replaced:
                 with self.get_input_context() as input_ctx:
                     input_ctx.send_key_by_vk( vk, down=True )
-                    logger.debug(f"Replaced {key} -> {input_ctx}")
+                    logger.debug(f"REPLACE  : {input_ctx}")
                 return True
             else:
                 if self._send_input_on_tru:
@@ -223,10 +223,10 @@ class Keymap:
                     # TRU でも Input.send すると問題が起きない
                     with self.get_input_context() as input_ctx:
                         input_ctx.send_key_by_vk( vk, down=True )
-                        logger.debug(f"Pass-through {key} -> {input_ctx}")
+                        logger.debug(f"PASSTHRU : {key}")
                     return True
                 else:
-                    logger.debug(f"Pass-through {key}")
+                    logger.debug(f"PASSTHRU : {key}")
                     return False
 
         except Exception as e:
@@ -270,7 +270,7 @@ class Keymap:
                 elif replaced or ( oneshot and self._is_key_configured(oneshot_key) ):
                     with self.get_input_context() as input_ctx:
                         input_ctx.send_key_by_vk( vk, down=False )
-                        logger.debug(f"Replaced {key} -> {input_ctx}")
+                        logger.debug(f"REPLACE  : {input_ctx}")
                     return True
                 else:
                     if self._send_input_on_tru:
@@ -278,10 +278,10 @@ class Keymap:
                         # TRU でも Input.send すると問題が起きない
                         with self.get_input_context() as input_ctx:
                             input_ctx.send_key_by_vk( vk, down=False )
-                            logger.debug(f"Pass-through {key} -> {input_ctx}")
+                            logger.debug(f"PASSTHRU : {key}")
                         return True
                     else:
-                        logger.debug(f"Pass-through {key}")
+                        logger.debug(f"PASSTHRU : {key}")
                         return False
 
             finally:
@@ -320,7 +320,7 @@ class Keymap:
 
     def _do_configured_key_action( self, key ):
 
-        logger.debug(f"Input {key}")
+        logger.debug(f"INPUT    : {key}")
         
         action = None
         if key in self._unified_keytable:
@@ -339,7 +339,7 @@ class Keymap:
                 action_name = action.__name__
             else:
                 action_name = repr(action)
-            logger.debug(f"Calling {action_name}")
+            logger.debug(f"CALL     : {action_name}")
             action()
 
         elif isinstance(action, KeyTable):
@@ -349,7 +349,7 @@ class Keymap:
             if type(action)!=list and type(action)!=tuple:
                 action = [action]
 
-            logger.debug(f"Sending {action}")
+            logger.debug(f"OUTPUT   : {action}")
 
             with self.get_input_context() as input_ctx:
                 for item in action:
