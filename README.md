@@ -5,9 +5,12 @@
 Keyhac is a utility application for macOS that allows you to customize keyboard actions for any application using the Python scripting language.
 Keyhac gives you the flexibility to customize the behavior of various applications.
 
-### Download
 
-Download from [Releases](https://github.com/crftwr/keyhac-mac/releases) page.
+### Download & Install
+
+Download a installation package (`Keyhac-x.yy.zip`) from the [Releases](https://github.com/crftwr/keyhac-mac/releases) page.
+Extract the Zip file, and copy `Keyapp.app` to `/Applications/`.
+
 
 ### Features
 
@@ -21,6 +24,7 @@ Download from [Releases](https://github.com/crftwr/keyhac-mac/releases) page.
 - Define custom modifier keys in addition to the standard ones
 - Execute actions with a "one-shot" modifier keystroke.
 - (Coming soon) Record and play back keystrokes
+
 
 ### Screenshots
 
