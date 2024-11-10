@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ApplicationServices
 
 class KeyhacSystem {
     
@@ -21,11 +22,18 @@ class KeyhacSystem {
     }
     
     func installKeyboardHook() {
-        Hook.getInstance().installKeyboardHook()
+        if checkProcessTrusted() {
+            Hook.getInstance().installKeyboardHook()
+        }
     }
 
     func uninstallKeyboardHook() {
         Hook.getInstance().uninstallKeyboardHook()
+    }
+    
+    func checkProcessTrusted() -> Bool {
+        let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as NSString: true]
+        return AXIsProcessTrustedWithOptions(options)
     }
     
     func isKeyboardHookInstalled() -> Bool {

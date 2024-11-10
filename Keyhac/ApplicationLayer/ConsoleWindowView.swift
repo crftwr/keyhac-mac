@@ -25,16 +25,23 @@ struct ConsoleWindowView: View {
                 .toggleStyle(SwitchToggleStyle(tint: .blue))
                 .onChange(of: isKeyboardHookEnabled) { oldValue, newValue in
                     if newValue {
-                        checkProcessTrusted()
+                        if !KeyhacSystem.getInstance().checkProcessTrusted() {
+                            isKeyboardHookEnabled = false
+                            return
+                        }
                         
                         KeyhacSystem.getInstance().installKeyboardHook()
-                        Console.getInstance().write(s: "Installed keyboard hook\n")
-
-                        KeyhacSystem.getInstance().reconfigurePythonLayer()
+                        
+                        if KeyhacSystem.getInstance().isKeyboardHookInstalled() {
+                            Console.getInstance().write(s: "Installed keyboard hook\n")
+                            KeyhacSystem.getInstance().reconfigurePythonLayer()
+                        }
                     }
                     else {
-                        KeyhacSystem.getInstance().uninstallKeyboardHook()
-                        Console.getInstance().write(s: "Uninstalled keyboard hook\n")
+                        if KeyhacSystem.getInstance().isKeyboardHookInstalled() {
+                            KeyhacSystem.getInstance().uninstallKeyboardHook()
+                            Console.getInstance().write(s: "Uninstalled keyboard hook\n")
+                        }
                     }
                 }
                 
@@ -50,17 +57,5 @@ struct ConsoleWindowView: View {
                 .frame(minWidth: 100, minHeight: 50, alignment: .center)
         }
         .padding(.all, 10)
-    }
-    
-    func checkProcessTrusted() {
-        let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as NSString: true]
-        let isTrusted = AXIsProcessTrustedWithOptions(options)
-        
-        if isTrusted {
-            errorMessage = ""
-        }
-        else {
-            errorMessage = "Accessibility is not enabled."
-        }
     }
 }
