@@ -26,6 +26,7 @@ struct MenuView: View {
                     }
                 }
             }
+            .keyboardShortcut("o")
 
             Divider()
 
@@ -62,7 +63,8 @@ struct MenuView: View {
                     Console.getInstance().write(s: errorMessage)
                 }
             }
-            
+            .keyboardShortcut("e")
+
             Button("About Keyhac"){
                 openWindow(id: "about")
                 NSApp.activate()
@@ -73,6 +75,7 @@ struct MenuView: View {
                     }
                 }
             }
+            .keyboardShortcut("a")
 
             Divider()
 
