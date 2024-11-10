@@ -10,19 +10,29 @@ import SwiftUI
 struct ConsoleWindowView: View {
     
     @State private var isKeyboardHookEnabled: Bool = KeyhacSystem.getInstance().isKeyboardHookInstalled()
-    @State private var errorMessage: String = ""
+    
+    let logLevels = ["Debug", "Info", "Warning", "Error", "Critical"]
+    @State var logLevel = "Info"
     
     let termViewKey = UUID().uuidString
     let termViewController = SwiftTermViewController()
+
+    @State var lastKeyString: String = ""
+    @State var focusPathString: String = ""
 
     var body: some View {
         VStack {
             
             HStack {
+
                 Toggle(isOn: $isKeyboardHookEnabled ) {
-                    Text("Keyboard Hook")
+                    Image("Keyboard")
+                        .renderingMode(.template)
+                        .foregroundColor(.black)
+                        .imageScale(.large)
                 }
                 .toggleStyle(SwitchToggleStyle(tint: .blue))
+                .frame(minWidth: 100)
                 .onChange(of: isKeyboardHookEnabled) { oldValue, newValue in
                     if newValue {
                         if !KeyhacSystem.getInstance().checkProcessTrusted() {
@@ -47,14 +57,54 @@ struct ConsoleWindowView: View {
                 
                 Spacer()
                 
-                Text(errorMessage)
-                    .foregroundColor(.red)
+                Picker("Log level:", selection: $logLevel) {
+                    ForEach(logLevels, id: \.self) {
+                        Text($0)
+                    }
+                }
+                .pickerStyle(.menu)
+                .frame(width: 150)
             }
-            .padding(.all, 2)
             
             SwiftTermView( viewController: termViewController )
                 .lookupKey(termViewKey)
                 .frame(minWidth: 100, minHeight: 50, alignment: .center)
+            
+            Grid {
+                GridRow {
+                    Text("Last key:")
+                        .gridColumnAlignment(.trailing)
+                    Text(lastKeyString)
+                        .padding(.all, 2)
+                        .frame(maxWidth: .infinity)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4)
+                                .stroke(.gray, lineWidth: 1)
+                            )
+                        .textSelection(.enabled)
+
+                    Button("Copy") {
+                        print("Copied")
+                    }
+                }
+                
+                GridRow {
+                    Text("Focus path:")
+                    Text(focusPathString)
+                        .padding(.all, 2)
+                        .frame(maxWidth: .infinity)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4)
+                                .stroke(.gray, lineWidth: 1)
+                            )
+                        .textSelection(.enabled)
+
+                    Button("Copy") {
+                        print("Copied")
+                    }
+                }
+            }
+            .padding(.all, 4)
         }
         .padding(.all, 10)
     }
