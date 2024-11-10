@@ -130,12 +130,6 @@ class SwiftTermViewController: NSViewController, LocalProcessTerminalViewDelegat
         logging = NSUserDefaultsController.shared.defaults.bool(forKey: "LogHostOutput")
         updateLogging ()
 
-        // Set console write callback
-        Console.getInstance().writeCallback = { s in
-            let s2 = s.replacingOccurrences(of: "\n", with: "\r\n")
-            self.terminal.feed(text: s2)
-        }
-        
         // Flush Console buffer
         Console.getInstance().write(s: "")
     }

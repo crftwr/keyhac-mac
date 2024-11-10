@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ConsoleWindowView: View {
+struct ConsoleWindowView: View, ConsoleVisualizeDelegate {
     
     @State private var isKeyboardHookEnabled: Bool = KeyhacSystem.getInstance().isKeyboardHookInstalled()
     
@@ -19,7 +19,11 @@ struct ConsoleWindowView: View {
 
     @State var lastKeyString: String = ""
     @State var focusPathString: String = ""
-
+    
+    init() {
+        Console.getInstance().delegate = self
+    }
+    
     var body: some View {
         VStack {
             
@@ -80,7 +84,7 @@ struct ConsoleWindowView: View {
                         .overlay(
                             RoundedRectangle(cornerRadius: 4)
                                 .stroke(.gray, lineWidth: 1)
-                            )
+                        )
                         .textSelection(.enabled)
 
                     Button("Copy") {
@@ -96,9 +100,9 @@ struct ConsoleWindowView: View {
                         .overlay(
                             RoundedRectangle(cornerRadius: 4)
                                 .stroke(.gray, lineWidth: 1)
-                            )
+                        )
                         .textSelection(.enabled)
-
+                    
                     Button("Copy") {
                         print("Copied")
                     }
@@ -107,5 +111,21 @@ struct ConsoleWindowView: View {
             .padding(.all, 4)
         }
         .padding(.all, 10)
+    }
+    
+    func write(s: String) {
+        let s2 = s.replacingOccurrences(of: "\n", with: "\r\n")
+        termViewController.terminal.feed(text: s2)
+    }
+    
+    func setText(name: String, text: String) {
+        switch name {
+        case "lastKey":
+            lastKeyString = text
+        case "focusPath":
+            focusPathString = text
+        default:
+            break
+        }
     }
 }

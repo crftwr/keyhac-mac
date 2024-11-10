@@ -7,12 +7,18 @@
 
 import Foundation
 
+protocol ConsoleVisualizeDelegate {
+    func write(s: String)
+    func setText(name: String, text: String)
+}
+
 public class Console {
     
     private static let instance = Console()
     public static func getInstance() -> Console { return instance }
+    
+    var delegate: ConsoleVisualizeDelegate? = nil
 
-    var writeCallback: ((String) -> Void)?
     var buffer: [String] = []
     
     public func write(s: String) {
@@ -27,9 +33,15 @@ public class Console {
         }
 
         // send buffered strings to the callback
-        if let callback = writeCallback {
-            callback(buffer.joined())
+        if let delegate = delegate {
+            delegate.write(s: buffer.joined())
             buffer = []
+        }
+    }
+    
+    public func setText(name: String, text: String) {
+        if let delegate = delegate {
+            delegate.setText(name: name, text: text)
         }
     }
 }
