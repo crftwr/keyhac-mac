@@ -55,8 +55,9 @@ def getLogger(name):
     logger.setLevel(logging.DEBUG)
     handler = ConsoleLoggingHandler()
     handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(name)s : %(levelname)s : %(message)s")
+    formatter = logging.Formatter("%(levelname)s: %(name)s: %(message)s")
     handler.setFormatter(formatter)
+    logger.handlers.clear()
     logger.addHandler(handler)
     return logger
 

@@ -91,11 +91,6 @@ class Keymap:
             print(CONSOLE_STYLE_DEFAULT)
             return
 
-        logger.info("Hello via Console logger")
-        logger.debug("Debug message via Console logger")
-        logger.warning("Warning message via Console logger")
-        logger.error("Error message via Console logger")
-
     def replace_key( self, src, dst ):
         try:
             if type(src)==str:

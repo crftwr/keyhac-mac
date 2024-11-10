@@ -4,6 +4,8 @@ import urllib.parse
 import subprocess
 from keyhac import *
 
+logger = getLogger("config")
+
 def configure(keymap):
 
     # Replacing Right-Shift key with BackSpace
@@ -22,7 +24,14 @@ def configure(keymap):
     # -----------------------------------------------------
     # Fn-A: Sample of assigning callable object to key
     def hello_world():
+
         print("Hello World!")
+
+        logger.debug("Debug message via Console logger")
+        logger.info("Information message via Console logger")
+        logger.warning("Warning message via Console logger")
+        logger.error("Error message via Console logger")
+        logger.critical("Critical message via Console logger")
 
     keytable_global["Fn-A"] = hello_world
 
