@@ -137,8 +137,15 @@ PythonBridge::PythonBridge(const char * module_name, PythonModuleInitFunc module
         exit(1);
     }
     
-    Py_Initialize();
+    PyConfig config;
+    PyConfig_InitPythonConfig(&config);
+    config.isolated = 1;
+    config.use_environment = 0;
+    config.user_site_directory = 0;
     
+    Py_InitializeFromConfig(&config);
+    PyConfig_Clear(&config);
+
     py_thread_state = PyEval_SaveThread();
 }
     
