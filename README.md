@@ -42,13 +42,13 @@ For how to write the configuration file (`config.py`), see the [Keyhac User Guid
 ### Screenshots
 
 **Menu bar icon and menu**
-<br/><img src="images/menubar-extra.png" alt="menubar-extra" style="width:300px;"/>
+<br/><img src="docs/images/menubar-extra.png" alt="menubar-extra" style="width:300px;"/>
 
 **Console window**
-<br/><img src="images/console-window.png" alt="console-window" style="width:400px;"/>
+<br/><img src="docs/images/console-window.png" alt="console-window" style="width:400px;"/>
 
 **Debug logging level**
-<br/><img src="images/debug-logging.png" alt="debug-logging" style="width:400px;"/>
+<br/><img src="docs/images/debug-logging.png" alt="debug-logging" style="width:400px;"/>
 
 
 ### Sample configuration
