@@ -55,11 +55,11 @@ struct MenuView: View {
                 }
                 
                 if resultCode == 0 {
-                    Console.getInstance().write(s: "Opened config.py\n")
+                    Console.getInstance().write(msg: "Opened config.py\n")
                 }
                 else {
-                    Console.getInstance().write(s: "Error: ")
-                    Console.getInstance().write(s: errorMessage)
+                    Console.getInstance().write(msg: "Error: ")
+                    Console.getInstance().write(msg: errorMessage)
                 }
             }
             .keyboardShortcut("e")

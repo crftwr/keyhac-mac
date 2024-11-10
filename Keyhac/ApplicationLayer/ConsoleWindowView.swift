@@ -12,7 +12,7 @@ struct ConsoleWindowView: View {
     @State private var isKeyboardHookEnabled: Bool = KeyhacSystem.getInstance().isKeyboardHookInstalled()
     
     let logLevels = ["Debug", "Info", "Warning", "Error", "Critical"]
-    @State var logLevel = "Info"
+    @State var logLevelString = "Info"
     
     let termViewKey = UUID().uuidString
     let termViewController = SwiftTermViewController()
@@ -45,27 +45,45 @@ struct ConsoleWindowView: View {
                         KeyhacSystem.getInstance().installKeyboardHook()
                         
                         if KeyhacSystem.getInstance().isKeyboardHookInstalled() {
-                            Console.getInstance().write(s: "Installed keyboard hook\n")
+                            Console.getInstance().write(msg: "Installed keyboard hook\n")
                             KeyhacSystem.getInstance().reconfigurePythonLayer()
                         }
                     }
                     else {
                         if KeyhacSystem.getInstance().isKeyboardHookInstalled() {
                             KeyhacSystem.getInstance().uninstallKeyboardHook()
-                            Console.getInstance().write(s: "Uninstalled keyboard hook\n")
+                            Console.getInstance().write(msg: "Uninstalled keyboard hook\n")
                         }
                     }
                 }
                 
                 Spacer()
                 
-                Picker("Log level:", selection: $logLevel) {
+                Picker("Log level:", selection: $logLevelString) {
                     ForEach(logLevels, id: \.self) {
                         Text($0)
                     }
                 }
                 .pickerStyle(.menu)
                 .frame(width: 150)
+                .onChange(of: logLevelString) {
+                    let logLevel: Console.LogLevel
+                    switch logLevelString {
+                    case "Debug":
+                        logLevel = .debug
+                    case "Info":
+                        logLevel = .info
+                    case "Warning":
+                        logLevel = .warning
+                    case "Error":
+                        logLevel = .error
+                    case "Critical":
+                        logLevel = .critical
+                    default:
+                        logLevel = .none
+                    }
+                    Console.getInstance().setLogLevel(logLevel: logLevel)
+                }
             }
             
             SwiftTermView( viewController: termViewController )

@@ -692,15 +692,17 @@ struct Console_Object
 
 static PyObject * Console_write(Console_Object * self, PyObject* args)
 {
-    PyObject * pys;
-    if( ! PyArg_ParseTuple(args, "U", &pys ) )
+    PyObject * pymsg;
+    int log_level = 100;
+
+    if( ! PyArg_ParseTuple(args, "U|i", &pymsg, &log_level ) )
     {
         return NULL;
     }
     
-    const char * s = PyUnicode_AsUTF8AndSize(pys, NULL);
+    const char * msg = PyUnicode_AsUTF8AndSize(pymsg, NULL);
     
-    Keyhac::Console::getInstance().write(s);
+    Keyhac::Console::getInstance().write(msg, log_level);
 
     Py_INCREF(Py_None);
     return Py_None;

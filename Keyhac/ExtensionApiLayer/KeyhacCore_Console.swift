@@ -13,16 +13,31 @@ public class Console {
     public static func getInstance() -> Console { return instance }
 
     private let lock = NSLock()
+    
+    public enum LogLevel: Int {
+        case debug = 10
+        case info = 20
+        case warning = 30
+        case error = 40
+        case critical = 50
+        case none = 100
+    }
+    
+    var logLevel = LogLevel.info
 
     var buffer: [String] = []
     var texts: [String: String] = [:]
     
-    public func write(s: String) {
+    public func write(msg: String, logLevel: Int = LogLevel.none.rawValue) {
         
         lock.lock()
         defer { lock.unlock() }
         
-        buffer.append(s)
+        if logLevel < self.logLevel.rawValue {
+            return
+        }
+        
+        buffer.append(msg)
         
         // limit maximum buffer size
         while buffer.count > 1000 {
@@ -46,6 +61,10 @@ public class Console {
         let joint_buffer = buffer.joined().replacingOccurrences(of: "\n", with: "\r\n")
         buffer = []
         return joint_buffer
+    }
+    
+    public func setLogLevel(logLevel: LogLevel) {
+        self.logLevel = logLevel
     }
     
     public func pullText(name:String) -> String {

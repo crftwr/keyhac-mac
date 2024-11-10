@@ -11,10 +11,9 @@ from keyhac_focus import FocusCondition
 from keyhac_input import InputContext
 from keyhac_const import *
 
-# for Xcode console
-sys.stdout.reconfigure(encoding='utf-8')
+keyhac_console.initializeConsole()
 
-keyhac_console.StandardIo.install_redirection()
+logger = keyhac_console.getLogger("keyhac_main")
 
 class Keymap:
     
@@ -91,6 +90,8 @@ class Keymap:
             traceback.print_exc()
             print(CONSOLE_STYLE_DEFAULT)
             return
+
+        logger.info("Hello via Console logger")
 
     def replace_key( self, src, dst ):
         try:

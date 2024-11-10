@@ -131,7 +131,7 @@ class SwiftTermViewController: NSViewController, LocalProcessTerminalViewDelegat
         updateLogging ()
 
         // Flush Console buffer
-        Console.getInstance().write(s: "")
+        Console.getInstance().write(msg: "")
     }
     
     override func viewWillDisappear() {

@@ -1,4 +1,5 @@
 import sys
+import logging
 import keyhac_core
 
 class StandardIo:
@@ -19,4 +20,37 @@ class StandardIo:
     def uninstall_redirection():
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__
+
+
+class ConsoleLoggingHandler(logging.Handler):
+
+    def __init__(self):
+        super().__init__()
+
+    def emit(self, record):
+        try:
+            s = self.format(record) + "\n"
+            keyhac_core.Console.write(s, record.levelno)
+            sys.__stdout__.write(s)
+        except:
+            self.handleError(record)
+
+
+def getLogger(name):
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    handler = ConsoleLoggingHandler()
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter("%(name)s : %(levelname)s : %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    return logger
+
+
+def initializeConsole():
+
+    # for Xcode console
+    sys.stdout.reconfigure(encoding='utf-8')
+
+    StandardIo.install_redirection()
 
