@@ -180,19 +180,36 @@ The replacement happens before processing key-tables, so input key conditions fo
 In the example above, the meaning of Right Shift key is replaced with Back Space key. Right Shift key is not recognized as a Shift key anymore at the stage of processing key-tables.
 
 
-## Define modifiers
+## Define modifier keys
+
+In addition to standard modifier keys (Shift, Control, Option, Command, and Fn), Keyhac allows you to define additional user modifier keys (User0, User1, for both Left and Right).
+
+``` python
+keymap.define_modifier( "RCmd", "RUser0" )
+keymap.define_modifier( "RAlt", "RUser1" )
+```
+
+Once user modifier keys are defined, you can use `User0`, `User1` (and Left/Right specific variations `LUser0`, `LUser1`, `RUser0`, `RUser1`) in the key-table's key expressions.
 
 
 ## One-shot modifiers
 
+"One-shot modifier" is a special key condition that is triggered when the modifier key is pressed and released without any other keys being pressed during the period.
 
-## Built-in Action classes
+This is useful especially when you defined user modifier keys, but you still want to use the key for different purpose when it is pressed and released alone.
+
+`O-` prefix can be used to assign one-shot modifier to key-tables.
+
+``` python
+keytable_global["O-RAlt"] = "Space"
+```
+
+## Built-in action classes
+
+
+
+## UIElement class
 
 
 ## Key expression reference
-
-
-
-
-
 
