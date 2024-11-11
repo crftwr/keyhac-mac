@@ -84,9 +84,73 @@ keytable_terminal = keymap.define_keytable( custom_condition_func = is_terminal_
 
 ## Key -> Key
 
+As the most basic usage of key-tables, you can associate input key condition to output key action.
+
+``` python
+keytable_global["Fn-J"] = "Left"
+```
+
+Both input key conditions and output key actions are expressed as strings formmated as below:
+
+```
+{Modifier1}-{Modifier2}-...{PrimaryKey}
+```
+
+Following are some examples:
+
+``` python
+"Cmd-X"       # Command + X
+"Shift-Alt-Z" # Shift + Option + Z
+"Fn-A"        # Fn + A
+```
+
+You can assign multiple key strokes using tuple of strings.
+
+``` python
+keytable_global["Fn-N"] = "Cmd-1", "Cmd-2", "Cmd-3"
+```
 
 ## Key -> functions/classes
 
+Keyhac allows you to run any custom actions by associating Python callable objects to key-tables. Below is an example of running a Python function as an output action.
+
+``` python
+def hello_world():
+    print("Hello World!")
+
+keytable_global["Fn-A"] = hello_world
+```
+
+You can use class instances as well by defining `__call__` method in the class and making it callable.
+
+``` python
+class MoveWindow:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __call__(self):
+
+        elm = keymap.focus
+
+        while elm:
+            role = elm.getAttributeValue("AXRole")
+            if role=="AXWindow":
+                break
+            elm = elm.getAttributeValue("AXParent")
+
+        if elm:
+            names = elm.getAttributeNames()
+            pos = elm.getAttributeValue("AXPosition")
+            pos[0] += self.x
+            pos[1] += self.y
+            elm.setAttributeValue("AXPosition", "point", pos)
+
+keytable_global["User0-Left"]  = MoveWindow(-10,0)
+keytable_global["User0-Right"] = MoveWindow(+10,0)
+keytable_global["User0-Up"]    = MoveWindow(0,-10)
+keytable_global["User0-Down"]  = MoveWindow(0,+10)
+```
 
 ## Multi-stroke key-table
 
@@ -102,7 +166,10 @@ keytable_terminal = keymap.define_keytable( custom_condition_func = is_terminal_
 ## Built-in Action classes
 
 
-## 
+## Key expression reference
+
+
+
 
 
 
