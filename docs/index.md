@@ -1,6 +1,4 @@
-## Keyhac for macOS - User Guide Document
-
-(coming soon)
+# Keyhac for macOS - User Guide Document
 
 ## Console Window features
 
