@@ -206,10 +206,114 @@ keytable_global["O-RAlt"] = "Space"
 
 ## Built-in action classes
 
+Keyhac provides some built-in action classes for your convenience.
+
+#### ThreadedAction
+
+Keyhac uses keyboard hook to intercept all keystrokes across the system. Keyhac's keyboard hook handlers and user-defined actions are expected to complete their processings quickly to maintain system performance.
+
+`ThreadedAction` can be used as a base class of time-consuming actions. When ThreadedAction (and its child classes) are used as a key action, it uses a thread pool internally to execute the main part of the action, allowing the keyboard hook to return immediately.
+
+``` python
+class SomeHeavyAction(ThreadedAction):
+    def starting(self):
+        # light-weight task when action is triggered
+
+    def run(self):
+        # time consuming task executed in thread-pool
+
+    def finished(self, result):
+        # light-weight task when the action is completed
+
+keytable_global["User0-Z"] = SomeHeavyAction()
+```
 
 
 ## UIElement class
 
+`UIElement` class represents a user interface related object on the system, such as an application, a window, a button, a menu bar, or a text edit field. Keyhac uses the `UIElement` class for two purposes, 1) identify focused application and UI element, 2) operate graphical user interface programmatically by key actions.
+
+`keymap.focus` is a read-only property of Keymap class, and it is a `UIElement` object that represents the current keyboard focus.
+
+Following is an example how to find the Zoom button of the focused window, and click it.
+
+``` python
+def zoom_window():
+
+    elm = keymap.focus
+
+    while elm:
+        role = elm.getAttributeValue("AXRole")
+        if role=="AXWindow":
+            break
+        elm = elm.getAttributeValue("AXParent")
+
+    if elm:
+        names = elm.getAttributeNames()
+        if "AXZoomButton" in names:
+            elm = elm.getAttributeValue("AXZoomButton")
+            if elm:
+                actions = elm.getActionNames()
+                elm.performAction("AXPress")
+
+keytable_global["Fn-M"] = zoom_window
+```
+
+For more details about UIElement, see the Keyhac API reference(work in progress).
+
 
 ## Key expression reference
 
+| Expression    | Key           |
+| ------------- | ------------- |
+| A - Z         |               |
+| 0 - 9         |               |
+| Minus         | -             |
+| Plus          | +             |
+| Comma         | ,             |
+| Period        | .             |
+| Semicolon     | ;             |
+| Colon         | :             |
+| Slash         | /             |
+| BackQuote     | `             |
+| Tilde         | ~             |
+| OpenBracket   | [             |
+| BackSlash     | \             |
+| Yen           | ￥            |
+| CloseBracket  | ]             |
+| Quote         | '             |
+| DoubleQuote   | "             |
+| Underscore    | _             |
+| Asterisk      | *             |
+| Atmark        | @             |
+| Caret         | ^             |
+| NumLock       |               |
+| Divide        | / (ten key)   |
+| Multiply      | * (ten key)   |
+| Subtract      | - (ten key)   |
+| Add           | + (ten key)   |
+| Decimal       | . (ten key)   |
+| Num0 - Num9   | 0-9 (ten key) |
+| F1 - F12      |               |
+| Left, Right, Up, Down |       |
+| Space         |               |
+| Tab           |               |
+| Back          | Delete        |
+| Enter/Return  |               |
+| Escape/Esc    |               |
+| CapsLock/Caps/Capital |       |
+| Delete        |               |
+| Home          |               |
+| End           |               |
+| PageUp        |               |
+| PageDown      |               |
+| LAlt          | Left Option   |
+| RAlt          | Right Option  |
+| LCtrl         | Left Control  |
+| RCtrl         | Right Control |
+| LShift        | Left Shift    |
+| RShift        | Right Shift   |
+| LCmd          | Left Command  |
+| RCmd          | Right Command |
+| Fn            |               |
+| (0) - (255)   | Virtual key code |
