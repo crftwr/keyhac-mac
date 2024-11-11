@@ -7,7 +7,7 @@
 
 ## Configuration script structure
 
-Keyhac's configuration file is a Python script (`config.py`), and located under `~/.keyhac`.
+The configuration file for Keyhac is a Python script (`config.py`) located in `~/.keyhac`.
 
 ``` python
 from keyhac import *
@@ -28,15 +28,15 @@ The configuration script `config.py` has a function `configure()`. It is called 
 The function `configure()` receives a `Keymap` object as an argument. `Keymap` object manages key-tables and executes key action translations.
 
 
-## Global KeyTable
+## Global key-table
 
 ``` python
 keytable_global = keymap.define_keytable(focus_path_pattern="*")
 ```
 
-Global KeyTable is a KeyTable that is applied always, regardless of the current focused application. `keymap.define_keytable(focus_path_pattern="*")` can be used to create a global KeyTable. `*` is passed to the argument `focus_path_pattern=`, so that this KeyTable matches any focus conditions.
+A Global key-table is a KeyTable class instance that always applies regardless of the current focused application. You can create a global key-table using `keymap.define_keytable(focus_path_pattern="*")`. `*` is passed to the argument `focus_path_pattern=` to make this key-table match all focus conditions.
 
-KeyTable object can be used like a dictionary. You can associate input key conditions with 1) output keys, 2) output key sequences, 3) Python executable objects like functions and class instances.
+A KeyTable object can be used like a dictionary, allowing you to associate input key conditions with output key actions such as 1) output key(s), and 2) Python callable objects like functions and class instances. 
 
 ``` python
 keytable_global["Fn-J"] = "Left"
@@ -45,24 +45,23 @@ keytable_global["Fn-M"] = hello_world
 ```
 
 
-## Define application/focus specific keytables
+## Define application/focus specific key-tables
 
 ``` python
 keytable_xcode = keymap.define_keytable( focus_path_pattern="/AXApplication(Xcode)/*/AXTextArea()" )
 ```
 
-`keymap.define_keytable()` can be used to create application/focus specific key-tables as well. For the argument `focus_path_pattern=` specify focus path pattern.
+You can also create application/focus specific key-tables using `keymap.define_keytable()`. The argument `focus_path_pattern=` specifies the focus path pattern.
 
-Focus path is a Keyhac specific concept to represent the current focused application, window, and UI element.
+A focus path is a Keyhac specific concept that represents the application > window > UI element that is currently focused.
 
 ```
 /AXApplication(Mail)/AXWindow(Inbox – 118,569 messages, 4 unread)/AXSplitGroup()/AXSplitGroup()/AXScrollArea()/AXGroup()/AXScrollArea()/AXGroup()/AXGroup()/AXScrollArea()/AXWebArea()
 ```
 
-When you specify `focus_path_pattern=` you can use wildcard patterns using `*`, `?`, `[]`. For the details of wildcard, see the [Python fnmatch document](https://docs.python.org/3/library/fnmatch.html).
+When specifying `focus_path_pattern=` you can use wildcard patterns using `*`, `?`, `[]`. For the information about wildcards, see the [Python fnmatch document](https://docs.python.org/3/library/fnmatch.html).
 
-
-If you need your own logic to check the focus condition, you can pass a function to `custom_condition_func=` as below:
+If you need your own logic for checking the focus condition, you can pass a function to `custom_condition_func=` as below:
 
 ``` python
 def is_terminal_window(elm):
@@ -82,19 +81,19 @@ keytable_terminal = keymap.define_keytable( custom_condition_func = is_terminal_
 
 ## Key -> Key
 
-As the most basic usage of key-tables, you can associate input key condition to output key action.
+The most basic use of a key-tables is to associate input key condition with output key(s).
 
 ``` python
 keytable_global["Fn-J"] = "Left"
 ```
 
-Both input key conditions and output key actions are expressed as strings formmated as below:
+Both input key conditions and output keys are expressed as strings formmated as follows.
 
 ```
 {Modifier1}-{Modifier2}-...{PrimaryKey}
 ```
 
-Following are some examples:
+Here are some examples:
 
 ``` python
 "Cmd-X"       # Command + X
@@ -102,7 +101,7 @@ Following are some examples:
 "Fn-A"        # Fn + A
 ```
 
-You can assign multiple key strokes using tuple of strings.
+You can assign multiple keystrokes using a tuple of strings.
 
 ``` python
 keytable_global["Fn-N"] = "Cmd-1", "Cmd-2", "Cmd-3"
@@ -110,7 +109,7 @@ keytable_global["Fn-N"] = "Cmd-1", "Cmd-2", "Cmd-3"
 
 ## Key -> functions/classes
 
-Keyhac allows you to run any custom actions by associating Python callable objects to key-tables. Below is an example of running a Python function as an output action.
+Keyhac allows you to execute any custom actions by associating a Python callable objects with input key conditions. Below is an example of executing a Python function as an output key action.
 
 ``` python
 def hello_world():
@@ -119,7 +118,7 @@ def hello_world():
 keytable_global["Fn-A"] = hello_world
 ```
 
-You can use class instances as well by defining `__call__` method in the class and making it callable.
+You can also use class instances by defining a `__call__` method in the class to make it callable.
 
 ``` python
 class MoveWindow:
@@ -152,13 +151,13 @@ keytable_global["User0-Down"]  = MoveWindow(0,+10)
 
 ## Multi-stroke key-table
 
-As an advanced feature, Keyhac supports multi-stroke key inputs, by creating a KeyTable by `keymap.define_keytable()` and associating it as an action in a different key-table.
+As an advanced feature, Keyhac supports multi-stroke key input by creating a KeyTable with `keymap.define_keytable()` and associating it as an action in another key-table.
 
 ``` python
 keytable_xcode["Ctrl-X"] = keymap.define_keytable(name="Ctrl-X")
 ```
 
-In the example above, `keytable_xcode`'s `Ctrl-X` is chained to the multi-stroke key-table. To associate second key stroke conditions, you can use following syntax.
+In the above example, `Ctrl-X` in `keytable_xcode` is chained to the multi-stroke key-table. To associate a second keystroke condition, you can use the following syntax.
 
 ``` python
 keytable_xcode["Ctrl-X"]["Ctrl-O"] = "Cmd-O"
@@ -167,36 +166,36 @@ keytable_xcode["Ctrl-X"]["Ctrl-O"] = "Cmd-O"
 
 ## Replace keys
 
-Keymap has a key replacement table. `keymap.replace_key()` can be used to add a pair of source key and destination key.
+Keymap has a key replacement table. You can add source and destination key paires using `keymap.replace_key()`.
 
 ``` python
 keymap.replace_key( "RShift", "Back" )
 ```
 
-The replacement happens before processing key-tables, so input key conditions for key-tables have to use the key after the replacement. 
+The substitution is done before processing the key-tables, so the input key condition for the key-tables must use the substituted key.
 
-In the example above, the meaning of Right Shift key is replaced with Back Space key. Right Shift key is not recognized as a Shift key anymore at the stage of processing key-tables.
+In the above example, the meaning of the Right Shift key is replaced with Back Space key. When the key-tables are processed, the Right Shift key is no longer recognized as a Shift key.
 
 
 ## Define modifier keys
 
-In addition to standard modifier keys (Shift, Control, Option, Command, and Fn), Keyhac allows you to define additional user modifier keys (User0, User1, for both Left and Right).
+In addition to the standard modifier keys (Shift, Control, Option, Command, Fn), Keyhac allows you to define additional user modifier keys (User0, User1, for both left and right).
 
 ``` python
 keymap.define_modifier( "RCmd", "RUser0" )
 keymap.define_modifier( "RAlt", "RUser1" )
 ```
 
-Once user modifier keys are defined, you can use `User0`, `User1` (and Left/Right specific variations `LUser0`, `LUser1`, `RUser0`, `RUser1`) in the key-table's key expressions.
+Defining user modifier keys allows you to use `User0`, `User1` (and left/right specific variations `LUser0`, `LUser1`, `RUser0`, `RUser1`) in key expressions in the key-tables.
 
 
 ## One-shot modifiers
 
-"One-shot modifier" is a special key condition that is triggered when the modifier key is pressed and released without any other keys being pressed during the period.
+A "One-shot modifier" is a special key condition that is triggered when the modifier key is pressed and released with no other keys pressed in between.
 
-This is useful especially when you defined user modifier keys, but you still want to use the key for different purpose when it is pressed and released alone.
+This is particularly useful if you have defined user modifier keys, but want the key to be used for something else when pressed and released alone.
 
-`O-` prefix can be used to assign one-shot modifier to key-tables.
+You can assign one-shot modifiers to key-tables using the `O-` prefix.
 
 ``` python
 keytable_global["O-RAlt"] = "Space"
@@ -208,7 +207,7 @@ Keyhac provides some built-in action classes for your convenience.
 
 #### ThreadedAction
 
-Keyhac uses keyboard hook to intercept all keystrokes across the system. Keyhac's keyboard hook handlers and user-defined actions are expected to complete their processings quickly to maintain system performance.
+Keyhac uses keyboard hooks to intercept all keystrokes across the system. Keyhac's keyboard hook handlers and user-defined actions are expected to complete their processings quickly to maintain system performance.
 
 `ThreadedAction` can be used as a base class of time-consuming actions. When ThreadedAction (and its child classes) are used as a key action, it uses a thread pool internally to execute the main part of the action, allowing the keyboard hook to return immediately.
 
