@@ -154,7 +154,30 @@ keytable_global["User0-Down"]  = MoveWindow(0,+10)
 
 ## Multi-stroke key-table
 
+As an advanced feature, Keyhac supports multi-stroke key inputs, by creating a KeyTable by `keymap.define_keytable()` and associating it as an action in a different key-table.
+
+``` python
+keytable_xcode["Ctrl-X"] = keymap.define_keytable(name="Ctrl-X")
+```
+
+In the example above, `keytable_xcode`'s `Ctrl-X` is chained to the multi-stroke key-table. To associate second key stroke conditions, you can use following syntax.
+
+``` python
+keytable_xcode["Ctrl-X"]["Ctrl-O"] = "Cmd-O"
+```
+
+
 ## Replace keys
+
+Keymap has a key replacement table. `keymap.replace_key()` can be used to add a pair of source key and destination key.
+
+``` python
+keymap.replace_key( "RShift", "Back" )
+```
+
+The replacement happens before processing key-tables, so input key conditions for key-tables have to use the key after the replacement. 
+
+In the example above, the meaning of Right Shift key is replaced with Back Space key. Right Shift key is not recognized as a Shift key anymore at the stage of processing key-tables.
 
 
 ## Define modifiers
