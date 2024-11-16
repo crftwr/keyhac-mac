@@ -135,31 +135,22 @@ def configure(keymap):
     keytable_global["User0-Down"]  = MoveWindow(0,+10)
 
     # -----------------------------------------------------
-    # User0-T/F/C: activate one of running applications
-    class ActivateOrLaunchApplication(ThreadedAction):
-        def __init__(self, app_title, app_name):
-            self.app_title = app_title
+    # User0-T/F/C: Launch an applications
+    class LaunchApplication(ThreadedAction):
+        def __init__(self, app_name):
             self.app_name = app_name
 
         def run(self):
-
-            # If the application is already running and it has a window, activate it
-            for app in UIElement.getRunningApplications():
-                title = app.getAttributeValue("AXTitle")
-                if title == self.app_title:
-                    if app.getAttributeValue("AXWindows"):
-                        app.setAttributeValue( "AXFrontmost", "bool", True )
-                        return
-                    break
-
-            # If the application is not running, launch it
             cmd = ["open", "-a", self.app_name]
             logger.info(f"Launching {self.app_name}")
             subprocess.run(cmd, check=True)
 
-    keytable_global["User0-T"] = ActivateOrLaunchApplication("Terminal", "Terminal.app")
-    keytable_global["User0-F"] = ActivateOrLaunchApplication("ForkLift", "ForkLift.app")
-    keytable_global["User0-C"] = ActivateOrLaunchApplication("Code", "Visual Studio Code.app")
+        def __repr__(self):
+            return f'LaunchApplication("{self.app_name}")'
+
+    keytable_global["User0-T"] = LaunchApplication("Terminal.app")
+    keytable_global["User0-F"] = LaunchApplication("ForkLift.app")
+    keytable_global["User0-C"] = LaunchApplication("Visual Studio Code.app")
 
 
     # =====================================================
