@@ -51,6 +51,9 @@ def configure(keymap):
         def finished(self, result):
             logger.info(f"ThreadedActionTest finished. result={result}")
 
+        def __repr__(self):
+            return "ThreadedActionTest()"
+
     keytable_global["User0-Z"] = ThreadedActionTest()
 
 
@@ -128,6 +131,9 @@ def configure(keymap):
                 pos[0] += self.x
                 pos[1] += self.y
                 elm.setAttributeValue("AXPosition", "point", pos)
+
+        def __repr__(self):
+            return f"MoveWindow({self.x},{self.y})"
 
     keytable_global["User0-Left"]  = MoveWindow(-10,0)
     keytable_global["User0-Right"] = MoveWindow(+10,0)

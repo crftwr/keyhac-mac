@@ -11,6 +11,9 @@ class ThreadedAction:
     def __init__(self):
         pass
 
+    def __repr__(self):
+        return f"ThreadedAction()"
+
     def __call__(self):
         self.starting()
         future = ThreadedAction.thread_pool.submit(self.run)
