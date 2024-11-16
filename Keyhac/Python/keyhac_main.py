@@ -28,7 +28,13 @@ class Keymap:
     def __init__(self):
 
         # (Experimental) always send keys even for pass-through,
-        # to ensure key events are not out of order
+        # to ensure key events are not out of order.
+        #
+        # Notes:
+        #
+        # - When setting this option to True, "Shift-Tab" (decrement indent level)
+        #   stopped working for Xcode. I behave as if a "Tab" without Shift.
+        #
         self._passthru_by_send = False
 
         self._keytable_list = []            # List of (FocusCondition, KeyTable)
