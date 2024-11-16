@@ -33,7 +33,7 @@ struct ConsoleWindowView: View {
                         .foregroundColor(.black)
                         .imageScale(.large)
                 }
-                .toggleStyle(SwitchToggleStyle(tint: .blue))
+                .toggleStyle(SwitchToggleStyle(tint: .accentColor))
                 .frame(minWidth: 100)
                 .onChange(of: isKeyboardHookEnabled) { oldValue, newValue in
                     if newValue {
