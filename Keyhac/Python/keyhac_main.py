@@ -27,21 +27,21 @@ class Keymap:
 
     def __init__(self):
 
-        self._debug = False                     # デバッグモード
-        self._send_input_on_tru = False         # キーの置き換えが不要だった場合もsentInputするか
+        # (Experimental) always send keys even for pass-through,
+        # to ensure key events are not out of order
+        self._passthru_by_send = False
 
-        self._keytable_list = []                # (FocusCondition, KeyTable) のリスト
-        self._multi_stroke_keytable = None      # マルチストローク用の KeyTable
-        self._unified_keytable = {}             # 現在フォーカスされているウインドウで有効なキーマップ
-        self._vk_mod_map = {}                   # モディファイアキーの仮想キーコードとビットのテーブル
-        self._vk_vk_map = {}                    # キーの置き換えテーブル
-        self._focus_path = None                 # 現在フォーカスされているUI要素を表す文字列
-        self._focus_elm = None                  # 現在フォーカスされているUI要素
-        self._modifier = 0                      # 押されているモディファイアキーのビットの組み合わせ
-        self._last_keydown = None               # 最後にKeyDownされた仮想キーコード
-        self._oneshot_canceled = False          # ワンショットモディファイアをキャンセルするか
-        self._record_status = None              # キーボードマクロの状態
-        self._record_seq = None                 # キーボードマクロのシーケンス
+        self._keytable_list = []            # List of (FocusCondition, KeyTable)
+        self._multi_stroke_keytable = None  # KeyTable for multi-stroke mode
+        self._unified_keytable = {}         # Key assignments aggregated from all active key tables
+        self._vk_mod_map = {}               # Table of key code to modifier
+        self._vk_vk_map = {}                # Table of key code to key code
+        self._focus_path = None             # Focus path of the current focus
+        self._focus_elm = None              # UIElement of the current focus
+        self._modifier = 0                  # Flags of currently pressed modifier keys
+        self._last_keydown = None           # Key code of the last key down, to detect one-shot event
+        self._record_status = None          # Key recording status ("recording" or None)
+        self._record_seq = None             # Recoreded key sequence
 
         keyhac_core.Hook.setCallback("Keyboard", self._on_key)
         
@@ -191,11 +191,7 @@ class Keymap:
         except KeyError:
             replaced = False
 
-        #self._debugKeyState(vk)
-
-        if self._last_keydown != vk:
-            self._last_keydown = vk
-            self._oneshot_canceled = False
+        self._last_keydown = vk
 
         try:
             old_modifier = self._modifier
@@ -218,9 +214,7 @@ class Keymap:
                     logger.debug(f"REPLACE  : {input_ctx}")
                 return True
             else:
-                if self._send_input_on_tru:
-                    # 一部の環境でモディファイアが押しっぱなしになってしまう現象の回避テスト
-                    # TRU でも Input.send すると問題が起きない
+                if self._passthru_by_send:
                     with self.get_input_context() as input_ctx:
                         input_ctx.send_key_by_vk( vk, down=True )
                         logger.debug(f"PASSTHRU : {key}")
@@ -245,11 +239,8 @@ class Keymap:
         except KeyError:
             replaced = False
 
-        #self._debugKeyState(vk)
-
-        oneshot = ( vk == self._last_keydown and not self._oneshot_canceled )
+        oneshot = (vk == self._last_keydown)
         self._last_keydown = None
-        self._oneshot_canceled = False
 
         try: # for error
             try: # for oneshot
@@ -273,9 +264,7 @@ class Keymap:
                         logger.debug(f"REPLACE  : {input_ctx}")
                     return True
                 else:
-                    if self._send_input_on_tru:
-                        # 一部の環境でモディファイアが押しっぱなしになってしまう現象の回避テスト
-                        # TRU でも Input.send すると問題が起きない
+                    if self._passthru_by_send:
                         with self.get_input_context() as input_ctx:
                             input_ctx.send_key_by_vk( vk, down=False )
                             logger.debug(f"PASSTHRU : {key}")
@@ -285,10 +274,6 @@ class Keymap:
                         return False
 
             finally:
-                # ワンショットモディファイア は Up を処理した後に実行する
-                # モディファイアキーの Up -> Down を偽装しなくてよいように。
-                # Up を処理する前に Up -> Down を偽装すると、他のウインドウで
-                # モディファイアが押しっぱなしになるなどの問題があるようだ。
                 if oneshot:
                     key = KeyCondition( vk, self._modifier, down=True, oneshot=True )
                     self._do_configured_key_action(key)
@@ -367,7 +352,7 @@ class Keymap:
         self._multi_stroke_keytable = keytable
         self._update_unified_keytable()
 
-        # FIXME: toast を使う
+        # FIXME: show some UI to tell that multi stroke mode started
         #help_string = self._multi_stroke_keytable.helpString()
         #if help_string:
         #    self.popBalloon( "MultiStroke", help_string )

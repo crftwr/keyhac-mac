@@ -53,7 +53,7 @@ class KeyCondition:
         VK_COMMA  : "Comma",
         VK_PERIOD : "Period",
 
-        #VK_NUMLOCK  : "NumLock", # FIXME : Mac対応
+        #VK_NUMLOCK  : "NumLock", # FIXME : test on macOS
         VK_DIVIDE   : "Divide",
         VK_MULTIPLY : "Multiply",
         VK_SUBTRACT : "Subtract",
@@ -94,33 +94,33 @@ class KeyCondition:
         VK_RETURN   : "Return",
         VK_ESCAPE   : "Escape",
         VK_CAPITAL  : "CapsLock",
-        #VK_APPS     : "Apps", # FIXME : Mac対応
+        #VK_APPS     : "Apps", # FIXME : test on macOS
 
-        #VK_INSERT   : "Insert", # FIXME : Mac対応
+        #VK_INSERT   : "Insert", # FIXME : test on macOS
         VK_DELETE   : "Delete",
         VK_HOME     : "Home",
         VK_END      : "End",
         VK_NEXT     : "PageDown",
         VK_PRIOR    : "PageUp",
 
-        #VK_MENU     : "Alt", # FIXME : Mac対応
+        #VK_MENU     : "Alt", # FIXME : test on macOS
         VK_LMENU    : "LAlt",
         VK_RMENU    : "RAlt",
-        #VK_CONTROL  : "Ctrl", # FIXME : Mac対応
+        #VK_CONTROL  : "Ctrl", # FIXME : test on macOS
         VK_LCONTROL : "LCtrl",
         VK_RCONTROL : "RCtrl",
-        #VK_SHIFT    : "Shift", # FIXME : Mac対応
+        #VK_SHIFT    : "Shift", # FIXME : test on macOS
         VK_LSHIFT   : "LShift",
         VK_RSHIFT   : "RShift",
-        #VK_LWIN     : "LWin", # FIXME : Mac対応
-        #VK_RWIN     : "RWin", # FIXME : Mac対応
+        #VK_LWIN     : "LWin", # FIXME : test on macOS
+        #VK_RWIN     : "RWin", # FIXME : test on macOS
         VK_LCOMMAND : "LCmd",
         VK_RCOMMAND : "RCmd",
         VK_FUNCTION : "Fn",
 
-        #VK_SNAPSHOT : "PrintScreen", # FIXME : Mac対応
-        #VK_SCROLL   : "ScrollLock", # FIXME : Mac対応
-        #VK_PAUSE    : "Pause", # FIXME : Mac対応
+        #VK_SNAPSHOT : "PrintScreen", # FIXME : test on macOS
+        #VK_SCROLL   : "ScrollLock", # FIXME : test on macOS
+        #VK_PAUSE    : "Pause", # FIXME : test on macOS
     }
 
     vk_str_table_std = {
@@ -134,13 +134,13 @@ class KeyCondition:
     }
 
     vk_str_table_jpn = {
-        #VK_OEM_1        : "Colon", # FIXME : Mac対応
+        #VK_OEM_1        : "Colon", # FIXME : test on macOS
         VK_SLASH        : "Slash",
-        #VK_OEM_3        : "Atmark", # FIXME : Mac対応
+        #VK_OEM_3        : "Atmark", # FIXME : test on macOS
         VK_OPENBRACKET  : "OpenBracket",
-        #VK_OEM_5        : "Yen", # FIXME : Mac対応
+        #VK_OEM_5        : "Yen", # FIXME : test on macOS
         VK_CLOSEBRACKET : "CloseBracket",
-        #VK_OEM_7        : "Caret", # FIXME : Mac対応
+        #VK_OEM_7        : "Caret", # FIXME : test on macOS
         VK_BACKSLASH    : "BackSlash",
     }
 
@@ -189,7 +189,7 @@ class KeyCondition:
         "COMMA"  : VK_COMMA,
         "PERIOD" : VK_PERIOD,
 
-        #"NUMLOCK"  : VK_NUMLOCK, # FIXME : Mac対応
+        #"NUMLOCK"  : VK_NUMLOCK, # FIXME : test on macOS
         "DIVIDE"   : VK_DIVIDE,
         "MULTIPLY" : VK_MULTIPLY,
         "SUBTRACT" : VK_SUBTRACT,
@@ -234,9 +234,9 @@ class KeyCondition:
         "CAPSLOCK" : VK_CAPITAL,
         "CAPS"     : VK_CAPITAL,
         "CAPITAL"  : VK_CAPITAL,
-        #"APPS"     : VK_APPS, # FIXME : Mac対応
+        #"APPS"     : VK_APPS, # FIXME : test on macOS
 
-        #"INSERT"   : VK_INSERT, # FIXME : Mac対応
+        #"INSERT"   : VK_INSERT, # FIXME : test on macOS
         "DELETE"   : VK_DELETE,
         "HOME"     : VK_HOME,
         "END"      : VK_END,
@@ -252,16 +252,16 @@ class KeyCondition:
         "SHIFT"  : VK_LSHIFT,
         "LSHIFT" : VK_LSHIFT,
         "RSHIFT" : VK_RSHIFT,
-        #"LWIN" : VK_LWIN, # FIXME : Mac対応
-        #"RWIN" : VK_RWIN, # FIXME : Mac対応
+        #"LWIN" : VK_LWIN, # FIXME : test on macOS
+        #"RWIN" : VK_RWIN, # FIXME : test on macOS
         "CMD"  : VK_LCOMMAND,
         "LCMD" : VK_LCOMMAND,
         "RCMD" : VK_RCOMMAND,
         "FN" : VK_FUNCTION,
 
-        #"PRINTSCREEN" : VK_SNAPSHOT, # FIXME : Mac対応
-        #"SCROLLLOCK"  : VK_SCROLL, # FIXME : Mac対応
-        #"PAUSE"       : VK_PAUSE, # FIXME : Mac対応
+        #"PRINTSCREEN" : VK_SNAPSHOT, # FIXME : test on macOS
+        #"SCROLLLOCK"  : VK_SCROLL, # FIXME : test on macOS
+        #"PAUSE"       : VK_PAUSE, # FIXME : test on macOS
     }
 
     str_vk_table_std = {
@@ -270,7 +270,7 @@ class KeyCondition:
         "COLON"         : VK_SEMICOLON,
         "SLASH"         : VK_SLASH,
         "BACKQUOTE"     : VK_GRAVE,
-        #"TILDE"         : VK_OEM_3, # FIXME : Mac対応
+        #"TILDE"         : VK_OEM_3, # FIXME : test on macOS
         "OPENBRACKET"   : VK_OPENBRACKET,
         "BACKSLASH"     : VK_BACKSLASH,
         "YEN"           : VK_BACKSLASH,
@@ -286,10 +286,10 @@ class KeyCondition:
     str_vk_table_jpn = {
 
         "SEMICOLON"     : VK_PLUS,
-        #"COLON"         : VK_OEM_1, # FIXME : Mac対応
+        #"COLON"         : VK_OEM_1, # FIXME : test on macOS
         "SLASH"         : VK_SLASH,
         "BACKQUOTE"     : VK_GRAVE,
-        #"TILDE"         : VK_OEM_7, # FIXME : Mac対応
+        #"TILDE"         : VK_OEM_7, # FIXME : test on macOS
         "OPENBRACKET"   : VK_OPENBRACKET,
         "BACKSLASH"     : VK_BACKSLASH,
         "YEN"           : VK_YEN,
@@ -297,9 +297,9 @@ class KeyCondition:
         "QUOTE"         : VK_7,
         "DOUBLEQUOTE"   : VK_2,
         "UNDERSCORE"    : VK_UNDERSCORE,
-        #"ASTERISK"      : VK_OEM_1, # FIXME : Mac対応
-        #"ATMARK"        : VK_OEM_3, # FIXME : Mac対応
-        #"CARET"         : VK_OEM_7, # FIXME : Mac対応
+        #"ASTERISK"      : VK_OEM_1, # FIXME : test on macOS
+        #"ATMARK"        : VK_OEM_3, # FIXME : test on macOS
+        #"CARET"         : VK_OEM_7, # FIXME : test on macOS
     }
 
     str_mod_table = {
