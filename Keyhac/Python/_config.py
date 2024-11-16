@@ -67,7 +67,9 @@ def configure(keymap):
             words = elm.getAttributeValue("AXSelectedText")
             words = urllib.parse.quote(words)
             cmd = ["open", f"dict://{words}"]
-            subprocess.run(cmd)
+            r = subprocess.run(cmd, capture_output=True, text=True)
+            if r.stdout: logger.info(r.stdout.strip())
+            if r.stderr: logger.error(r.stderr.strip())
 
     keytable_global["User0-D"] = lookup_dictionary
 
@@ -82,7 +84,9 @@ def configure(keymap):
             logger.info(f"Searching on Google: {words}")
             words = urllib.parse.quote(words)
             cmd = ["open", f"https://www.google.com/search?q={words}"]
-            subprocess.run(cmd)
+            r = subprocess.run(cmd, capture_output=True, text=True)
+            if r.stdout: logger.info(r.stdout.strip())
+            if r.stderr: logger.error(r.stderr.strip())
 
     keytable_global["User0-G"] = search_google
 
@@ -149,7 +153,9 @@ def configure(keymap):
         def run(self):
             cmd = ["open", "-a", self.app_name]
             logger.info(f"Launching {self.app_name}")
-            subprocess.run(cmd, check=True)
+            r = subprocess.run(cmd, capture_output=True, text=True)
+            if r.stdout: logger.info(r.stdout.strip())
+            if r.stderr: logger.error(r.stderr.strip())
 
         def __repr__(self):
             return f'LaunchApplication("{self.app_name}")'
@@ -157,6 +163,7 @@ def configure(keymap):
     keytable_global["User0-T"] = LaunchApplication("Terminal.app")
     keytable_global["User0-F"] = LaunchApplication("ForkLift.app")
     keytable_global["User0-C"] = LaunchApplication("Visual Studio Code.app")
+    keytable_global["User0-J"] = LaunchApplication("JJJ")
 
 
     # =====================================================
