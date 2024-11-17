@@ -47,13 +47,32 @@ public class Hook {
         case keyUp
     }
     
+    enum KeyEventSource {
+        case real
+        case virtual
+    }
+    
+    // Keyboard hook at OS level
     var eventTap: CFMachPort?
     var runLoopSource: CFRunLoopSource?
     var eventSource: CGEventSource?
     var sanityCheckTimer: Timer?
     
+    // Event oder handling
+    var numPendingVirtualKeyEvents: Int = 0
+    var deferredRealKeyEvents: [CGEvent] = []
+    
+    // Virtual modifier key state
     var virtualModifier: CGEventFlags = CGEventFlags()
+
+    // Python object pointer for "on_key()"
     var keyboardCallback = PyObjectPtr()
+    
+    func TRACE(_ s: String) {
+        #if DEBUG
+        print(s)
+        #endif
+    }
     
     public func setCallback(name: String, callback: PyObjectPtr?){
         
@@ -131,6 +150,9 @@ public class Hook {
         }
         
         self.eventSource = CGEventSource(stateID: CGEventSourceStateID.privateState)
+        
+        numPendingVirtualKeyEvents = 0
+        deferredRealKeyEvents.removeAll()
     }
     
     public func uninstallKeyboardHook() {
@@ -156,6 +178,9 @@ public class Hook {
         self.eventSource = nil
         self.runLoopSource = nil
         self.eventTap = nil
+
+        numPendingVirtualKeyEvents = 0
+        deferredRealKeyEvents.removeAll()
     }
     
     public func isKeyboardHookInstalled() -> Bool {
@@ -172,8 +197,11 @@ public class Hook {
             return false
         }
         
+        numPendingVirtualKeyEvents = 0
+        deferredRealKeyEvents.removeAll()
+
         CGEvent.tapEnable(tap: eventTap, enable: true)
-        
+
         // Notify that hook restored
         if self.keyboardCallback.ptr() != nil {
             
@@ -203,10 +231,29 @@ public class Hook {
         
         var gil = PyGIL(true);
         defer { gil.Release() }
+        
+        let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
+        
+        let keyEventSource: KeyEventSource
+        if event.getIntegerValueField(.eventSourceStateID) == eventSource!.sourceStateID.rawValue {
+            keyEventSource = .virtual
+        }
+        else {
+            keyEventSource = .real
+        }
+        
+        TRACE("keyboardCallbackSwift(\(type), \(keyCode), \(keyEventSource))")
+        
+        // Event oder handling:
+        // Postpone real events if there are virtual key events pending or if there are preceeding postponed events
+        if keyEventSource == .real {
+            if numPendingVirtualKeyEvents > 0 || deferredRealKeyEvents.count > 0 {
+                deferredRealKeyEvents.append(event)
+                return nil;
+            }
+        }
 
         process_event: do {
-            let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
-
             // get event type - keyDown or keyUp
             let keyEventDirection: KeyEventDirection
             switch type {
@@ -240,10 +287,7 @@ public class Hook {
                 break process_event
             }
             
-            // Don't pass the event to Python if it is injected event by Keyhac itself
-            let injected_by_self = event.getIntegerValueField(.eventSourceStateID) == eventSource!.sourceStateID.rawValue
-            if !injected_by_self {
-                
+            if keyEventSource == .real {
                 if self.keyboardCallback.ptr() != nil {
                     let json = """
                     {"type": "\(keyEventDirection)", "keyCode": \(keyCode)}
@@ -283,6 +327,19 @@ public class Hook {
 
             default:
                 break
+            }
+        }
+
+        // Event oder handling:
+        // Process postponed real key events once all virtual key events are done
+        if keyEventSource == .virtual {
+            assert(numPendingVirtualKeyEvents > 0)
+            numPendingVirtualKeyEvents -= 1
+            if numPendingVirtualKeyEvents == 0 && deferredRealKeyEvents.count > 0 {
+                for event in deferredRealKeyEvents {
+                    event.post(tap: CGEventTapLocation.cghidEventTap)
+                }
+                deferredRealKeyEvents.removeAll()
             }
         }
         
@@ -333,8 +390,9 @@ public class Hook {
 
     public func sendKeyboardEvent(type: String, keyCode: Int) {
         
-        let keyDown: Bool
+        TRACE("sendKeyboardEvent(\(type), \(keyCode))")
         
+        let keyDown: Bool
         switch type {
         case "keyDown":
             keyDown = true
@@ -347,8 +405,12 @@ public class Hook {
         let event = CGEvent(keyboardEventSource: eventSource, virtualKey: CGKeyCode(keyCode), keyDown: keyDown)
         
         if let event = event {
+
+            // Event oder handling:
+            // Count how many virtual key event are pending
+            numPendingVirtualKeyEvents += 1
+
             event.post(tap: CGEventTapLocation.cghidEventTap)
         }
     }
-
 }
