@@ -256,7 +256,7 @@ def zoom_window():
 keytable_global["Fn-M"] = zoom_window
 ```
 
-For more details about UIElement, see the Keyhac API reference(work in progress).
+For more details about UIElement, see the [Keyhac API reference](./api_reference.md).
 
 
 ## Key expression reference
