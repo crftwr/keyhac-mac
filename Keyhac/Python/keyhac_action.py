@@ -1,7 +1,9 @@
+import subprocess
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
+from keyhac_main import Keymap
 import keyhac_console
 
 logger = keyhac_console.getLogger("Action")
@@ -63,3 +65,74 @@ class ThreadedAction:
         Args:
             result: returned value from run().
         """
+
+class MoveWindow:
+
+    """
+    A key action class to move focused window
+    """
+
+    def __init__(self, x: int, y: int):
+
+        """
+        Initializes the action object.
+
+        Args:
+            x: horizontal distance to move
+            y: vertical distance to move
+        """
+
+        self.x = x
+        self.y = y
+
+    def __call__(self):
+
+        elm = Keymap.getInstance().focus
+
+        while elm:
+            role = elm.get_attribute_value("AXRole")
+            if role=="AXWindow":
+                break
+            elm = elm.get_attribute_value("AXParent")
+
+        if elm:
+            names = elm.get_attribute_names()
+            pos = elm.get_attribute_value("AXPosition")
+            pos[0] += self.x
+            pos[1] += self.y
+            elm.set_attribute_value("AXPosition", "point", pos)
+
+    def __repr__(self):
+        return f"MoveWindow({self.x},{self.y})"
+
+
+class LaunchApplication(ThreadedAction):
+
+    """
+    A key action class to launch an application.
+
+    This action launches the application you specified if it is not running yet.
+    If the application is already running, macOS automatically make it foreground.
+    """
+
+    def __init__(self, app_name):
+
+        """
+        Initializes the action object.
+
+        Args:
+            app_name: Name of the application (e.g., "Terminal.app")
+        """
+
+        self.app_name = app_name
+
+    def run(self):
+        cmd = ["open", "-a", self.app_name]
+        logger.info(f"Launching {self.app_name}")
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        if r.stdout: logger.info(r.stdout.strip())
+        if r.stderr: logger.error(r.stderr.strip())
+
+    def __repr__(self):
+        return f'LaunchApplication("{self.app_name}")'
+

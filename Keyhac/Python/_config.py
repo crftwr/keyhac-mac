@@ -115,31 +115,6 @@ def configure(keymap):
 
     # -----------------------------------------------------
     # User0-Left/Right/Up/Down: Move current active window
-    class MoveWindow:
-        def __init__(self, x, y):
-            self.x = x
-            self.y = y
-
-        def __call__(self):
-
-            elm = keymap.focus
-
-            while elm:
-                role = elm.get_attribute_value("AXRole")
-                if role=="AXWindow":
-                    break
-                elm = elm.get_attribute_value("AXParent")
-
-            if elm:
-                names = elm.get_attribute_names()
-                pos = elm.get_attribute_value("AXPosition")
-                pos[0] += self.x
-                pos[1] += self.y
-                elm.set_attribute_value("AXPosition", "point", pos)
-
-        def __repr__(self):
-            return f"MoveWindow({self.x},{self.y})"
-
     keytable_global["User0-Left"]  = MoveWindow(-10,0)
     keytable_global["User0-Right"] = MoveWindow(+10,0)
     keytable_global["User0-Up"]    = MoveWindow(0,-10)
@@ -147,20 +122,6 @@ def configure(keymap):
 
     # -----------------------------------------------------
     # User0-T/F/C: Launch an applications
-    class LaunchApplication(ThreadedAction):
-        def __init__(self, app_name):
-            self.app_name = app_name
-
-        def run(self):
-            cmd = ["open", "-a", self.app_name]
-            logger.info(f"Launching {self.app_name}")
-            r = subprocess.run(cmd, capture_output=True, text=True)
-            if r.stdout: logger.info(r.stdout.strip())
-            if r.stderr: logger.error(r.stderr.strip())
-
-        def __repr__(self):
-            return f'LaunchApplication("{self.app_name}")'
-
     keytable_global["User0-T"] = LaunchApplication("Terminal.app")
     keytable_global["User0-F"] = LaunchApplication("ForkLift.app")
     keytable_global["User0-C"] = LaunchApplication("Visual Studio Code.app")
