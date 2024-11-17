@@ -1,5 +1,8 @@
 import fnmatch
 import traceback
+from collections.abc import Callable
+
+from keyhac_core import UIElement
 import keyhac_console
 
 logger = keyhac_console.getLogger("Focus")
@@ -8,16 +11,33 @@ class FocusCondition:
 
     """
     A class to define keyboard focus condition
-
-    :param focus_path_pattern focus path pattern string with wildcards
-    :param custom_condition_func a function to define custom focus condition
     """
 
-    def __init__( self, focus_path_pattern=None, custom_condition_func=None ):
+    def __init__( self, focus_path_pattern: str = None, custom_condition_func: Callable = None ):
+
+        """
+        Initialize the focus condition.
+
+        Args:
+            focus_path_pattern: Focus path pattern string with wildcards.
+            custom_condition_func: A function to define custom focus condition.
+        """
+
         self.focus_path_pattern = focus_path_pattern
         self.custom_condition_func = custom_condition_func
 
-    def check( self, focus_path, focus_elm ):
+    def check( self, focus_path: str, focus_elm: UIElement ) -> bool:
+
+        """
+        Check if the current focus meets the condition.
+
+        Args:
+            focus_path: Focus path string
+            focus_elm: Focused UI element
+
+        Returns:
+            Boolean result whether the condition met.
+        """
 
         if self.focus_path_pattern and ( not focus_path or not fnmatch.fnmatch( focus_path, self.focus_path_pattern ) ):
             return False
@@ -33,7 +53,17 @@ class FocusCondition:
         return True
 
     @staticmethod
-    def get_focus_path(elm):
+    def get_focus_path(elm: UIElement) -> str:
+
+        """
+        [Static method] Get a string representation for the focused UI element.
+
+        Args:
+            elm: Focused UI element.
+
+        Returns:
+            Focus path string.
+        """
 
         focus_elms = []
 

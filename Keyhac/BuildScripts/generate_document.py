@@ -11,21 +11,28 @@ generator = MarkdownGenerator()
 
 import keyhac
 
-markdown_sections = []
+lines = []
 
 for api_name in dir(keyhac):
 
     if api_name.startswith("_"):
         continue
 
+    print(f"Generating API reference for {api_name}")
+
     api_obj = getattr(keyhac, api_name)
 
-    print(api_obj)
-
     markdown = generator.import2md(api_obj)
-    markdown_sections.append(markdown)
 
-markdown_joint = "\n".join(markdown_sections)
+    for line in markdown.splitlines(keepends=True):
+        if not line.strip():
+            continue
+        lines.append(line)
 
-with open("../docs/api_reference.md", "w") as fd:
-    fd.write(markdown_joint)
+output_filename = "../docs/api_reference.md"
+
+with open(output_filename, "w") as fd:
+    for line in lines:
+        fd.write(line)
+
+print(f"Wrote {os.path.abspath(output_filename)}")
