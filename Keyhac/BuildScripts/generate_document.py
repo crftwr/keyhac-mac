@@ -34,8 +34,6 @@ for api_name in api_names:
     markdown = generator.import2md(api_obj)
 
     for line in markdown.splitlines(keepends=True):
-        if not line.strip():
-            continue
         lines.append(line)
 
 output_filename = "../docs/api_reference.md"
