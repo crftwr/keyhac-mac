@@ -23,7 +23,11 @@ Keyhac gives you the flexibility to customize the behavior of various applicatio
 1. Operate the toggle switch off → on to reload the configuration file.
 1. Verify the configured behavior.
 
-For how to write the configuration file (`config.py`), see the [Keyhac User Guide Document](docs/index.md).
+
+### Documents
+
+- [Keyhac User Guide Document](docs/index.md)
+- [Keyhac API reference](docs/api_reference.md)
 
 ### Features
 
