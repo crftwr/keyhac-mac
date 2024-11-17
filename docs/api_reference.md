@@ -366,6 +366,95 @@ Get a string representation for the focused UI element.
 ---
 
 
+# <kbd>class</kbd> `MoveWindow`
+A key action class to move focused window 
+
+### <kbd>method</kbd> `MoveWindow.__init__`
+
+```python
+__init__(x: int, y: int)
+```
+
+Initializes the action object. 
+
+
+
+**Args:**
+ 
+ - <b>`x`</b>:  horizontal distance to move 
+ - <b>`y`</b>:  vertical distance to move 
+
+
+
+
+
+---
+
+
+# <kbd>class</kbd> `LaunchApplication`
+A key action class to launch an application. 
+
+This action launches the application you specified if it is not running yet. If the application is already running, macOS automatically make it foreground. 
+
+### <kbd>method</kbd> `LaunchApplication.__init__`
+
+```python
+__init__(app_name)
+```
+
+Initializes the action object. 
+
+
+
+**Args:**
+ 
+ - <b>`app_name`</b>:  Name of the application (e.g., "Terminal.app") 
+
+
+
+
+---
+
+## <kbd>method</kbd> `LaunchApplication.finished`
+
+```python
+finished(result: Any) → None
+```
+
+Virtual method called after run() finished. 
+
+
+
+**Args:**
+ 
+ - <b>`result`</b>:  returned value from run(). 
+
+---
+
+## <kbd>method</kbd> `LaunchApplication.run`
+
+```python
+run()
+```
+
+
+
+
+
+---
+
+## <kbd>method</kbd> `LaunchApplication.starting`
+
+```python
+starting()
+```
+
+Virtual method called immediately when the action is triggered. 
+
+
+---
+
+
 # <kbd>class</kbd> `ThreadedAction`
 Base class for threaded actions. 
 

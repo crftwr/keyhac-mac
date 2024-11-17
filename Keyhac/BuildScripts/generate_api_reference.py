@@ -17,6 +17,8 @@ api_names = [
     "KeyTable",
     "KeyCondition",
     "FocusCondition",
+    "MoveWindow",
+    "LaunchApplication",
     "ThreadedAction",
     "UIElement",
     "Console",
