@@ -434,12 +434,127 @@ Virtual method called immediately when the action is triggered.
 
 
 # <kbd>class</kbd> `UIElement`
+UI element class 
+
+UIElement represents multiple types of elements on your system like: 
+
+
+- Application 
+- Window 
+- Button 
+
+UIElement has attributes like "AXParent", "AXChildren", "AXRole", "AXPosition" and so on. You can get these attribute values by getAttributeValue(). And you can also set some of these attribute values by setAttributeValue(). 
+
+You can also interact with UIElements using performAction().  For example, you can click buttons by `elm.performAction("AXPress")`. 
+
+It is a wrapper of macOS's accessibility object. 
 
 
 
 
+---
+
+## <kbd>method</kbd> `UIElement.getActionNames`
+
+```python
+getActionNames() → [<class 'str'>]
+```
+
+Get a list of action names this UI element can perform. 
 
 
+
+**Returns:**
+  A list of action names. 
+
+---
+
+## <kbd>method</kbd> `UIElement.getAttributeNames`
+
+```python
+getAttributeNames() → [<class 'str'>]
+```
+
+Get a list of attribute names this UI element has. 
+
+
+
+**Returns:**
+  A list of attribute names. 
+
+---
+
+## <kbd>method</kbd> `UIElement.getAttributeValue`
+
+```python
+getAttributeValue(name: str) → Any
+```
+
+Get the value of an attribute. 
+
+
+
+**Args:**
+ 
+ - <b>`name`</b>:  Name of the attribute 
+
+
+
+**Returns:**
+ Value of the attribute 
+
+---
+
+## <kbd>method</kbd> `UIElement.getFocusedApplication`
+
+```python
+getFocusedApplication()
+```
+
+Get current focused application as a UIElement object. 
+
+---
+
+## <kbd>method</kbd> `UIElement.getRunningApplications`
+
+```python
+getRunningApplications()
+```
+
+Get currently running applications in a list of UIElements. 
+
+---
+
+## <kbd>method</kbd> `UIElement.performAction`
+
+```python
+performAction(name: str) → None
+```
+
+Perform an action on this UI element. 
+
+
+
+**Args:**
+ 
+ - <b>`name`</b>:  Name of the actiom 
+
+---
+
+## <kbd>method</kbd> `UIElement.setAttributeValue`
+
+```python
+setAttributeValue(name: str, value: Any) → None
+```
+
+Set value of an attribute. 
+
+
+
+**Args:**
+ 
+ - <b>`name`</b>:  Name of the attribute 
+ - <b>`value`</b>:  Value of the attribute 
 
 
 ---
