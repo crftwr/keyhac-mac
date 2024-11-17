@@ -5,4 +5,6 @@ class UIElement:
     pass
 
 class Console:
-    pass
+    @staticmethod
+    def write(s):
+        pass

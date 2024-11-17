@@ -2,8 +2,9 @@ import sys
 import os
 import json
 import traceback
+from collections.abc import Callable
 
-import keyhac_core
+from keyhac_core import Hook, UIElement, Console
 import keyhac_config
 import keyhac_console
 from keyhac_key import KeyCondition, KeyTable
@@ -16,16 +17,33 @@ keyhac_console.initializeConsole()
 logger = keyhac_console.getLogger("Keymap")
 
 class Keymap:
+
+    """
+    A keymap management class.
+    Keymap class manages key-tables and executes key action translations.
+    """
     
     _instance = None
             
     @staticmethod
     def getInstance():
+
+        """
+        Get the Keymap singleton instance.
+
+        Returns:
+            Keymap singleton instance.
+        """
+
         if not Keymap._instance:
             Keymap._instance = Keymap()
         return Keymap._instance
 
     def __init__(self):
+
+        """
+        Initializes keymap object.
+        """
 
         # (Experimental) always send keys even for pass-through,
         # to ensure key events are not out of order.
@@ -49,11 +67,15 @@ class Keymap:
         self._record_status = None          # Key recording status ("recording" or None)
         self._record_seq = None             # Recoreded key sequence
 
-        keyhac_core.Hook.setCallback("Keyboard", self._on_key)
+        Hook.setCallback("Keyboard", self._on_key)
         
         print("\n" + CONSOLE_STYLE_TITLE + "Welcome to Keyhac" + CONSOLE_STYLE_DEFAULT + "\n")
 
     def configure(self):
+
+        """
+        Reload configuration file and reconfigure the keymap.
+        """
 
         self._release_modifier_all()
 
@@ -95,7 +117,16 @@ class Keymap:
             logger.error(f"Loading configuration script failed:\n{traceback.format_exc()}")
             return
 
-    def replace_key( self, src, dst ):
+    def replace_key( self, src: str|int, dst: str|int ) -> None:
+
+        """
+        Replace a key with a different key.
+
+        Args:
+            src: Key to replace
+            dst: New meaning of the key
+        """
+
         try:
             if type(src)==str:
                 src = KeyCondition.str_to_vk(src)
@@ -112,14 +143,21 @@ class Keymap:
 
         self._vk_vk_map[src] = dst
 
-    def define_modifier( self, vk, mod ):
+    def define_modifier( self, key: str|int, mod: str|int ) -> None:
 
-        vk_org = vk
+        """
+        Define a user modifier key.
+
+        Args:
+            key: Key to use as the new modifier key
+            mod: Modifier key assigned to the key
+        """
+
         try:
-            if type(vk)==str:
-                vk = KeyCondition.str_to_vk(vk)
+            if type(key)==str:
+                key = KeyCondition.str_to_vk(key)
         except:
-            logger.error(f"Invalid key expression for argument 'vk': {vk}")
+            logger.error(f"Invalid key expression for argument 'key': {key}")
             return
 
         try:
@@ -131,9 +169,30 @@ class Keymap:
             logger.error(f"Invalid key expression for argument 'mod': {mod}")
             return
 
-        self._vk_mod_map[vk] = mod
+        self._vk_mod_map[key] = mod
 
-    def define_keytable( self, name=None, focus_path_pattern=None, custom_condition_func=None ):
+    def define_keytable( self, name: str = None, focus_path_pattern: str = None, custom_condition_func: Callable = None ) -> KeyTable:
+
+        """
+        Define a key table.
+
+        When focus_path_pattern and/or custom_condition_func were specified, 
+        the key table is added to the Keymap object and it automatically activates when
+        focus condtion met.
+
+        When focus_path_pattern and custom_condition_func were not specified,
+        the key table is not added to the Keymap object. The key table can be used to define
+        multi-stroke key table.
+
+        Args:
+            name: Name of the key table.
+            focus_path_pattern: Focus path pattern with wildcards.
+            custom_condition_func: A function to define custom focus condition.
+        
+        Returns:
+            KeyTable created
+        """
+
         keytable = KeyTable(name=name)
         if focus_path_pattern or custom_condition_func:
             focus_condition = FocusCondition( focus_path_pattern, custom_condition_func )
@@ -147,12 +206,27 @@ class Keymap:
                     continue
                 input_ctx.send_key_by_vk(vk_mod[0], down=False)
 
-    def get_input_context(self):
+    def get_input_context(self) -> InputContext:
+
+        """
+        Get a key input context to send virtual key input sequence.
+
+        Note:
+            Use this method to programmatically decide what virtual keys to send
+            and avoid instantiating InputContext class directly.
+
+            Using get_input_context(), InputContext object is initialized correctly
+            based on the current key status.
+
+        Returns:
+            Key input context
+        """
+
         return InputContext(self._modifier, self._vk_mod_map)
 
     def _get_focused_element(self):
 
-        app = keyhac_core.UIElement.getFocusedApplication()
+        app = UIElement.getFocusedApplication()
         if not app: return None
 
         focus = app.getAttributeValue("AXFocusedUIElement")
@@ -172,7 +246,7 @@ class Keymap:
 
         if self._focus_path != new_focus_path:
             logger.debug(f"Focus path: {new_focus_path}")
-            keyhac_core.Console.setText("focusPath", new_focus_path)
+            Console.setText("focusPath", new_focus_path)
             self._focus_path = new_focus_path
             self._update_unified_keytable()
 
@@ -291,7 +365,7 @@ class Keymap:
     def _setLastKeyText(self, key):
         s = str(key)
         if s.startswith("D-"): s = s[2:]
-        keyhac_core.Console.setText("lastKey", s)
+        Console.setText("lastKey", s)
 
     def _on_key_hook_restored(self):
         logger.warning("Key hook timed out and has been restored.")
@@ -386,8 +460,13 @@ class Keymap:
                     self._unified_keytable.update(keytable.table)
 
     @property
-    def focus(self):
+    def focus(self) -> UIElement:
+
+        """
+        Current focused UI element
+        """
+
         return self._focus_elm
 
-def configure():
+def _configure():
     Keymap.getInstance().configure()

@@ -11,12 +11,21 @@ generator = MarkdownGenerator()
 
 import keyhac
 
+api_names = [
+    "Keymap",
+    "KeyTable",
+    "KeyCondition",
+    "FocusCondition",
+    "ThreadedAction",
+    "UIElement",
+    "Console",
+    "Hook",
+    "getLogger",
+]
+
 lines = []
 
-for api_name in dir(keyhac):
-
-    if api_name.startswith("_"):
-        continue
+for api_name in api_names:
 
     print(f"Generating API reference for {api_name}")
 

@@ -445,7 +445,7 @@ class KeyCondition:
             KeyCondition.vk_str_table.update(KeyCondition.vk_str_table_std)
 
     @staticmethod
-    def str_to_vk(name):
+    def str_to_vk(name: str) -> int:
         try:
             vk = KeyCondition.str_vk_table[name.upper()]
         except KeyError:
@@ -456,7 +456,7 @@ class KeyCondition:
         return vk
 
     @staticmethod
-    def vk_to_str(vk):
+    def vk_to_str(vk: int) -> str:
         try:
             name = KeyCondition.vk_str_table[vk]
         except KeyError:

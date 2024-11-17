@@ -60,7 +60,7 @@ class KeyhacSystem {
 
         sys.argv = [keyhac_main.__file__]
 
-        keyhac_main.configure()
+        keyhac_main._configure()
         """
         
         if let pythonBridge = PythonBridge.getInstance() {
@@ -75,7 +75,7 @@ class KeyhacSystem {
     func reconfigurePythonLayer(){
         let code = """
         import keyhac_main
-        keyhac_main.configure()
+        keyhac_main._configure()
         """
         
         if let pythonBridge = PythonBridge.getInstance() {

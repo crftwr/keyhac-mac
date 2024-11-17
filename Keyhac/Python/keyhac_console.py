@@ -13,6 +13,9 @@ class StandardIo:
         keyhac_core.Console.write(s)
         self.default_stream.write(s)
 
+    def flush(self):
+        self.default_stream.flush()
+
     @staticmethod
     def install_redirection():
         sys.stdout = StandardIo(sys.stdout)
