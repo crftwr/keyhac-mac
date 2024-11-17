@@ -4,8 +4,9 @@ import os
 # https://github.com/ml-tooling/lazydocs
 from lazydocs import MarkdownGenerator
 
-sys.path.insert(0, os.path.abspath("./Python"))
-sys.path.insert(0, os.path.abspath("./DocumentSource"))
+this_directory = os.path.dirname(__file__)
+sys.path.insert(0, os.path.join(this_directory, "../Python"))
+sys.path.insert(0, os.path.join(this_directory, "../DocumentSource"))
 
 generator = MarkdownGenerator()
 
@@ -40,7 +41,7 @@ for api_name in api_names:
     lines.append("---\n")
     lines.append("\n")
 
-output_filename = "../docs/api_reference.md"
+output_filename = os.path.join(this_directory, "../../docs/api_reference.md")
 
 with open(output_filename, "w") as fd:
     for line in lines:
