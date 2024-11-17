@@ -84,5 +84,5 @@ class InputContext:
     def flush(self):
         self.send_modifier_keys(self._real_modifier)
         for event in self._input_seq:
-            keyhac_core.Hook.sendKeyboardEvent(event[0], event[1])
+            keyhac_core.Hook.send_keyboard_event(event[0], event[1])
         self._input_seq = []
