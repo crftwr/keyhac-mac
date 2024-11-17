@@ -67,7 +67,7 @@ class Keymap:
         self._record_status = None          # Key recording status ("recording" or None)
         self._record_seq = None             # Recoreded key sequence
 
-        Hook.setCallback("Keyboard", self._on_key)
+        Hook.set_callback("Keyboard", self._on_key)
         
         print("\n" + CONSOLE_STYLE_TITLE + "Welcome to Keyhac" + CONSOLE_STYLE_DEFAULT + "\n")
 
@@ -226,13 +226,13 @@ class Keymap:
 
     def _get_focused_element(self):
 
-        app = UIElement.getFocusedApplication()
+        app = UIElement.get_focused_application()
         if not app: return None
 
-        focus = app.getAttributeValue("AXFocusedUIElement")
+        focus = app.get_attribute_value("AXFocusedUIElement")
         if focus: return focus
 
-        window = app.getAttributeValue("AXFocusedWindow")
+        window = app.get_attribute_value("AXFocusedWindow")
         if window: return window
         
         return app
@@ -246,7 +246,7 @@ class Keymap:
 
         if self._focus_path != new_focus_path:
             logger.debug(f"Focus path: {new_focus_path}")
-            Console.setText("focusPath", new_focus_path)
+            Console.set_text("focusPath", new_focus_path)
             self._focus_path = new_focus_path
             self._update_unified_keytable()
 
@@ -365,7 +365,7 @@ class Keymap:
     def _setLastKeyText(self, key):
         s = str(key)
         if s.startswith("D-"): s = s[2:]
-        Console.setText("lastKey", s)
+        Console.set_text("lastKey", s)
 
     def _on_key_hook_restored(self):
         logger.warning("Key hook timed out and has been restored.")

@@ -69,7 +69,7 @@ class FocusCondition:
 
         while elm:
             focus_elms.append(elm)
-            elm = elm.getAttributeValue("AXParent")
+            elm = elm.get_attribute_value("AXParent")
 
         focus_path_components = [""]
 
@@ -88,11 +88,11 @@ class FocusCondition:
 
         for elm in reversed(focus_elms):
 
-            role = elm.getAttributeValue("AXRole")
+            role = elm.get_attribute_value("AXRole")
             if role is None: role = ""
             role = role.translate(special_chars_trans_table)
 
-            title = elm.getAttributeValue("AXTitle")
+            title = elm.get_attribute_value("AXTitle")
             if title is None: title = ""
             title = title.translate(special_chars_trans_table)
 

@@ -193,7 +193,7 @@ static void UIElement_dealloc(UIElement_Object * self)
     ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * UIElement_getFocusedApplication( PyObject * self, PyObject * args )
+static PyObject * UIElement_get_focused_application( PyObject * self, PyObject * args )
 {
     if( ! PyArg_ParseTuple(args,"") )
         return NULL;
@@ -216,7 +216,7 @@ static PyObject * UIElement_getFocusedApplication( PyObject * self, PyObject * a
     }
 }
 
-static PyObject * UIElement_getRunningApplications( PyObject * self, PyObject * args )
+static PyObject * UIElement_get_running_applications( PyObject * self, PyObject * args )
 {
     if( ! PyArg_ParseTuple(args,"") )
         return NULL;
@@ -236,7 +236,7 @@ static PyObject * UIElement_getRunningApplications( PyObject * self, PyObject * 
     return pyapplications;
 }
 
-static PyObject * UIElement_getAttributeNames(UIElement_Object * self, PyObject * args)
+static PyObject * UIElement_get_attribute_names(UIElement_Object * self, PyObject * args)
 {
     if( ! PyArg_ParseTuple(args,"") )
         return NULL;
@@ -256,7 +256,7 @@ static PyObject * UIElement_getAttributeNames(UIElement_Object * self, PyObject 
     return pyattr_names;
 }
 
-static PyObject * UIElement_getAttributeValue(UIElement_Object * self, PyObject * args)
+static PyObject * UIElement_get_attribute_value(UIElement_Object * self, PyObject * args)
 {
     PyObject * pyattr_name;
     if( ! PyArg_ParseTuple(args, "U", &pyattr_name ) )
@@ -288,7 +288,7 @@ static PyObject * UIElement_getAttributeValue(UIElement_Object * self, PyObject 
     }
 }
 
-static PyObject * UIElement_setAttributeValue(UIElement_Object * self, PyObject * args)
+static PyObject * UIElement_set_attribute_value(UIElement_Object * self, PyObject * args)
 {
     PyObject * pyattr_name;
     PyObject * pytype_name;
@@ -489,7 +489,7 @@ static PyObject * UIElement_setAttributeValue(UIElement_Object * self, PyObject 
     return Py_None;
 }
 
-static PyObject * UIElement_getActionNames(UIElement_Object * self, PyObject * args)
+static PyObject * UIElement_get_action_names(UIElement_Object * self, PyObject * args)
 {
     if( ! PyArg_ParseTuple(args,"") )
         return NULL;
@@ -509,7 +509,7 @@ static PyObject * UIElement_getActionNames(UIElement_Object * self, PyObject * a
     return pyaction_names;
 }
 
-static PyObject * UIElement_performAction(UIElement_Object * self, PyObject * args)
+static PyObject * UIElement_perform_action(UIElement_Object * self, PyObject * args)
 {
     PyObject * pyaction;
     if( ! PyArg_ParseTuple(args, "U", &pyaction ) )
@@ -529,13 +529,14 @@ static PyObject * UIElement_performAction(UIElement_Object * self, PyObject * ar
 }
 
 static PyMethodDef UIElement_methods[] = {
-    { "getFocusedApplication", (PyCFunction)UIElement_getFocusedApplication, METH_STATIC|METH_VARARGS, "" },
-    { "getRunningApplications", (PyCFunction)UIElement_getRunningApplications, METH_STATIC|METH_VARARGS, "" },
-    { "getAttributeNames", (PyCFunction)UIElement_getAttributeNames, METH_VARARGS, "" },
-    { "getAttributeValue", (PyCFunction)UIElement_getAttributeValue, METH_VARARGS, "" },
-    { "setAttributeValue", (PyCFunction)UIElement_setAttributeValue, METH_VARARGS, "" },
-    { "getActionNames", (PyCFunction)UIElement_getActionNames, METH_VARARGS, "" },
-    { "performAction", (PyCFunction)UIElement_performAction, METH_VARARGS, "" },
+    { "get_focused_application", (PyCFunction)UIElement_get_focused_application, METH_STATIC|METH_VARARGS, "" },
+    { "get_running_applications", (PyCFunction)UIElement_get_running_applications, METH_STATIC|METH_VARARGS, "" },
+    { "get_attribute_names", (PyCFunction)UIElement_get_attribute_names, METH_VARARGS, "" },
+    { "get_attribute_value", (PyCFunction)UIElement_get_attribute_value, METH_VARARGS, "" },
+    { "set_attribute_value", (PyCFunction)UIElement_set_attribute_value, METH_VARARGS, "" },
+    { "get_action_names", (PyCFunction)UIElement_get_action_names, METH_VARARGS, "" },
+    { "perform_action", (PyCFunction)UIElement_perform_action, METH_VARARGS, "" },
+
     {NULL,NULL}
 };
 
@@ -590,7 +591,7 @@ struct Hook_Object
     //Hook impl;
 };
 
-static PyObject * Hook_setCallback(Hook_Object * self, PyObject* args)
+static PyObject * Hook_set_callback(Hook_Object * self, PyObject* args)
 {
     PyObject * pyname;
     PyObject * pycallback;
@@ -600,7 +601,7 @@ static PyObject * Hook_setCallback(Hook_Object * self, PyObject* args)
     }
     
     const char * name = PyUnicode_AsUTF8AndSize(pyname, NULL);
-    printf("Hook_setCallback - %s\n", name);
+    printf("Hook_set_callback - %s\n", name);
     
     if(pycallback!=Py_None)
     {
@@ -617,7 +618,7 @@ static PyObject * Hook_setCallback(Hook_Object * self, PyObject* args)
     return Py_None;
 }
 
-static PyObject * Hook_sendKeyboardEvent(Hook_Object * self, PyObject* args)
+static PyObject * Hook_send_keyboard_event(Hook_Object * self, PyObject* args)
 {
     PyObject * pytype;
     int keyCode;
@@ -635,8 +636,8 @@ static PyObject * Hook_sendKeyboardEvent(Hook_Object * self, PyObject* args)
 }
 
 static PyMethodDef Hook_methods[] = {
-    { "setCallback", (PyCFunction)Hook_setCallback, METH_STATIC|METH_VARARGS, "" },
-    { "sendKeyboardEvent", (PyCFunction)Hook_sendKeyboardEvent, METH_STATIC|METH_VARARGS, "" },
+    { "set_callback", (PyCFunction)Hook_set_callback, METH_STATIC|METH_VARARGS, "" },
+    { "send_keyboard_event", (PyCFunction)Hook_send_keyboard_event, METH_STATIC|METH_VARARGS, "" },
     {NULL,NULL}
 };
 
@@ -708,7 +709,7 @@ static PyObject * Console_write(Console_Object * self, PyObject* args)
     return Py_None;
 }
 
-static PyObject * Console_setText(Console_Object * self, PyObject* args)
+static PyObject * Console_set_text(Console_Object * self, PyObject* args)
 {
     PyObject * pyname;
     PyObject * pytext;
@@ -728,7 +729,7 @@ static PyObject * Console_setText(Console_Object * self, PyObject* args)
 
 static PyMethodDef Console_methods[] = {
     { "write", (PyCFunction)Console_write, METH_STATIC|METH_VARARGS, "" },
-    { "setText", (PyCFunction)Console_setText, METH_STATIC|METH_VARARGS, "" },
+    { "set_text", (PyCFunction)Console_set_text, METH_STATIC|METH_VARARGS, "" },
     {NULL,NULL}
 };
 

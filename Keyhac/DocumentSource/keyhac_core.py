@@ -9,7 +9,7 @@ class Hook:
     """
 
     @staticmethod
-    def setCallback(name: str, func: Callable) -> None:
+    def set_callback(name: str, func: Callable) -> None:
         """
         Set a callback to Keyhac's core hook system.
 
@@ -22,7 +22,7 @@ class Hook:
         """
 
     @staticmethod
-    def sendKeyboardEvent(event_type: str, key: int) -> None:
+    def send_keyboard_event(event_type: str, key: int) -> None:
         """
         Send a virtual key input event.
 
@@ -46,28 +46,28 @@ class UIElement:
     - Button
 
     UIElement has attributes like "AXParent", "AXChildren", "AXRole", "AXPosition" and so on.
-    You can get these attribute values by getAttributeValue().
-    And you can also set some of these attribute values by setAttributeValue().
+    You can get these attribute values by get_attribute_value().
+    And you can also set some of these attribute values by set_attribute_value().
 
-    You can also interact with UIElements using performAction(). 
-    For example, you can click buttons by `elm.performAction("AXPress")`.
+    You can also interact with UIElements using perform_action(). 
+    For example, you can click buttons by `elm.perform_action("AXPress")`.
 
     It is a wrapper of macOS's accessibility object.
     """
     
     @staticmethod
-    def getFocusedApplication():
+    def get_focused_application():
         """
         Get current focused application as a UIElement object.
         """
 
     @staticmethod
-    def getRunningApplications():
+    def get_running_applications():
         """
         Get currently running applications in a list of UIElements.
         """
 
-    def getAttributeNames(self) -> [str]:
+    def get_attribute_names(self) -> [str]:
         """
         Get a list of attribute names this UI element has.
 
@@ -75,7 +75,7 @@ class UIElement:
             A list of attribute names.
         """
 
-    def getAttributeValue(self, name: str) -> Any:
+    def get_attribute_value(self, name: str) -> Any:
         """
         Get the value of an attribute.
 
@@ -86,7 +86,7 @@ class UIElement:
             Value of the attribute
         """
 
-    def setAttributeValue(self, name: str, value: Any) -> None:
+    def set_attribute_value(self, name: str, value: Any) -> None:
         """
         Set value of an attribute.
 
@@ -95,7 +95,7 @@ class UIElement:
             value: Value of the attribute
         """
 
-    def getActionNames(self) -> [str]:
+    def get_action_names(self) -> [str]:
         """
         Get a list of action names this UI element can perform.
 
@@ -103,7 +103,7 @@ class UIElement:
             A list of action names.
         """
 
-    def performAction(self, name: str) -> None:
+    def perform_action(self, name: str) -> None:
         """
         Perform an action on this UI element.
 
@@ -129,7 +129,7 @@ class Console:
         """
 
     @staticmethod
-    def setText(name: str, text: str):
+    def set_text(name: str, text: str):
         """
         Set a text for special text field.
 

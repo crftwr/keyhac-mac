@@ -64,8 +64,8 @@ def configure(keymap):
 
         elm = keymap.focus
 
-        if "AXSelectedText" in elm.getAttributeNames():
-            words = elm.getAttributeValue("AXSelectedText")
+        if "AXSelectedText" in elm.get_attribute_names():
+            words = elm.get_attribute_value("AXSelectedText")
             words = urllib.parse.quote(words)
             cmd = ["open", f"dict://{words}"]
             r = subprocess.run(cmd, capture_output=True, text=True)
@@ -80,8 +80,8 @@ def configure(keymap):
 
         elm = keymap.focus
 
-        if "AXSelectedText" in elm.getAttributeNames():
-            words = elm.getAttributeValue("AXSelectedText")
+        if "AXSelectedText" in elm.get_attribute_names():
+            words = elm.get_attribute_value("AXSelectedText")
             logger.info(f"Searching on Google: {words}")
             words = urllib.parse.quote(words)
             cmd = ["open", f"https://www.google.com/search?q={words}"]
@@ -92,24 +92,24 @@ def configure(keymap):
     keytable_global["User0-G"] = search_google
 
     # -----------------------------------------------------
-    # Fn-M: Zoom window (Test of UIElement.performAction)
+    # Fn-M: Zoom window (Test of UIElement.perform_action)
     def zoom_window():
 
         elm = keymap.focus
 
         while elm:
-            role = elm.getAttributeValue("AXRole")
+            role = elm.get_attribute_value("AXRole")
             if role=="AXWindow":
                 break
-            elm = elm.getAttributeValue("AXParent")
+            elm = elm.get_attribute_value("AXParent")
 
         if elm:
-            names = elm.getAttributeNames()
+            names = elm.get_attribute_names()
             if "AXZoomButton" in names:
-                elm = elm.getAttributeValue("AXZoomButton")
+                elm = elm.get_attribute_value("AXZoomButton")
                 if elm:
-                    actions = elm.getActionNames()
-                    elm.performAction("AXPress")
+                    actions = elm.get_action_names()
+                    elm.perform_action("AXPress")
 
     keytable_global["Fn-M"] = zoom_window
 
@@ -125,17 +125,17 @@ def configure(keymap):
             elm = keymap.focus
 
             while elm:
-                role = elm.getAttributeValue("AXRole")
+                role = elm.get_attribute_value("AXRole")
                 if role=="AXWindow":
                     break
-                elm = elm.getAttributeValue("AXParent")
+                elm = elm.get_attribute_value("AXParent")
 
             if elm:
-                names = elm.getAttributeNames()
-                pos = elm.getAttributeValue("AXPosition")
+                names = elm.get_attribute_names()
+                pos = elm.get_attribute_value("AXPosition")
                 pos[0] += self.x
                 pos[1] += self.y
-                elm.setAttributeValue("AXPosition", "point", pos)
+                elm.set_attribute_value("AXPosition", "point", pos)
 
         def __repr__(self):
             return f"MoveWindow({self.x},{self.y})"
@@ -197,11 +197,11 @@ def configure(keymap):
     # Use custom logic to detect terminal kind of applications
     def is_terminal_window(elm):
         try:
-            window_elm = elm.getAttributeValue("AXWindow")
+            window_elm = elm.get_attribute_value("AXWindow")
             if window_elm:
-                app_elm = window_elm.getAttributeValue("AXParent")
+                app_elm = window_elm.get_attribute_value("AXParent")
                 if app_elm:
-                    app_title = app_elm.getAttributeValue("AXTitle")
+                    app_title = app_elm.get_attribute_value("AXTitle")
                     return app_title in ("Terminal", "iTerm2")
             return False
         except KeyError:
