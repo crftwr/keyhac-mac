@@ -443,9 +443,9 @@ UIElement represents multiple types of elements on your system like:
 - Window 
 - Button 
 
-UIElement has attributes like "AXParent", "AXChildren", "AXRole", "AXPosition" and so on. You can get these attribute values by getAttributeValue(). And you can also set some of these attribute values by setAttributeValue(). 
+UIElement has attributes like "AXParent", "AXChildren", "AXRole", "AXPosition" and so on. You can get these attribute values by get_attribute_value(). And you can also set some of these attribute values by set_attribute_value(). 
 
-You can also interact with UIElements using performAction().  For example, you can click buttons by `elm.performAction("AXPress")`. 
+You can also interact with UIElements using perform_action().  For example, you can click buttons by `elm.perform_action("AXPress")`. 
 
 It is a wrapper of macOS's accessibility object. 
 
@@ -454,10 +454,10 @@ It is a wrapper of macOS's accessibility object.
 
 ---
 
-## <kbd>method</kbd> `UIElement.getActionNames`
+## <kbd>method</kbd> `UIElement.get_action_names`
 
 ```python
-getActionNames() → [<class 'str'>]
+get_action_names() → [<class 'str'>]
 ```
 
 Get a list of action names this UI element can perform. 
@@ -469,10 +469,10 @@ Get a list of action names this UI element can perform.
 
 ---
 
-## <kbd>method</kbd> `UIElement.getAttributeNames`
+## <kbd>method</kbd> `UIElement.get_attribute_names`
 
 ```python
-getAttributeNames() → [<class 'str'>]
+get_attribute_names() → [<class 'str'>]
 ```
 
 Get a list of attribute names this UI element has. 
@@ -484,10 +484,10 @@ Get a list of attribute names this UI element has.
 
 ---
 
-## <kbd>method</kbd> `UIElement.getAttributeValue`
+## <kbd>method</kbd> `UIElement.get_attribute_value`
 
 ```python
-getAttributeValue(name: str) → Any
+get_attribute_value(name: str) → Any
 ```
 
 Get the value of an attribute. 
@@ -505,30 +505,30 @@ Get the value of an attribute.
 
 ---
 
-## <kbd>method</kbd> `UIElement.getFocusedApplication`
+## <kbd>method</kbd> `UIElement.get_focused_application`
 
 ```python
-getFocusedApplication()
+get_focused_application()
 ```
 
 Get current focused application as a UIElement object. 
 
 ---
 
-## <kbd>method</kbd> `UIElement.getRunningApplications`
+## <kbd>method</kbd> `UIElement.get_running_applications`
 
 ```python
-getRunningApplications()
+get_running_applications()
 ```
 
 Get currently running applications in a list of UIElements. 
 
 ---
 
-## <kbd>method</kbd> `UIElement.performAction`
+## <kbd>method</kbd> `UIElement.perform_action`
 
 ```python
-performAction(name: str) → None
+perform_action(name: str) → None
 ```
 
 Perform an action on this UI element. 
@@ -541,10 +541,10 @@ Perform an action on this UI element.
 
 ---
 
-## <kbd>method</kbd> `UIElement.setAttributeValue`
+## <kbd>method</kbd> `UIElement.set_attribute_value`
 
 ```python
-setAttributeValue(name: str, value: Any) → None
+set_attribute_value(name: str, value: Any) → None
 ```
 
 Set value of an attribute. 
@@ -570,10 +570,10 @@ Set value of an attribute.
 
 ---
 
-## <kbd>method</kbd> `Console.setText`
+## <kbd>method</kbd> `Console.set_text`
 
 ```python
-setText(name: str, text: str)
+set_text(name: str, text: str)
 ```
 
 Set a text for special text field. 
@@ -620,10 +620,10 @@ Keyhac core hook system.
 
 ---
 
-## <kbd>method</kbd> `Hook.sendKeyboardEvent`
+## <kbd>method</kbd> `Hook.send_keyboard_event`
 
 ```python
-sendKeyboardEvent(event_type: str, key: int) → None
+send_keyboard_event(event_type: str, key: int) → None
 ```
 
 Send a virtual key input event. 
@@ -639,10 +639,10 @@ Keyhac automatically handles virtual key inputs via InputContext class. So you d
 
 ---
 
-## <kbd>method</kbd> `Hook.setCallback`
+## <kbd>method</kbd> `Hook.set_callback`
 
 ```python
-setCallback(name: str, func: collections.abc.Callable) → None
+set_callback(name: str, func: collections.abc.Callable) → None
 ```
 
 Set a callback to Keyhac's core hook system. 
