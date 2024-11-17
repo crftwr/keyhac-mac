@@ -1,3 +1,7 @@
+"""
+A module containing key action classes
+"""
+
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 import keyhac_console
@@ -5,6 +9,14 @@ import keyhac_console
 logger = keyhac_console.getLogger("Action")
 
 class ThreadedAction:
+
+    """
+    Base class for threaded actions.
+
+    To define your own threaded action class, deribe the ThreadedAction and implement starting, run, and finished methods.
+    run() is executed in a thread, and is for time consuming tasks.
+    starting() and finished() are for light-weight tasks for before and after the time consuming task.
+    """
 
     thread_pool = ThreadPoolExecutor(max_workers=16)
 

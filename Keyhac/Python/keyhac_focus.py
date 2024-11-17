@@ -6,6 +6,13 @@ logger = keyhac_console.getLogger("Focus")
 
 class FocusCondition:
 
+    """
+    A class to define keyboard focus condition
+
+    :param focus_path_pattern focus path pattern string with wildcards
+    :param custom_condition_func a function to define custom focus condition
+    """
+
     def __init__( self, focus_path_pattern=None, custom_condition_func=None ):
         self.focus_path_pattern = focus_path_pattern
         self.custom_condition_func = custom_condition_func
