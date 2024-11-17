@@ -1,5 +1,8 @@
 
-# <kbd>class</kbd> `Keymap`
+## Keyhac API reference
+---
+
+### <kbd>class</kbd> `Keymap`
 A keymap management class. Keymap class manages key-tables and executes key action translations. 
 
 ### <kbd>method</kbd> `Keymap.__init__`
@@ -13,7 +16,7 @@ Initializes keymap object.
 
 ---
 
-### <kbd>property</kbd> Keymap.focus
+##### <kbd>property</kbd> Keymap.focus
 
 Current focused UI element 
 
@@ -21,7 +24,7 @@ Current focused UI element
 
 ---
 
-## <kbd>method</kbd> `Keymap.configure`
+#### <kbd>method</kbd> `Keymap.configure`
 
 ```python
 configure()
@@ -31,7 +34,7 @@ Reload configuration file and reconfigure the keymap.
 
 ---
 
-## <kbd>method</kbd> `Keymap.define_keytable`
+#### <kbd>method</kbd> `Keymap.define_keytable`
 
 ```python
 define_keytable(
@@ -62,7 +65,7 @@ When focus_path_pattern and custom_condition_func were not specified, the key ta
 
 ---
 
-## <kbd>method</kbd> `Keymap.define_modifier`
+#### <kbd>method</kbd> `Keymap.define_modifier`
 
 ```python
 define_modifier(key: str | int, mod: str | int) → None
@@ -79,7 +82,7 @@ Define a user modifier key.
 
 ---
 
-## <kbd>method</kbd> `Keymap.getInstance`
+#### <kbd>method</kbd> `Keymap.getInstance`
 
 ```python
 getInstance()
@@ -94,7 +97,7 @@ Get the Keymap singleton instance.
 
 ---
 
-## <kbd>method</kbd> `Keymap.get_input_context`
+#### <kbd>method</kbd> `Keymap.get_input_context`
 
 ```python
 get_input_context() → InputContext
@@ -102,20 +105,18 @@ get_input_context() → InputContext
 
 Get a key input context to send virtual key input sequence. 
 
+Use this method to programmatically decide what virtual keys to send and avoid instantiating InputContext class directly. 
+
+Using get_input_context(), InputContext object is initialized correctly based on the current key status. 
 
 
-**Note:**
-
-> Use this method to programmatically decide what virtual keys to send and avoid instantiating InputContext class directly. 
->Using get_input_context(), InputContext object is initialized correctly based on the current key status. 
->
 
 **Returns:**
   Key input context 
 
 ---
 
-## <kbd>method</kbd> `Keymap.replace_key`
+#### <kbd>method</kbd> `Keymap.replace_key`
 
 ```python
 replace_key(src: str | int, dst: str | int) → None
@@ -134,7 +135,7 @@ Replace a key with a different key.
 ---
 
 
-# <kbd>class</kbd> `KeyTable`
+### <kbd>class</kbd> `KeyTable`
 A key table class 
 
 KeyTable object can be used like a dictionary, to assign input key conditions to output key actions. 
@@ -156,7 +157,7 @@ __init__(name=None)
 ---
 
 
-# <kbd>class</kbd> `KeyCondition`
+### <kbd>class</kbd> `KeyCondition`
 A key condition class. 
 
 KeyCondition class is used to represent a single key stroke. It also provides ways to convert string expressions and internal key codes. 
@@ -183,7 +184,7 @@ Initializes a key condition object.
 
 ---
 
-## <kbd>method</kbd> `KeyCondition.from_str`
+#### <kbd>method</kbd> `KeyCondition.from_str`
 
 ```python
 from_str(s: str)
@@ -207,7 +208,7 @@ Create a key condition from a string expression
 
 ---
 
-## <kbd>method</kbd> `KeyCondition.init_vk_str_tables`
+#### <kbd>method</kbd> `KeyCondition.init_vk_str_tables`
 
 ```python
 init_vk_str_tables() → None
@@ -217,7 +218,7 @@ Detect keyboard type and initialize internal key code translation tables.
 
 ---
 
-## <kbd>method</kbd> `KeyCondition.mod_eq`
+#### <kbd>method</kbd> `KeyCondition.mod_eq`
 
 ```python
 mod_eq(mod1, mod2)
@@ -229,7 +230,7 @@ mod_eq(mod1, mod2)
 
 ---
 
-## <kbd>method</kbd> `KeyCondition.str_to_mod`
+#### <kbd>method</kbd> `KeyCondition.str_to_mod`
 
 ```python
 str_to_mod(name, force_LR=False)
@@ -251,7 +252,7 @@ Convert a string expression of a modifier key to modifier bits
 
 ---
 
-## <kbd>method</kbd> `KeyCondition.str_to_vk`
+#### <kbd>method</kbd> `KeyCondition.str_to_vk`
 
 ```python
 str_to_vk(name: str) → int
@@ -272,7 +273,7 @@ Convert a string expression of a key to key code
 
 ---
 
-## <kbd>method</kbd> `KeyCondition.vk_to_str`
+#### <kbd>method</kbd> `KeyCondition.vk_to_str`
 
 ```python
 vk_to_str(vk: int) → str
@@ -295,7 +296,7 @@ Convert a key code to a string expression of the key
 ---
 
 
-# <kbd>class</kbd> `FocusCondition`
+### <kbd>class</kbd> `FocusCondition`
 A class to define keyboard focus condition 
 
 ### <kbd>method</kbd> `FocusCondition.__init__`
@@ -321,7 +322,7 @@ Initialize the focus condition.
 
 ---
 
-## <kbd>method</kbd> `FocusCondition.check`
+#### <kbd>method</kbd> `FocusCondition.check`
 
 ```python
 check(focus_path: str, focus_elm: keyhac_core.UIElement) → bool
@@ -343,7 +344,7 @@ Check if the current focus meets the condition.
 
 ---
 
-## <kbd>method</kbd> `FocusCondition.get_focus_path`
+#### <kbd>method</kbd> `FocusCondition.get_focus_path`
 
 ```python
 get_focus_path(elm: keyhac_core.UIElement) → str
@@ -366,7 +367,7 @@ Get a string representation for the focused UI element.
 ---
 
 
-# <kbd>class</kbd> `MoveWindow`
+### <kbd>class</kbd> `MoveWindow`
 A key action class to move focused window 
 
 ### <kbd>method</kbd> `MoveWindow.__init__`
@@ -391,7 +392,7 @@ Initializes the action object.
 ---
 
 
-# <kbd>class</kbd> `LaunchApplication`
+### <kbd>class</kbd> `LaunchApplication`
 A key action class to launch an application. 
 
 This action launches the application you specified if it is not running yet. If the application is already running, macOS automatically make it foreground. 
@@ -415,7 +416,7 @@ Initializes the action object.
 
 ---
 
-## <kbd>method</kbd> `LaunchApplication.finished`
+#### <kbd>method</kbd> `LaunchApplication.finished`
 
 ```python
 finished(result: Any) → None
@@ -431,7 +432,7 @@ Virtual method called after run() finished.
 
 ---
 
-## <kbd>method</kbd> `LaunchApplication.run`
+#### <kbd>method</kbd> `LaunchApplication.run`
 
 ```python
 run()
@@ -443,7 +444,7 @@ run()
 
 ---
 
-## <kbd>method</kbd> `LaunchApplication.starting`
+#### <kbd>method</kbd> `LaunchApplication.starting`
 
 ```python
 starting()
@@ -455,7 +456,7 @@ Virtual method called immediately when the action is triggered.
 ---
 
 
-# <kbd>class</kbd> `ThreadedAction`
+### <kbd>class</kbd> `ThreadedAction`
 Base class for threaded actions. 
 
 To run a time consuming task as an output key action, you need to use threads. ThreadedAction helps to define threaded action classes easily. 
@@ -477,7 +478,7 @@ __init__()
 
 ---
 
-## <kbd>method</kbd> `ThreadedAction.finished`
+#### <kbd>method</kbd> `ThreadedAction.finished`
 
 ```python
 finished(result: Any) → None
@@ -493,7 +494,7 @@ Virtual method called after run() finished.
 
 ---
 
-## <kbd>method</kbd> `ThreadedAction.run`
+#### <kbd>method</kbd> `ThreadedAction.run`
 
 ```python
 run() → Any
@@ -510,7 +511,7 @@ This method can include time consuming tasks.
 
 ---
 
-## <kbd>method</kbd> `ThreadedAction.starting`
+#### <kbd>method</kbd> `ThreadedAction.starting`
 
 ```python
 starting()
@@ -522,7 +523,7 @@ Virtual method called immediately when the action is triggered.
 ---
 
 
-# <kbd>class</kbd> `UIElement`
+### <kbd>class</kbd> `UIElement`
 UI element class 
 
 UIElement represents multiple types of elements on your system like: 
@@ -543,7 +544,7 @@ It is a wrapper of macOS's accessibility object.
 
 ---
 
-## <kbd>method</kbd> `UIElement.get_action_names`
+#### <kbd>method</kbd> `UIElement.get_action_names`
 
 ```python
 get_action_names() → [<class 'str'>]
@@ -558,7 +559,7 @@ Get a list of action names this UI element can perform.
 
 ---
 
-## <kbd>method</kbd> `UIElement.get_attribute_names`
+#### <kbd>method</kbd> `UIElement.get_attribute_names`
 
 ```python
 get_attribute_names() → [<class 'str'>]
@@ -573,7 +574,7 @@ Get a list of attribute names this UI element has.
 
 ---
 
-## <kbd>method</kbd> `UIElement.get_attribute_value`
+#### <kbd>method</kbd> `UIElement.get_attribute_value`
 
 ```python
 get_attribute_value(name: str) → Any
@@ -594,7 +595,7 @@ Get the value of an attribute.
 
 ---
 
-## <kbd>method</kbd> `UIElement.get_focused_application`
+#### <kbd>method</kbd> `UIElement.get_focused_application`
 
 ```python
 get_focused_application()
@@ -604,7 +605,7 @@ Get current focused application as a UIElement object.
 
 ---
 
-## <kbd>method</kbd> `UIElement.get_running_applications`
+#### <kbd>method</kbd> `UIElement.get_running_applications`
 
 ```python
 get_running_applications()
@@ -614,7 +615,7 @@ Get currently running applications in a list of UIElements.
 
 ---
 
-## <kbd>method</kbd> `UIElement.perform_action`
+#### <kbd>method</kbd> `UIElement.perform_action`
 
 ```python
 perform_action(name: str) → None
@@ -630,7 +631,7 @@ Perform an action on this UI element.
 
 ---
 
-## <kbd>method</kbd> `UIElement.set_attribute_value`
+#### <kbd>method</kbd> `UIElement.set_attribute_value`
 
 ```python
 set_attribute_value(name: str, value: Any) → None
@@ -649,7 +650,7 @@ Set value of an attribute.
 ---
 
 
-# <kbd>class</kbd> `Console`
+### <kbd>class</kbd> `Console`
 
 
 
@@ -659,7 +660,7 @@ Set value of an attribute.
 
 ---
 
-## <kbd>method</kbd> `Console.set_text`
+#### <kbd>method</kbd> `Console.set_text`
 
 ```python
 set_text(name: str, text: str)
@@ -678,7 +679,7 @@ Keyhac automatically use this API to update the "Last key"  and "Focus path" fie
 
 ---
 
-## <kbd>method</kbd> `Console.write`
+#### <kbd>method</kbd> `Console.write`
 
 ```python
 write(s: str, log_level: int = 100) → None
@@ -701,7 +702,7 @@ You can also use Logger object from getLogger() to write logs to the Keyhac Cons
 ---
 
 
-# <kbd>class</kbd> `Hook`
+### <kbd>class</kbd> `Hook`
 Keyhac core hook system. 
 
 
@@ -709,7 +710,7 @@ Keyhac core hook system.
 
 ---
 
-## <kbd>method</kbd> `Hook.send_keyboard_event`
+#### <kbd>method</kbd> `Hook.send_keyboard_event`
 
 ```python
 send_keyboard_event(event_type: str, key: int) → None
@@ -728,7 +729,7 @@ Keyhac automatically handles virtual key inputs via InputContext class. So you d
 
 ---
 
-## <kbd>method</kbd> `Hook.set_callback`
+#### <kbd>method</kbd> `Hook.set_callback`
 
 ```python
 set_callback(name: str, func: collections.abc.Callable) → None
@@ -749,7 +750,7 @@ Keyhac automatically sets callbacks to the core hook system. So you don't usuall
 ---
 
 
-# <kbd>function</kbd> `getLogger`
+### <kbd>function</kbd> `getLogger`
 
 ```python
 getLogger(name: str) → Logger
@@ -772,3 +773,5 @@ If there is an existing Logger with the same name, the existing logger returns.
 
 ---
 
+
+Copyright 2024 craftware@gmail.com. All rights reserved.

@@ -10,6 +10,17 @@ sys.path.insert(0, os.path.join(this_directory, "../DocumentSource"))
 
 generator = MarkdownGenerator()
 
+
+header = """
+## Keyhac API reference
+---
+"""
+
+footer = """
+Copyright 2024 craftware@gmail.com. All rights reserved.
+"""
+
+
 import keyhac
 
 api_names = [
@@ -34,7 +45,7 @@ for api_name in api_names:
 
     api_obj = getattr(keyhac, api_name)
 
-    markdown = generator.import2md(api_obj)
+    markdown = generator.import2md(api_obj, depth=3)
 
     for line in markdown.splitlines(keepends=True):
         lines.append(line)
@@ -46,7 +57,9 @@ for api_name in api_names:
 output_filename = os.path.join(this_directory, "../../docs/api_reference.md")
 
 with open(output_filename, "w") as fd:
+    fd.write(header)
     for line in lines:
         fd.write(line)
+    fd.write(footer)
 
 print(f"Wrote {os.path.abspath(output_filename)}")
