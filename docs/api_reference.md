@@ -570,27 +570,91 @@ Set value of an attribute.
 
 ---
 
+## <kbd>method</kbd> `Console.setText`
+
+```python
+setText(name: str, text: str)
+```
+
+Set a text for special text field. 
+
+Keyhac automatically use this API to update the "Last key"  and "Focus path" field in the Keyhac Console window. So you don't usually have to use this API directly. 
+
+
+
+**Args:**
+ 
+ - <b>`name`</b>:  "lastKey" or "focusPath" 
+ - <b>`text`</b>:  Contents of the special text field. 
+
+---
+
 ## <kbd>method</kbd> `Console.write`
 
 ```python
-write(s)
+write(s: str, log_level: int = 100) → None
 ```
 
+Write log to Keyhac Console. 
+
+Keyhac automatically redirect sys.stdout / sys.stderr to the Keyhac Console. So you don't usually have to use this API directly. 
+
+You can also use Logger object from getLogger() to write logs to the Keyhac Console. 
 
 
 
+**Args:**
+ 
+ - <b>`s`</b>:  Log message. 
+ - <b>`log_level`</b>:  Log level. 
 
 
 ---
 
 
 # <kbd>class</kbd> `Hook`
+Keyhac core hook system. 
 
 
 
 
+---
+
+## <kbd>method</kbd> `Hook.sendKeyboardEvent`
+
+```python
+sendKeyboardEvent(event_type: str, key: int) → None
+```
+
+Send a virtual key input event. 
+
+Keyhac automatically handles virtual key inputs via InputContext class. So you don't usually have to use this API directly. 
 
 
+
+**Args:**
+ 
+ - <b>`event_type`</b>:  "keyDown" or "keyUp" 
+ - <b>`key`</b>:  keyCode 
+
+---
+
+## <kbd>method</kbd> `Hook.setCallback`
+
+```python
+setCallback(name: str, func: collections.abc.Callable) → None
+```
+
+Set a callback to Keyhac's core hook system. 
+
+Keyhac automatically sets callbacks to the core hook system. So you don't usually have to use this API directly. 
+
+
+
+**Args:**
+ 
+ - <b>`name`</b>:  name of the hook. Currently only "Keyboard" is supported. 
+ - <b>`func`</b>:  callback function 
 
 
 ---

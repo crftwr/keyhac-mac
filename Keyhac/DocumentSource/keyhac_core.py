@@ -1,7 +1,38 @@
 from typing import Any
+from collections.abc import Callable
+
 
 class Hook:
-    pass
+
+    """
+    Keyhac core hook system.
+    """
+
+    @staticmethod
+    def setCallback(name: str, func: Callable) -> None:
+        """
+        Set a callback to Keyhac's core hook system.
+
+        Keyhac automatically sets callbacks to the core hook system.
+        So you don't usually have to use this API directly.
+
+        Args:
+            name: name of the hook. Currently only "Keyboard" is supported.
+            func: callback function
+        """
+
+    @staticmethod
+    def sendKeyboardEvent(event_type: str, key: int) -> None:
+        """
+        Send a virtual key input event.
+
+        Keyhac automatically handles virtual key inputs via InputContext class.
+        So you don't usually have to use this API directly.
+
+        Args:
+            event_type: "keyDown" or "keyUp"
+            key: keyCode
+        """
 
 class UIElement:
 
@@ -81,6 +112,32 @@ class UIElement:
         """
 
 class Console:
+    
     @staticmethod
-    def write(s):
-        pass
+    def write(s: str, log_level: int = 100) -> None:
+        """
+        Write log to Keyhac Console.
+
+        Keyhac automatically redirect sys.stdout / sys.stderr to the Keyhac Console.
+        So you don't usually have to use this API directly.
+
+        You can also use Logger object from getLogger() to write logs to the Keyhac Console.
+
+        Args:
+            s: Log message.
+            log_level: Log level.
+        """
+
+    @staticmethod
+    def setText(name: str, text: str):
+        """
+        Set a text for special text field.
+
+        Keyhac automatically use this API to update the "Last key" 
+        and "Focus path" field in the Keyhac Console window.
+        So you don't usually have to use this API directly.
+
+        Args:
+            name: "lastKey" or "focusPath"
+            text: Contents of the special text field.
+        """
