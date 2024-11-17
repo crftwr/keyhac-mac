@@ -131,10 +131,13 @@ Replace a key with a different key.
  - <b>`dst`</b>:  New meaning of the key 
 
 
+---
+
+
 # <kbd>class</kbd> `KeyTable`
+A key table class 
 
-
-
+KeyTable object can be used like a dictionary, to assign input key conditions to output key actions. 
 
 ### <kbd>method</kbd> `KeyTable.__init__`
 
@@ -150,20 +153,30 @@ __init__(name=None)
 
 
 
+---
+
+
 # <kbd>class</kbd> `KeyCondition`
+A key condition class. 
 
-
-
+KeyCondition class is used to represent a single key stroke. It also provides ways to convert string expressions and internal key codes. 
 
 ### <kbd>method</kbd> `KeyCondition.__init__`
 
 ```python
-__init__(vk, mod=0, down=True, oneshot=False)
+__init__(vk: int, mod: int = 0, down: bool = True, oneshot: bool = False)
 ```
 
+Initializes a key condition object. 
 
 
 
+**Args:**
+ 
+ - <b>`vk`</b>:  Key code. 
+ - <b>`mod`</b>:  Modifier key bits. 
+ - <b>`down`</b>:  Key down or up. 
+ - <b>`oneshot`</b>:  One-shot key. 
 
 
 
@@ -173,24 +186,34 @@ __init__(vk, mod=0, down=True, oneshot=False)
 ## <kbd>method</kbd> `KeyCondition.from_str`
 
 ```python
-from_str(s)
+from_str(s: str)
 ```
 
+Create a key condition from a string expression 
 
 
 
+**Args:**
+ 
+ - <b>`vk`</b>:  Key code. 
+ - <b>`mod`</b>:  Modifier key bits. 
+ - <b>`down`</b>:  Key down or up. 
+ - <b>`oneshot`</b>:  One-shot key. 
+
+
+
+**Returns:**
+ KeyCondition object created 
 
 ---
 
 ## <kbd>method</kbd> `KeyCondition.init_vk_str_tables`
 
 ```python
-init_vk_str_tables()
+init_vk_str_tables() → None
 ```
 
-
-
-
+Detect keyboard type and initialize internal key code translation tables. 
 
 ---
 
@@ -212,9 +235,19 @@ mod_eq(mod1, mod2)
 str_to_mod(name, force_LR=False)
 ```
 
+Convert a string expression of a modifier key to modifier bits 
 
 
 
+**Args:**
+ 
+ - <b>`name`</b>:  Name of the modifier key. 
+ - <b>`force_LR`</b>:  Whether distinguish left/right variations of the modifier keys 
+
+
+
+**Returns:**
+ Modifier bits. 
 
 ---
 
@@ -224,9 +257,18 @@ str_to_mod(name, force_LR=False)
 str_to_vk(name: str) → int
 ```
 
+Convert a string expression of a key to key code 
 
 
 
+**Args:**
+ 
+ - <b>`name`</b>:  Name of the key. 
+
+
+
+**Returns:**
+ Key code of the key. 
 
 ---
 
@@ -236,9 +278,21 @@ str_to_vk(name: str) → int
 vk_to_str(vk: int) → str
 ```
 
+Convert a key code to a string expression of the key 
 
 
 
+**Args:**
+ 
+ - <b>`vk`</b>:  Key code 
+
+
+
+**Returns:**
+ String expression of the key 
+
+
+---
 
 
 # <kbd>class</kbd> `FocusCondition`
@@ -295,7 +349,7 @@ Check if the current focus meets the condition.
 get_focus_path(elm: keyhac_core.UIElement) → str
 ```
 
-[Static method] Get a string representation for the focused UI element. 
+Get a string representation for the focused UI element. 
 
 
 
@@ -309,10 +363,15 @@ get_focus_path(elm: keyhac_core.UIElement) → str
  Focus path string. 
 
 
+---
+
+
 # <kbd>class</kbd> `ThreadedAction`
 Base class for threaded actions. 
 
-To define your own threaded action class, deribe the ThreadedAction and implement starting, run, and finished methods. run() is executed in a thread, and is for time consuming tasks. starting() and finished() are for light-weight tasks for before and after the time consuming task. 
+To run a time consuming task as an output key action, you need to use threads. ThreadedAction helps to define threaded action classes easily. 
+
+To define your own threaded action class, derive the ThreadedAction class and implement starting(), run(), and finished() methods. run() is executed in a thread pool for time consuming tasks. starting() and finished() are for light-weight tasks  and they are executed before and after run(). 
 
 ### <kbd>method</kbd> `ThreadedAction.__init__`
 
@@ -332,24 +391,33 @@ __init__()
 ## <kbd>method</kbd> `ThreadedAction.finished`
 
 ```python
-finished(result)
+finished(result: Any) → None
 ```
 
+Virtual method called after run() finished. 
 
 
 
+**Args:**
+ 
+ - <b>`result`</b>:  returned value from run(). 
 
 ---
 
 ## <kbd>method</kbd> `ThreadedAction.run`
 
 ```python
-run()
+run() → Any
 ```
 
+Virtual method called in the thread pool. 
+
+This method can include time consuming tasks. 
 
 
 
+**Returns:**
+  Any types of objects 
 
 ---
 
@@ -359,9 +427,10 @@ run()
 starting()
 ```
 
+Virtual method called immediately when the action is triggered. 
 
 
-
+---
 
 
 # <kbd>class</kbd> `UIElement`
@@ -371,6 +440,9 @@ starting()
 
 
 
+
+
+---
 
 
 # <kbd>class</kbd> `Console`
@@ -394,6 +466,9 @@ write(s)
 
 
 
+---
+
+
 # <kbd>class</kbd> `Hook`
 
 
@@ -403,12 +478,29 @@ write(s)
 
 
 
+---
+
+
 # <kbd>function</kbd> `getLogger`
 
 ```python
-getLogger(name)
+getLogger(name: str) → Logger
 ```
 
+Create a logger configured for Keyhac Console. 
+
+If there is an existing Logger with the same name, the existing logger returns. 
 
 
+
+**Args:**
+ 
+ - <b>`name`</b>:  name of the logger. 
+
+
+
+**Returns:**
+ Logger object. 
+
+---
 

@@ -56,7 +56,7 @@ class FocusCondition:
     def get_focus_path(elm: UIElement) -> str:
 
         """
-        [Static method] Get a string representation for the focused UI element.
+        Get a string representation for the focused UI element.
 
         Args:
             elm: Focused UI element.

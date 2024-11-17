@@ -36,6 +36,10 @@ for api_name in api_names:
     for line in markdown.splitlines(keepends=True):
         lines.append(line)
 
+    lines.append("\n")
+    lines.append("---\n")
+    lines.append("\n")
+
 output_filename = "../docs/api_reference.md"
 
 with open(output_filename, "w") as fd:

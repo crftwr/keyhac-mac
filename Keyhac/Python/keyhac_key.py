@@ -5,6 +5,13 @@ logger = keyhac_console.getLogger("Key")
 
 class KeyCondition:
 
+    """
+    A key condition class.
+
+    KeyCondition class is used to represent a single key stroke.
+    It also provides ways to convert string expressions and internal key codes.
+    """
+
     vk_str_table = {}
     str_vk_table = {}
 
@@ -330,8 +337,18 @@ class KeyCondition:
         "RUSER1" :  MODKEY_USER1_R,
     }
 
-    def __init__( self, vk, mod=0, down=True, oneshot=False ):
-        if type(vk)==str and len(vk)==1: vk=ord(vk)
+    def __init__( self, vk: int, mod: int = 0, down: bool = True, oneshot: bool = False ):
+
+        """
+        Initializes a key condition object.
+
+        Args:
+            vk: Key code.
+            mod: Modifier key bits.
+            down: Key down or up.
+            oneshot: One-shot key.
+        """
+
         self.vk = vk
         self.mod = mod
         self.down = down
@@ -395,7 +412,20 @@ class KeyCondition:
         return s
 
     @staticmethod
-    def from_str(s):
+    def from_str(s: str):
+
+        """
+        Create a key condition from a string expression
+
+        Args:
+            vk: Key code.
+            mod: Modifier key bits.
+            down: Key down or up.
+            oneshot: One-shot key.
+
+        Returns:
+            KeyCondition object created
+        """
 
         s = s.upper()
 
@@ -429,7 +459,11 @@ class KeyCondition:
         return KeyCondition( vk, mod, down=down, oneshot=oneshot )
 
     @staticmethod
-    def init_vk_str_tables():
+    def init_vk_str_tables() -> None:
+
+        """
+        Detect keyboard type and initialize internal key code translation tables.
+        """
 
         # FIXME: detect keyboard type
         keyboard_type = 0
@@ -446,6 +480,17 @@ class KeyCondition:
 
     @staticmethod
     def str_to_vk(name: str) -> int:
+
+        """
+        Convert a string expression of a key to key code
+
+        Args:
+            name: Name of the key.
+
+        Returns:
+            Key code of the key.
+        """
+
         try:
             vk = KeyCondition.str_vk_table[name.upper()]
         except KeyError:
@@ -457,6 +502,17 @@ class KeyCondition:
 
     @staticmethod
     def vk_to_str(vk: int) -> str:
+
+        """
+        Convert a key code to a string expression of the key
+
+        Args:
+            vk: Key code
+
+        Returns:
+            String expression of the key
+        """
+
         try:
             name = KeyCondition.vk_str_table[vk]
         except KeyError:
@@ -465,6 +521,18 @@ class KeyCondition:
 
     @staticmethod
     def str_to_mod( name, force_LR=False ):
+
+        """
+        Convert a string expression of a modifier key to modifier bits
+
+        Args:
+            name: Name of the modifier key.
+            force_LR: Whether distinguish left/right variations of the modifier keys
+
+        Returns:
+            Modifier bits.
+        """
+        
         try:
             mod = KeyCondition.str_mod_table[ name.upper() ]
         except KeyError:
@@ -499,6 +567,12 @@ class KeyCondition:
 
 
 class KeyTable:
+
+    """
+    A key table class
+
+    KeyTable object can be used like a dictionary, to assign input key conditions to output key actions.
+    """
 
     def __init__(self, name=None):
         self.name = name

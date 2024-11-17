@@ -53,15 +53,28 @@ class ConsoleLoggingHandler(logging.Handler):
             self.handleError(record)
 
 
-def getLogger(name):
+def getLogger(name: str) -> logging.Logger:
+
+    """
+    Create a logger configured for Keyhac Console.
+
+    If there is an existing Logger with the same name, the existing logger returns.
+
+    Args:
+        name: name of the logger.
+
+    Returns:
+        Logger object.
+    """
+
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    handler = ConsoleLoggingHandler()
-    handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(levelname)s: %(name)s: %(message)s")
-    handler.setFormatter(formatter)
-    logger.handlers.clear()
-    logger.addHandler(handler)
+    if not logger.handlers:
+        handler = ConsoleLoggingHandler()
+        handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter("%(levelname)s: %(name)s: %(message)s")
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
     return logger
 
 

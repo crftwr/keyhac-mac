@@ -47,6 +47,7 @@ def configure(keymap):
         def run(self):
             logger.info("ThreadedActionTest running")
             time.sleep(3)
+            return True
 
         def finished(self, result):
             logger.info(f"ThreadedActionTest finished. result={result}")
