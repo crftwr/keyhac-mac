@@ -66,11 +66,11 @@ If you need your own logic for checking the focus condition, you can pass a func
 ``` python
 def is_terminal_window(elm):
     try:
-        window_elm = elm.getAttributeValue("AXWindow")
+        window_elm = elm.get_attribute_value("AXWindow")
         if window_elm:
-            app_elm = window_elm.getAttributeValue("AXParent")
+            app_elm = window_elm.get_attribute_value("AXParent")
             if app_elm:
-                app_title = app_elm.getAttributeValue("AXTitle")
+                app_title = app_elm.get_attribute_value("AXTitle")
                 return app_title in ("Terminal", "iTerm2")
         return False
     except KeyError:
@@ -131,17 +131,17 @@ class MoveWindow:
         elm = keymap.focus
 
         while elm:
-            role = elm.getAttributeValue("AXRole")
+            role = elm.get_attribute_value("AXRole")
             if role=="AXWindow":
                 break
-            elm = elm.getAttributeValue("AXParent")
+            elm = elm.get_attribute_value("AXParent")
 
         if elm:
-            names = elm.getAttributeNames()
-            pos = elm.getAttributeValue("AXPosition")
+            names = elm.get_attribute_names()
+            pos = elm.get_attribute_value("AXPosition")
             pos[0] += self.x
             pos[1] += self.y
-            elm.setAttributeValue("AXPosition", "point", pos)
+            elm.set_attribute_value("AXPosition", "point", pos)
 
 keytable_global["User0-Left"]  = MoveWindow(-10,0)
 keytable_global["User0-Right"] = MoveWindow(+10,0)
@@ -240,17 +240,17 @@ def zoom_window():
     elm = keymap.focus
 
     while elm:
-        role = elm.getAttributeValue("AXRole")
+        role = elm.get_attribute_value("AXRole")
         if role=="AXWindow":
             break
-        elm = elm.getAttributeValue("AXParent")
+        elm = elm.get_attribute_value("AXParent")
 
     if elm:
-        names = elm.getAttributeNames()
+        names = elm.get_attribute_names()
         if "AXZoomButton" in names:
-            elm = elm.getAttributeValue("AXZoomButton")
+            elm = elm.get_attribute_value("AXZoomButton")
             if elm:
-                actions = elm.getActionNames()
+                actions = elm.get_action_names()
                 elm.performAction("AXPress")
 
 keytable_global["Fn-M"] = zoom_window
