@@ -81,11 +81,13 @@ def configure(keymap):
 
         elm = keymap.focus
 
-        if "AXSelectedText" in elm.getAttributeNames():
-            words = elm.getAttributeValue("AXSelectedText")
+        if "AXSelectedText" in elm.get_attribute_names():
+            words = elm.get_attribute_value("AXSelectedText")
             words = urllib.parse.quote(words)
             cmd = ["open", f"dict://{words}"]
-            subprocess.run(cmd)
+            r = subprocess.run(cmd, capture_output=True, text=True)
+            if r.stdout: logger.info(r.stdout.strip())
+            if r.stderr: logger.error(r.stderr.strip())
 
     keytable_global["User0-D"] = lookup_dictionary
 
@@ -96,49 +98,34 @@ def configure(keymap):
         elm = keymap.focus
 
         while elm:
-            role = elm.getAttributeValue("AXRole")
+            role = elm.get_attribute_value("AXRole")
             if role=="AXWindow":
                 break
-            elm = elm.getAttributeValue("AXParent")
+            elm = elm.get_attribute_value("AXParent")
 
         if elm:
-            names = elm.getAttributeNames()
+            names = elm.get_attribute_names()
             if "AXZoomButton" in names:
-                elm = elm.getAttributeValue("AXZoomButton")
+                elm = elm.get_attribute_value("AXZoomButton")
                 if elm:
-                    actions = elm.getActionNames()
-                    elm.performAction("AXPress")
+                    actions = elm.get_action_names()
+                    elm.perform_action("AXPress")
 
     keytable_global["Fn-M"] = zoom_window
 
     # -----------------------------------------------------
     # User0-Left/Right/Up/Down: Move current active window
-    class MoveWindow:
-        def __init__(self, x, y):
-            self.x = x
-            self.y = y
-
-        def __call__(self):
-
-            elm = keymap.focus
-
-            while elm:
-                role = elm.getAttributeValue("AXRole")
-                if role=="AXWindow":
-                    break
-                elm = elm.getAttributeValue("AXParent")
-
-            if elm:
-                names = elm.getAttributeNames()
-                pos = elm.getAttributeValue("AXPosition")
-                pos[0] += self.x
-                pos[1] += self.y
-                elm.setAttributeValue("AXPosition", "point", pos)
-
     keytable_global["User0-Left"]  = MoveWindow(-10,0)
     keytable_global["User0-Right"] = MoveWindow(+10,0)
     keytable_global["User0-Up"]    = MoveWindow(0,-10)
     keytable_global["User0-Down"]  = MoveWindow(0,+10)
+
+    # -----------------------------------------------------
+    # User0-T/F/C: Launch an applications
+    keytable_global["User0-T"] = LaunchApplication("Terminal.app")
+    keytable_global["User0-F"] = LaunchApplication("ForkLift.app")
+    keytable_global["User0-C"] = LaunchApplication("Visual Studio Code.app")
+    keytable_global["User0-J"] = LaunchApplication("JJJ")
 
 
     # =====================================================
