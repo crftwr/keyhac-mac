@@ -87,7 +87,7 @@ The most basic use of a key-tables is to associate input key condition with outp
 keytable_global["Fn-J"] = "Left"
 ```
 
-Both input key conditions and output keys are expressed as strings formmated as follows.
+Both input key conditions and output keys are expressed as strings format as follows.
 
 ```
 {Modifier1}-{Modifier2}-...{PrimaryKey}
@@ -96,12 +96,14 @@ Both input key conditions and output keys are expressed as strings formmated as 
 Here are some examples:
 
 ``` python
+"A"           # A key
+"Tab"         # Tab key
 "Cmd-X"       # Command + X
 "Shift-Alt-Z" # Shift + Option + Z
 "Fn-A"        # Fn + A
 ```
 
-You can assign multiple keystrokes using a tuple of strings.
+For output key action, you can assign multiple keystrokes using a tuple of key expression strings.
 
 ``` python
 keytable_global["Fn-N"] = "Cmd-1", "Cmd-2", "Cmd-3"
@@ -109,7 +111,7 @@ keytable_global["Fn-N"] = "Cmd-1", "Cmd-2", "Cmd-3"
 
 ## Key -> functions/classes
 
-Keyhac allows you to execute any custom actions by associating a Python callable objects with input key conditions. Below is an example of executing a Python function as an output key action.
+Keyhac allows you to execute any custom actions by associating Python callable objects with input key conditions. Below is an example of executing a Python function when Fn-A is pressed.
 
 ``` python
 def hello_world():
@@ -151,13 +153,13 @@ keytable_global["User0-Down"]  = MoveWindow(0,+10)
 
 ## Multi-stroke key-table
 
-As an advanced feature, Keyhac supports multi-stroke key input by creating a KeyTable with `keymap.define_keytable()` and associating it as an action in another key-table.
+As an advanced feature, Keyhac supports multi-stroke key input by creating a KeyTable with `keymap.define_keytable()` and associating it as an action in the top level key-table.
 
 ``` python
 keytable_xcode["Ctrl-X"] = keymap.define_keytable(name="Ctrl-X")
 ```
 
-In the above example, `Ctrl-X` in `keytable_xcode` is chained to the multi-stroke key-table. To associate a second keystroke condition, you can use the following syntax.
+In the above example, `Ctrl-X` in `keytable_xcode` is associated with the multi-stroke key-table. To associate a second keystroke condition, you can use the following syntax.
 
 ``` python
 keytable_xcode["Ctrl-X"]["Ctrl-O"] = "Cmd-O"
@@ -166,7 +168,7 @@ keytable_xcode["Ctrl-X"]["Ctrl-O"] = "Cmd-O"
 
 ## Replace keys
 
-Keymap has a key replacement table. You can add source and destination key paires using `keymap.replace_key()`.
+Keymap has a key replacement table. You can add source key and destination key using `keymap.replace_key()`.
 
 ``` python
 keymap.replace_key( "RShift", "Back" )
@@ -193,9 +195,9 @@ Defining user modifier keys allows you to use `User0`, `User1` (and left/right s
 
 A "One-shot modifier" is a special key condition that is triggered when the modifier key is pressed and released with no other keys pressed in between.
 
-This is particularly useful if you have defined user modifier keys, but want the key to be used for something else when pressed and released alone.
+This is particularly useful if you have defined a user modifier key, but want the key to be used for something else when pressed and released alone.
 
-You can assign one-shot modifiers to key-tables using the `O-` prefix.
+You can define key input condition with one-shot modifiers using the `O-` prefix.
 
 ``` python
 keytable_global["O-RAlt"] = "Space"
