@@ -1,11 +1,35 @@
 # Keyhac for macOS - User Guide Document
 
+## Welcome to Keyhac
+
+Keyhac is a utility application that allows you to customize keyboard actions for any application using the Python scripting language. It require basic level of Python skills, but it give you full keyboard customization capabilities.
+
+This document provides an overview how to use and configure Keyhac.
+
+## Getting started
+
+1. If you haven't installed Keyhac on your system, see the [README - Download & Install
+](../README.md#download--install) and make sure that small Keyhac icon (in the shape of a keyboard) is displayed at the macOS's menu bar extra area.
+
+1. From the Keyhac icon in the menu bar extra area, select "Open Console" to open the Keyhac Console window.
+
+1. The toggle switch at the top-left of the console window indicates the current keyboard hook status. If it is not turned-on, turn it on.
+
+1. From the Keyhac icon in the menu bar extra area, select "Edit config.py" to open the Keyhac configuration script in a text editor. You can also directly open `~/.keyhac/config.py` in your preferred text editor.
+
+1. If this is the first time to launch Keyhac, the configuration script already contains sample key settings. Reading the sample settings is a good starting point to understand how to configure Keyhac. You can update it as you like.
+
+1. Operate the toggle switch on the console window off -> on, to reload the configuration script and apply the changes in the configuration script. If there are syntax errors in your script, the error message is displayed in the log viewer. Fix the issue, and reload the configuration script.
+
+1. Verify that the configured key behavior is working as expected. For troubleshooting, you can change the "Log level" to "Debug" to see detailed key input and output logs.
+
+
 ## Console Window features
 
 ![](images/console-window-features.png)
 
 
-## Configuration script structure
+## Structure of the configuration script
 
 The configuration file for Keyhac is a Python script (`config.py`) located in `~/.keyhac`.
 
@@ -316,3 +340,6 @@ For more details about UIElement, see the [Keyhac API reference](./api_reference
 | RCmd          | Right Command |
 | Fn            |               |
 | (0) - (255)   | Virtual key code |
+
+---
+Copyright 2024 craftware@gmail.com. All rights reserved.
