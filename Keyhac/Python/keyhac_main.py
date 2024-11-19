@@ -332,12 +332,9 @@ class Keymap:
 
                 key = KeyCondition( vk, self._modifier, down=False )
 
-                if oneshot:
-                    oneshot_key = KeyCondition( vk, self._modifier, down=True, oneshot=True )
-
                 if self._do_configured_key_action(key):
                     return True
-                elif replaced or ( oneshot and self._is_key_configured(oneshot_key) ):
+                elif replaced:
                     with self.get_input_context() as input_ctx:
                         input_ctx.send_key_by_vk( vk, down=False )
                         logger.debug(f"REPLACE  : {input_ctx}")
