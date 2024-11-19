@@ -122,11 +122,12 @@ def configure(keymap):
 
     # -----------------------------------------------------
     # User0-T/F/C: Launch an applications
-    keytable_global["User0-T"] = LaunchApplication("Terminal.app")
     keytable_global["User0-F"] = LaunchApplication("ForkLift.app")
     keytable_global["User0-C"] = LaunchApplication("Visual Studio Code.app")
-    keytable_global["User0-J"] = LaunchApplication("JJJ")
-
+    
+    # -----------------------------------------------------
+    # One-shot RCmd: Launch Terminal
+    keytable_global["O-RCmd"] = LaunchApplication("Terminal.app")
 
     # =====================================================
     # Key table for Xcode
@@ -176,3 +177,8 @@ def configure(keymap):
         print("Hello Terminal!")
 
     keytable_terminal["Fn-A"] = hello_terminal
+
+    # -----------------------------------------------------
+    # One-shot RCmd: Deactivate terminal
+    keytable_terminal["O-RCmd"] = "Cmd-Tab"
+
