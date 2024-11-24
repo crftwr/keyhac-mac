@@ -48,7 +48,7 @@ VK_NUMPAD_CLEAR         = 0x47
 VK_DIVIDE               = 0x4B
 VK_NUMPAD_ENTER         = 0x4C
 VK_SUBTRACT             = 0x4E
-VK_NUMPADEQUAL          = 0x51
+VK_NUMPAD_EQUAL         = 0x51
 VK_NUMPAD0              = 0x52
 VK_NUMPAD1              = 0x53
 VK_NUMPAD2              = 0x54
@@ -115,7 +115,7 @@ VK_ANSI_CLOSEBRACKET    = 0x1E
 VK_ANSI_OPENBRACKET     = 0x21
 VK_ANSI_QUOTE           = 0x27
 VK_ANSI_BACKSLASH       = 0x2A
-VK_ANSI_PLUS            = 0x18
+VK_ANSI_EQUAL           = 0x18
 
 # JIS layout specific
 VK_JIS_OPENBRACKET      = 0x1E

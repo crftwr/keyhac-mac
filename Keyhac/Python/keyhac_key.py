@@ -61,6 +61,7 @@ class KeyCondition:
 
         VK_NUMPAD_CLEAR : "NumClear",
         VK_NUMPAD_ENTER : "NumEnter",
+        VK_NUMPAD_EQUAL : "NumEqual",
         VK_DIVIDE   : "Divide",
         VK_MULTIPLY : "Multiply",
         VK_SUBTRACT : "Subtract",
@@ -137,7 +138,7 @@ class KeyCondition:
         VK_ANSI_BACKSLASH    : "BackSlash",
         VK_ANSI_CLOSEBRACKET : "CloseBracket",
         VK_ANSI_QUOTE   : "Quote",
-        VK_ANSI_PLUS   : "Plus",
+        VK_ANSI_EQUAL   : "Equal",
     }
 
     vk_str_table_jis = {
@@ -198,6 +199,7 @@ class KeyCondition:
 
         "NumClear" : VK_NUMPAD_CLEAR,
         "NumEnter" : VK_NUMPAD_ENTER,
+        "NumEqual" : VK_NUMPAD_EQUAL,
         "DIVIDE"   : VK_DIVIDE,
         "MULTIPLY" : VK_MULTIPLY,
         "SUBTRACT" : VK_SUBTRACT,
@@ -290,7 +292,8 @@ class KeyCondition:
         "ASTERISK"      : VK_8,
         "ATMARK"        : VK_2,
         "CARET"         : VK_6,
-        "PLUS"          : VK_ANSI_PLUS,
+        "EQUAL"         : VK_ANSI_EQUAL,
+        "PLUS"          : VK_ANSI_EQUAL,
     }
 
     str_vk_table_jis = {
@@ -309,6 +312,7 @@ class KeyCondition:
         "ASTERISK"      : VK_JIS_COLON,
         "ATMARK"        : VK_JIS_ATMARK,
         "CARET"         : VK_JIS_CARET,
+        "EQUAL"         : VK_MINUS,
         "PLUS"          : VK_SEMICOLON,
     }
 
