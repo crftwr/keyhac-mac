@@ -279,7 +279,7 @@ class KeyCondition:
         "SEMICOLON"     : VK_SEMICOLON,
         "COLON"         : VK_SEMICOLON,
         "SLASH"         : VK_SLASH,
-        "BACKQUOTE"     : VK_GRAVE,   #"TILDE"         : VK_OEM_3, # FIXME : test on macOS
+        "BACKQUOTE"     : VK_GRAVE,
         "OPENBRACKET"   : VK_OPENBRACKET,
         "BACKSLASH"     : VK_BACKSLASH,
         "YEN"           : VK_BACKSLASH,
