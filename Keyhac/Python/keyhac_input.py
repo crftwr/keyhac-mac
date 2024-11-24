@@ -44,9 +44,11 @@ class InputContext:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self._flush()
-        self._entered = False
-        Hook.release_lock()
+        try:
+            self._flush()
+        finally:
+            self._entered = False
+            Hook.release_lock()
 
     def __str__(self):
         return str(self._input_seq)
