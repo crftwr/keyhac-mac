@@ -62,7 +62,7 @@ public class Hook {
     var eventSource: CGEventSource?
     var sanityCheckTimer: Timer?
     
-    // Event oder handling
+    // Event order handling
     var numPendingVirtualKeyEvents: Int = 0
     var deferredRealKeyEvents: [CGEvent] = []
     
@@ -263,7 +263,7 @@ public class Hook {
         
         TRACE("keyboardCallbackSwift(\(type), \(keyCode), \(keyEventSource))")
         
-        // Event oder handling:
+        // Event order handling:
         // Postpone real events if there are virtual key events pending or if there are preceeding postponed events
         if keyEventSource == .real {
             if numPendingVirtualKeyEvents > 0 || deferredRealKeyEvents.count > 0 {
@@ -349,7 +349,7 @@ public class Hook {
             }
         }
         
-        // Event oder handling:
+        // Event order handling:
         // Process postponed real key events once all virtual key events are done
         if keyEventSource == .virtual {
             assert(numPendingVirtualKeyEvents > 0)
@@ -428,7 +428,7 @@ public class Hook {
         
         if let event = event {
             
-            // Event oder handling:
+            // Event order handling:
             // Count how many virtual key event are pending
             numPendingVirtualKeyEvents += 1
             
