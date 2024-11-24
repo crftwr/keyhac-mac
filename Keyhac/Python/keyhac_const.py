@@ -100,6 +100,7 @@ VK_F17                  = 0x40
 VK_F18                  = 0x4F
 VK_F19                  = 0x50
 VK_F20                  = 0x5A
+VK_MENU                 = 0x6E
 VK_HELP                 = 0x72
 VK_HOME                 = 0x73
 VK_PRIOR                = 0x74

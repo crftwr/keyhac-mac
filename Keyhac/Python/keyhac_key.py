@@ -110,7 +110,7 @@ class KeyCondition:
         VK_RETURN   : "Return",
         VK_ESCAPE   : "Escape",
         VK_CAPITAL  : "CapsLock",
-        #VK_APPS     : "Apps", # FIXME : test on macOS
+        VK_MENU     : "Menu",
 
         #VK_INSERT   : "Insert", # FIXME : test on macOS
         VK_DELETE   : "Delete",
@@ -250,7 +250,7 @@ class KeyCondition:
         "CAPSLOCK" : VK_CAPITAL,
         "CAPS"     : VK_CAPITAL,
         "CAPITAL"  : VK_CAPITAL,
-        #"APPS"     : VK_APPS, # FIXME : test on macOS
+        "MENU"     : VK_MENU,
 
         #"INSERT"   : VK_INSERT, # FIXME : test on macOS
         "DELETE"   : VK_DELETE,
