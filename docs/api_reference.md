@@ -377,7 +377,7 @@ usage:  with keymap.get_input_context() as input_ctx:  input_ctx.send_key("Cmd-L
 ### <kbd>method</kbd> `InputContext.__init__`
 
 ```python
-__init__(real_modifier, vk_mod_map)
+__init__(keymap)
 ```
 
 Initialize the input context. To create InputContext object, use Keymap.get_input_context(). Don't directly use InputContext.__init__(). 
@@ -778,6 +778,47 @@ Keyhac core hook system.
 
 
 
+
+---
+
+#### <kbd>method</kbd> `Hook.acquire_lock`
+
+```python
+acquire_lock() → str
+```
+
+Acquire the lock for hooks. 
+
+Acquire the internal recursive lock object to control exclusive execution with hook functions. Keyhac calls this function automatically to make InputContext thread-safe. 
+
+---
+
+#### <kbd>method</kbd> `Hook.get_keyboard_layout`
+
+```python
+get_keyboard_layout() → str
+```
+
+Get the current keyboard layout. 
+
+Keyhac calls this function automatically and configure the key expression string table. 
+
+
+
+**Returns:**
+  "ansi" / "jis" / "iso" / "unknown" 
+
+---
+
+#### <kbd>method</kbd> `Hook.release_lock`
+
+```python
+release_lock() → str
+```
+
+Release the lock for hooks. 
+
+Release the internal recursive lock object to control exclusive execution with hook functions. Keyhac calls this function automatically to make InputContext thread-safe. 
 
 ---
 

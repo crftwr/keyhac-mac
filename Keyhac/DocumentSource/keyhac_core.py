@@ -34,6 +34,35 @@ class Hook:
             key: keyCode
         """
 
+    @staticmethod
+    def get_keyboard_layout() -> str:
+        """
+        Get the current keyboard layout.
+
+        Keyhac calls this function automatically and configure the key expression string table.
+
+        Returns:
+            "ansi" / "jis" / "iso" / "unknown"
+        """
+
+    @staticmethod
+    def acquire_lock() -> str:
+        """
+        Acquire the lock for hooks.
+
+        Acquire the internal recursive lock object to control exclusive execution with hook functions.
+        Keyhac calls this function automatically to make InputContext thread-safe.
+        """
+
+    @staticmethod
+    def release_lock() -> str:
+        """
+        Release the lock for hooks.
+
+        Release the internal recursive lock object to control exclusive execution with hook functions.
+        Keyhac calls this function automatically to make InputContext thread-safe.
+        """
+
 class UIElement:
 
     """
