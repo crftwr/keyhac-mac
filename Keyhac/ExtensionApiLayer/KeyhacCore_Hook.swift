@@ -60,12 +60,20 @@ public class Hook {
     var eventTap: CFMachPort?
     var runLoopSource: CFRunLoopSource?
     var eventSource: CGEventSource?
-    var sanityCheckTimer: Timer?
+    
+    var timer: Timer?
+    static let timerInterval = 0.0333
+    
+    // Sanity check
+    static let sanityCheckInterval = 1.0
+    var sanityCheckCountDown = sanityCheckInterval
     
     // Event order handling
     var numPendingVirtualKeyEvents: Int = 0
     var deferredRealKeyEvents: [CGEvent] = []
-    
+    static let flushRealKeyEventsTimeout = 0.2
+    var flushRealKeyEventsCountDown = 0.0
+
     // Virtual modifier key state
     var virtualModifier: CGEventFlags = CGEventFlags()
     
@@ -73,11 +81,25 @@ public class Hook {
     var keyboardCallback = PyObjectPtr()
     
     func TRACE(_ s: String) {
-#if DEBUG
+        #if DEBUG
         print(s)
-#endif
+        #endif
+    }
+
+    // For InputContext's exclusive control
+    public func acquireLock() {
+        var py_allow_thread = PyAllowThread(true)
+        defer { py_allow_thread.End() }
+
+        lock.lock()
     }
     
+    // For InputContext's exclusive control
+    public func releaseLock() {
+        lock.unlock()
+    }
+
+    // Set/unset a Python callback function
     public func setCallback(name: String, callback: PyObjectPtr?){
         
         lock.lock()
@@ -111,6 +133,7 @@ public class Hook {
         self.keyboardCallback = PyObjectPtr()
     }
     
+    // Install keyboard hook to the OS
     public func installKeyboardHook() {
 
         lock.lock()
@@ -152,19 +175,18 @@ public class Hook {
         CFRunLoopAddSource(CFRunLoopGetCurrent(), self.runLoopSource, .commonModes)
         CGEvent.tapEnable(tap: self.eventTap!, enable: true)
         
-        // start a timer to check and restore keyboard hook
-        sanityCheckTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            if self.checkAndRestoreKeyboardHook() {
-                print("Re-enabled keyboard hook")
-            }
-        }
-        
         self.eventSource = CGEventSource(stateID: CGEventSourceStateID.privateState)
         
         numPendingVirtualKeyEvents = 0
         deferredRealKeyEvents.removeAll()
+
+        // start a common timer
+        timer = Timer.scheduledTimer(withTimeInterval: Hook.timerInterval, repeats: true) { timer in
+            self.onTimer()
+        }
     }
     
+    // Uninstall keyboard hook from the OS
     public func uninstallKeyboardHook() {
         
         lock.lock()
@@ -175,9 +197,9 @@ public class Hook {
             return
         }
         
-        if let sanityCheckTimer = self.sanityCheckTimer {
-            sanityCheckTimer.invalidate()
-            self.sanityCheckTimer = nil
+        if let timer = self.timer {
+            timer.invalidate()
+            self.timer = nil
         }
         
         if let eventTap = self.eventTap {
@@ -196,15 +218,14 @@ public class Hook {
         deferredRealKeyEvents.removeAll()
     }
     
+    // Check if keyboard hook is successfully installed
     public func isKeyboardHookInstalled() -> Bool {
         return self.eventSource != nil
     }
     
-    public func checkAndRestoreKeyboardHook() -> Bool {
+    // Check if the keyboard hook is enabled (not disabled by the OS) and restore it as needed
+    private func checkAndRestoreKeyboardHook() -> Bool {
         
-        lock.lock()
-        defer { lock.unlock() }
-
         guard let eventTap = self.eventTap else {
             return false
         }
@@ -243,6 +264,7 @@ public class Hook {
         return true
     }
     
+    // Callback for keyboard hook
     private func keyboardCallbackSwift(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         
         lock.lock()
@@ -352,19 +374,38 @@ public class Hook {
         // Event order handling:
         // Process postponed real key events once all virtual key events are done
         if keyEventSource == .virtual {
-            assert(numPendingVirtualKeyEvents > 0)
-            numPendingVirtualKeyEvents -= 1
-            if numPendingVirtualKeyEvents == 0 && deferredRealKeyEvents.count > 0 {
-                for event in deferredRealKeyEvents {
-                    event.post(tap: CGEventTapLocation.cghidEventTap)
-                }
-                deferredRealKeyEvents.removeAll()
+            numPendingVirtualKeyEvents = max(numPendingVirtualKeyEvents-1, 0)
+            if numPendingVirtualKeyEvents == 0 {
+                flushRealKeyEvents()
             }
         }
         
         return Unmanaged.passUnretained(event)
     }
     
+    // Multi-purpose timer for hook management
+    private func onTimer() {
+
+        lock.lock()
+        defer { lock.unlock() }
+        
+        sanityCheckCountDown -= Hook.sanityCheckInterval
+        if sanityCheckCountDown <= 0.0 {
+            sanityCheckCountDown = Hook.timerInterval
+            if checkAndRestoreKeyboardHook() {
+                print("Re-enabled keyboard hook")
+            }
+        }
+
+        if flushRealKeyEventsCountDown > 0.0 {
+            flushRealKeyEventsCountDown -= Hook.timerInterval
+            if flushRealKeyEventsCountDown <= 0 {
+                flushRealKeyEvents()
+            }
+        }
+    }
+    
+    // Convert virtual modifier state to CoreGraphics's event flags
     private func virtualModifierStateToEventFlags(src: CGEventFlags) -> CGEventFlags
     {
         var dst = src
@@ -378,6 +419,7 @@ public class Hook {
         return dst;
     }
     
+    // Convert key code of modifier keys toCoreGraphics's event flags
     private func keyCodeToEventFlags( keyCode: Int64 ) -> CGEventFlags
     {
         switch(keyCode)
@@ -407,6 +449,7 @@ public class Hook {
         }
     }
     
+    // Send a virtual key event
     public func sendKeyboardEvent(type: String, keyCode: Int) {
         
         TRACE("sendKeyboardEvent(\(type), \(keyCode))")
@@ -432,10 +475,27 @@ public class Hook {
             // Count how many virtual key event are pending
             numPendingVirtualKeyEvents += 1
             
+            // Event order handling:
+            // Set timeout for postponed real key events
+            flushRealKeyEventsCountDown = Hook.flushRealKeyEventsTimeout
+            
             event.post(tap: CGEventTapLocation.cghidEventTap)
         }
     }
     
+    // Event order handling:
+    // Send all deferred real key events
+    private func flushRealKeyEvents() {
+        numPendingVirtualKeyEvents = 0
+        if deferredRealKeyEvents.count > 0 {
+            for event in deferredRealKeyEvents {
+                event.post(tap: CGEventTapLocation.cghidEventTap)
+            }
+            deferredRealKeyEvents.removeAll()
+        }
+    }
+    
+    // Get keyboard layout ("ansi" / "jis" / "iso" / "unknown" )
     public func getKeyboardLayout() -> String {
         let physicalKeyboardLayoutType: Int = Int(KBGetLayoutType(Int16(LMGetKbdType())))
         switch physicalKeyboardLayoutType {
@@ -448,16 +508,5 @@ public class Hook {
         default:
             return "unknown"
         }
-    }
-    
-    public func acquireLock() {
-        var py_allow_thread = PyAllowThread(true)
-        defer { py_allow_thread.End() }
-
-        lock.lock()
-    }
-    
-    public func releaseLock() {
-        lock.unlock()
     }
 }
