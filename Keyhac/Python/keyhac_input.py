@@ -75,7 +75,7 @@ class InputContext:
 
         vk = KeyCondition.str_to_vk(token)
 
-        self._send_modifier_keys(mod)
+        self.send_modifier_keys(mod)
 
         if up==True:
             self._input_seq.append( ("keyUp", vk) )
@@ -125,7 +125,7 @@ class InputContext:
                 self._virtual_modifier &= ~vk_mod[1]
 
     def _flush(self):
-        self._send_modifier_keys(self._real_modifier)
+        self.send_modifier_keys(self._real_modifier)
         for event in self._input_seq:
             keyhac_core.Hook.send_keyboard_event(event[0], event[1])
         self._input_seq = []
