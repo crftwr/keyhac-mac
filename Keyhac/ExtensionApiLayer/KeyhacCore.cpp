@@ -648,10 +648,38 @@ static PyObject * Hook_get_keyboard_layout(Hook_Object * self, PyObject* args)
     return pylayout;
 }
 
+static PyObject * Hook_acquire_lock(Hook_Object * self, PyObject* args)
+{
+    if( ! PyArg_ParseTuple(args, "" ) )
+    {
+        return NULL;
+    }
+    
+    Hook::getInstance().acquireLock();
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject * Hook_release_lock(Hook_Object * self, PyObject* args)
+{
+    if( ! PyArg_ParseTuple(args, "" ) )
+    {
+        return NULL;
+    }
+    
+    Hook::getInstance().releaseLock();
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMethodDef Hook_methods[] = {
     { "set_callback", (PyCFunction)Hook_set_callback, METH_STATIC|METH_VARARGS, "" },
     { "send_keyboard_event", (PyCFunction)Hook_send_keyboard_event, METH_STATIC|METH_VARARGS, "" },
     { "get_keyboard_layout", (PyCFunction)Hook_get_keyboard_layout, METH_STATIC|METH_VARARGS, "" },
+    { "acquire_lock", (PyCFunction)Hook_acquire_lock, METH_STATIC|METH_VARARGS, "" },
+    { "release_lock", (PyCFunction)Hook_release_lock, METH_STATIC|METH_VARARGS, "" },
     {NULL,NULL}
 };
 

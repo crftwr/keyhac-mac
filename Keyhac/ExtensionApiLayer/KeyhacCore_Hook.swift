@@ -10,10 +10,10 @@ import CoreGraphics
 import Carbon
 
 public class Hook {
-
+    
     private static let instance = Hook()
     public static func getInstance() -> Hook { return instance }
-
+    
     enum VK: Int64 {
         case CAPITAL = 0x39
     }
@@ -25,23 +25,23 @@ public class Hook {
         NX_DEVICELCMDKEYMASK | NX_DEVICERCMDKEYMASK | NX_COMMANDMASK |
         NX_SECONDARYFNMASK
     ))
-
+    
     /*
-    NX_DEVICELCTLKEYMASK:   0x00000001
-    NX_DEVICERCTLKEYMASK:   0x00002000
-    NX_COMMANDMASK:         0x00100000
-    NX_DEVICELSHIFTKEYMASK: 0x00000002
-    NX_DEVICERSHIFTKEYMASK: 0x00000004
-    NX_SHIFTMASK:           0x00020000
-    NX_DEVICELALTKEYMASK:   0x00000020
-    NX_DEVICERALTKEYMASK:   0x00000040
-    NX_ALTERNATEMASK:       0x00080000
-    NX_DEVICELCMDKEYMASK:   0x00000008
-    NX_DEVICERCMDKEYMASK:   0x00000010
-    NX_COMMANDMASK:         0x00100000
-    NX_SECONDARYFNMASK:     0x00800000
-    NX_ALPHASHIFTMASK:      0x00010000
-    */
+     NX_DEVICELCTLKEYMASK:   0x00000001
+     NX_DEVICERCTLKEYMASK:   0x00002000
+     NX_COMMANDMASK:         0x00100000
+     NX_DEVICELSHIFTKEYMASK: 0x00000002
+     NX_DEVICERSHIFTKEYMASK: 0x00000004
+     NX_SHIFTMASK:           0x00020000
+     NX_DEVICELALTKEYMASK:   0x00000020
+     NX_DEVICERALTKEYMASK:   0x00000040
+     NX_ALTERNATEMASK:       0x00080000
+     NX_DEVICELCMDKEYMASK:   0x00000008
+     NX_DEVICERCMDKEYMASK:   0x00000010
+     NX_COMMANDMASK:         0x00100000
+     NX_SECONDARYFNMASK:     0x00800000
+     NX_ALPHASHIFTMASK:      0x00010000
+     */
     
     enum KeyEventDirection {
         case keyDown
@@ -52,6 +52,9 @@ public class Hook {
         case real
         case virtual
     }
+    
+    // Allow send virtual keys from threads
+    private let lock = NSRecursiveLock()
     
     // Keyboard hook at OS level
     var eventTap: CFMachPort?
@@ -65,18 +68,21 @@ public class Hook {
     
     // Virtual modifier key state
     var virtualModifier: CGEventFlags = CGEventFlags()
-
+    
     // Python object pointer for "on_key()"
     var keyboardCallback = PyObjectPtr()
     
     func TRACE(_ s: String) {
-        #if DEBUG
+#if DEBUG
         print(s)
-        #endif
+#endif
     }
     
     public func setCallback(name: String, callback: PyObjectPtr?){
         
+        lock.lock()
+        defer { lock.unlock() }
+
         if let callback = callback {
             switch name {
             case "Keyboard":
@@ -94,19 +100,22 @@ public class Hook {
             }
         }
     }
-
-    public func setKeyboardCallback(callback: PyObjectPtr) {
+    
+    private func setKeyboardCallback(callback: PyObjectPtr) {
         self.keyboardCallback = callback
         self.keyboardCallback.IncRef()
     }
     
-    public func unsetKeyboardCallback() {
+    private func unsetKeyboardCallback() {
         self.keyboardCallback.DecRef()
         self.keyboardCallback = PyObjectPtr()
     }
-
+    
     public func installKeyboardHook() {
-        
+
+        lock.lock()
+        defer { lock.unlock() }
+
         if self.eventSource != nil {
             print("Keyboard hook is already installed.")
             return
@@ -158,6 +167,9 @@ public class Hook {
     
     public func uninstallKeyboardHook() {
         
+        lock.lock()
+        defer { lock.unlock() }
+
         if self.eventSource == nil {
             print("Keyboard hook is not installed.")
             return
@@ -179,7 +191,7 @@ public class Hook {
         self.eventSource = nil
         self.runLoopSource = nil
         self.eventTap = nil
-
+        
         numPendingVirtualKeyEvents = 0
         deferredRealKeyEvents.removeAll()
     }
@@ -190,6 +202,9 @@ public class Hook {
     
     public func checkAndRestoreKeyboardHook() -> Bool {
         
+        lock.lock()
+        defer { lock.unlock() }
+
         guard let eventTap = self.eventTap else {
             return false
         }
@@ -200,19 +215,19 @@ public class Hook {
         
         numPendingVirtualKeyEvents = 0
         deferredRealKeyEvents.removeAll()
-
+        
         CGEvent.tapEnable(tap: eventTap, enable: true)
-
+        
         // Notify that hook restored
         if self.keyboardCallback.ptr() != nil {
             
             var gil = PyGIL(true);
             defer { gil.Release() }
-
+            
             let json = """
             {"type": "hookRestored"}
             """
-
+            
             var arg = PythonBridge.buildPythonString(json)
             var pyresult = PythonBridge.invokeCallable(self.keyboardCallback, arg)
             
@@ -228,8 +243,11 @@ public class Hook {
         return true
     }
     
-    func keyboardCallbackSwift(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
+    private func keyboardCallbackSwift(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         
+        lock.lock()
+        defer { lock.unlock() }
+
         var gil = PyGIL(true);
         defer { gil.Release() }
         
@@ -253,24 +271,24 @@ public class Hook {
                 return nil;
             }
         }
-
+        
         process_event: do {
             // get event type - keyDown or keyUp
             let keyEventDirection: KeyEventDirection
             switch type {
             case .keyDown:
                 keyEventDirection = .keyDown
-
+                
             case .keyUp:
                 keyEventDirection = .keyUp
-
+                
             case .flagsChanged:
                 
                 // CapsLock key is special, skip processing
                 if keyCode == VK.CAPITAL.rawValue {
                     break process_event
                 }
-
+                
                 // Modifier flag to be updated by this key
                 let changedFlags = keyCodeToEventFlags(keyCode: keyCode);
                 
@@ -279,10 +297,10 @@ public class Hook {
                     print("Flag changed for unknown reason - vk=\(keyCode)")
                     break process_event
                 }
-
+                
                 // Distinguish keyDown or keyUp
                 keyEventDirection = event.flags.intersection(changedFlags).isEmpty ? .keyUp : .keyDown
-
+                
             default:
                 print("Unexpected event type - \(type)")
                 break process_event
@@ -293,7 +311,7 @@ public class Hook {
                     let json = """
                     {"type": "\(keyEventDirection)", "keyCode": \(keyCode)}
                     """
-
+                    
                     var arg = PythonBridge.buildPythonString(json)
                     var pyresult = PythonBridge.invokeCallable(self.keyboardCallback, arg)
                     
@@ -309,14 +327,14 @@ public class Hook {
                     }
                 }
             }
-
+            
             // For key events that were not processed in Python
             switch type {
             case .keyDown, .keyUp:
                 // Overwrite modifier key flags
                 event.flags = event.flags.subtracting(Hook.modifierFlags)
                 event.flags = event.flags.union(virtualModifierStateToEventFlags(src: virtualModifier))
-
+                
             case .flagsChanged:
                 // Update virtual modifier state based on real modifier status change
                 switch keyEventDirection {
@@ -325,12 +343,12 @@ public class Hook {
                 case .keyUp:
                     virtualModifier.remove(keyCodeToEventFlags(keyCode: keyCode))
                 }
-
+                
             default:
                 break
             }
         }
-
+        
         // Event oder handling:
         // Process postponed real key events once all virtual key events are done
         if keyEventSource == .virtual {
@@ -347,7 +365,7 @@ public class Hook {
         return Unmanaged.passUnretained(event)
     }
     
-    func virtualModifierStateToEventFlags(src: CGEventFlags) -> CGEventFlags
+    private func virtualModifierStateToEventFlags(src: CGEventFlags) -> CGEventFlags
     {
         var dst = src
         
@@ -359,8 +377,8 @@ public class Hook {
         
         return dst;
     }
-
-    func keyCodeToEventFlags( keyCode: Int64 ) -> CGEventFlags
+    
+    private func keyCodeToEventFlags( keyCode: Int64 ) -> CGEventFlags
     {
         switch(keyCode)
         {
@@ -388,11 +406,14 @@ public class Hook {
             return CGEventFlags(rawValue: 0)
         }
     }
-
+    
     public func sendKeyboardEvent(type: String, keyCode: Int) {
         
         TRACE("sendKeyboardEvent(\(type), \(keyCode))")
         
+        lock.lock()
+        defer { lock.unlock() }
+
         let keyDown: Bool
         switch type {
         case "keyDown":
@@ -406,11 +427,11 @@ public class Hook {
         let event = CGEvent(keyboardEventSource: eventSource, virtualKey: CGKeyCode(keyCode), keyDown: keyDown)
         
         if let event = event {
-
+            
             // Event oder handling:
             // Count how many virtual key event are pending
             numPendingVirtualKeyEvents += 1
-
+            
             event.post(tap: CGEventTapLocation.cghidEventTap)
         }
     }
@@ -427,5 +448,13 @@ public class Hook {
         default:
             return "unknown"
         }
+    }
+    
+    public func acquireLock() {
+        lock.lock()
+    }
+    
+    public func releaseLock() {
+        lock.unlock()
     }
 }
