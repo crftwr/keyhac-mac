@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreGraphics
+import Carbon
 
 public class Hook {
 
@@ -411,6 +412,20 @@ public class Hook {
             numPendingVirtualKeyEvents += 1
 
             event.post(tap: CGEventTapLocation.cghidEventTap)
+        }
+    }
+    
+    public func getKeyboardLayout() -> String {
+        let physicalKeyboardLayoutType: Int = Int(KBGetLayoutType(Int16(LMGetKbdType())))
+        switch physicalKeyboardLayoutType {
+        case kKeyboardJIS:
+            return "jis"
+        case kKeyboardISO:
+            return "iso"
+        case kKeyboardANSI:
+            return "ansi"
+        default:
+            return "unknown"
         }
     }
 }

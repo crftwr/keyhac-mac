@@ -635,9 +635,23 @@ static PyObject * Hook_send_keyboard_event(Hook_Object * self, PyObject* args)
     return Py_None;
 }
 
+static PyObject * Hook_get_keyboard_layout(Hook_Object * self, PyObject* args)
+{
+    if( ! PyArg_ParseTuple(args, "" ) )
+    {
+        return NULL;
+    }
+    
+    std::string layout = Hook::getInstance().getKeyboardLayout();
+
+    PyObject * pylayout = Py_BuildValue( "s", layout.c_str() );
+    return pylayout;
+}
+
 static PyMethodDef Hook_methods[] = {
     { "set_callback", (PyCFunction)Hook_set_callback, METH_STATIC|METH_VARARGS, "" },
     { "send_keyboard_event", (PyCFunction)Hook_send_keyboard_event, METH_STATIC|METH_VARARGS, "" },
+    { "get_keyboard_layout", (PyCFunction)Hook_get_keyboard_layout, METH_STATIC|METH_VARARGS, "" },
     {NULL,NULL}
 };
 
