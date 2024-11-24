@@ -211,11 +211,7 @@ class Keymap:
         """
         Get a key input context to send virtual key input sequence.
 
-        Use this method to programmatically decide what virtual keys to send
-        and avoid instantiating InputContext class directly.
-
-        Using get_input_context(), InputContext object is initialized correctly
-        based on the current key status.
+        Use this method to get a key input context object and to programmatically send virtual keys.
 
         Returns:
             Key input context

@@ -4,7 +4,28 @@ from keyhac_key import KeyCondition
 
 class InputContext:
     
+    """
+    A class to send multiple key strokes
+
+    InputContext object sends virtual key events by managing current real key state and virtual key state.
+    To create InputContext object, use Keymap.get_input_context(). Don't directly use InputContext.__init__().
+
+    Use with statement to call the Keymap.get_input_context(). Key events are accumerated in this object, 
+    and sent at once when leaving the context.
+
+    usage:
+        with keymap.get_input_context() as input_ctx:
+            input_ctx.send_key("Cmd-Left")
+            input_ctx.send_key("Cmd-Shift-Right")
+    """
+
     def __init__(self, real_modifier, vk_mod_map):
+
+        """
+        Initialize the input context.
+        To create InputContext object, use Keymap.get_input_context(). Don't directly use InputContext.__init__().
+        """
+
         self._real_modifier = real_modifier
         self._virtual_modifier = real_modifier
         self._vk_mod_map = vk_mod_map
@@ -14,28 +35,19 @@ class InputContext:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.flush()
+        self._flush()
 
     def __str__(self):
         return str(self._input_seq)
 
-    def send_modifier_keys(self, mod):
+    def send_key(self, s: str) -> None:
 
-        # モディファイア押す
-        for vk_mod in self._vk_mod_map.items():
-            if vk_mod[1] & MODKEY_USER_ALL: continue
-            if not ( vk_mod[1] & self._virtual_modifier ) and ( vk_mod[1] & mod ):
-                self._input_seq.append( ("keyDown", vk_mod[0]) )
-                self._virtual_modifier |= vk_mod[1]
+        """
+        Send a key stroke using a string expression. (e.g., "Cmd-Left")
 
-        # モディファイア離す
-        for vk_mod in self._vk_mod_map.items():
-            if vk_mod[1] & MODKEY_USER_ALL: continue
-            if ( vk_mod[1] & self._virtual_modifier ) and not ( vk_mod[1] & mod ):
-                self._input_seq.append( ("keyUp", vk_mod[0]) )
-                self._virtual_modifier &= ~vk_mod[1]
-
-    def send_key(self, s):
+        Args:
+            s: Key expression string
+        """
 
         s = s.upper()
 
@@ -63,7 +75,7 @@ class InputContext:
 
         vk = KeyCondition.str_to_vk(token)
 
-        self.send_modifier_keys(mod)
+        self._send_modifier_keys(mod)
 
         if up==True:
             self._input_seq.append( ("keyUp", vk) )
@@ -73,7 +85,15 @@ class InputContext:
             self._input_seq.append( ("keyDown", vk) )
             self._input_seq.append( ("keyUp", vk) )
 
-    def send_key_by_vk(self, vk, down=True):
+    def send_key_by_vk(self, vk: int, down: bool = True) -> None:
+
+        """
+        Send a key stroke with a key code and direction.
+
+        Args:
+            vk: Key code
+            down: True: key down, False: key up
+        """
 
         if down:
             event_name = "keyDown"
@@ -81,8 +101,32 @@ class InputContext:
             event_name = "keyUp"
         self._input_seq.append( (event_name, vk) )
 
-    def flush(self):
-        self.send_modifier_keys(self._real_modifier)
+    def send_modifier_keys(self, mod: int):
+
+        """
+        Send modifier key events to match the target modifier state
+
+        Args:
+            mod: Target modifier state
+        """
+
+        # モディファイア押す
+        for vk_mod in self._vk_mod_map.items():
+            if vk_mod[1] & MODKEY_USER_ALL: continue
+            if not ( vk_mod[1] & self._virtual_modifier ) and ( vk_mod[1] & mod ):
+                self._input_seq.append( ("keyDown", vk_mod[0]) )
+                self._virtual_modifier |= vk_mod[1]
+
+        # モディファイア離す
+        for vk_mod in self._vk_mod_map.items():
+            if vk_mod[1] & MODKEY_USER_ALL: continue
+            if ( vk_mod[1] & self._virtual_modifier ) and not ( vk_mod[1] & mod ):
+                self._input_seq.append( ("keyUp", vk_mod[0]) )
+                self._virtual_modifier &= ~vk_mod[1]
+
+    def _flush(self):
+        self._send_modifier_keys(self._real_modifier)
         for event in self._input_seq:
             keyhac_core.Hook.send_keyboard_event(event[0], event[1])
         self._input_seq = []
+

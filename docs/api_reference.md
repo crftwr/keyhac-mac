@@ -105,9 +105,7 @@ get_input_context() → InputContext
 
 Get a key input context to send virtual key input sequence. 
 
-Use this method to programmatically decide what virtual keys to send and avoid instantiating InputContext class directly. 
-
-Using get_input_context(), InputContext object is initialized correctly based on the current key status. 
+Use this method to get a key input context object and to programmatically send virtual keys. 
 
 
 
@@ -362,6 +360,79 @@ Get a string representation for the focused UI element.
 
 **Returns:**
  Focus path string. 
+
+
+---
+
+
+### <kbd>class</kbd> `InputContext`
+A class to send multiple key strokes 
+
+InputContext object sends virtual key events by managing current real key state and virtual key state. To create InputContext object, use Keymap.get_input_context(). Don't directly use InputContext.__init__(). 
+
+Use with statement to call the Keymap.get_input_context(). Key events are accumerated in this object,  and sent at once when leaving the context. 
+
+usage:  with keymap.get_input_context() as input_ctx:  input_ctx.send_key("Cmd-Left")  input_ctx.send_key("Cmd-Shift-Right") 
+
+### <kbd>method</kbd> `InputContext.__init__`
+
+```python
+__init__(real_modifier, vk_mod_map)
+```
+
+Initialize the input context. To create InputContext object, use Keymap.get_input_context(). Don't directly use InputContext.__init__(). 
+
+
+
+
+---
+
+#### <kbd>method</kbd> `InputContext.send_key`
+
+```python
+send_key(s: str) → None
+```
+
+Send a key stroke using a string expression. (e.g., "Cmd-Left") 
+
+
+
+**Args:**
+ 
+ - <b>`s`</b>:  Key expression string 
+
+---
+
+#### <kbd>method</kbd> `InputContext.send_key_by_vk`
+
+```python
+send_key_by_vk(vk: int, down: bool = True) → None
+```
+
+Send a key stroke with a key code and direction. 
+
+
+
+**Args:**
+ 
+ - <b>`vk`</b>:  Key code 
+ - <b>`down`</b>:  True: key down, False: key up 
+
+---
+
+#### <kbd>method</kbd> `InputContext.send_modifier_keys`
+
+```python
+send_modifier_keys(mod: int)
+```
+
+Send modifier key events to match the target modifier state 
+
+
+
+**Args:**
+ 
+ - <b>`mod`</b>:  Target modifier state 
 
 
 ---

@@ -28,6 +28,7 @@ api_names = [
     "KeyTable",
     "KeyCondition",
     "FocusCondition",
+    "InputContext",
     "MoveWindow",
     "LaunchApplication",
     "ThreadedAction",
