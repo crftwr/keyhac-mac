@@ -21,30 +21,25 @@ VK_3                    = 0x14
 VK_4                    = 0x15
 VK_6                    = 0x16
 VK_5                    = 0x17
-VK_PLUS                 = 0x18
 VK_9                    = 0x19
 VK_7                    = 0x1A
 VK_MINUS                = 0x1B
 VK_8                    = 0x1C
 VK_0                    = 0x1D
-VK_CLOSEBRACKET         = 0x1E
 VK_O                    = 0x1F
 VK_U                    = 0x20
-VK_OPENBRACKET          = 0x21
 VK_I                    = 0x22
 VK_P                    = 0x23
 VK_L                    = 0x25
 VK_J                    = 0x26
-VK_QUOTE                = 0x27
 VK_K                    = 0x28
 VK_SEMICOLON            = 0x29
-VK_BACKSLASH            = 0x2A
 VK_COMMA                = 0x2B
 VK_SLASH                = 0x2C
 VK_N                    = 0x2D
 VK_M                    = 0x2E
 VK_PERIOD               = 0x2F
-VK_GRAVE                = 0x32
+VK_BACKQUOTE            = 0x32
 
 VK_DECIMAL              = 0x41
 VK_MULTIPLY             = 0x43
@@ -112,16 +107,27 @@ VK_RIGHT                = 0x7C
 VK_DOWN                 = 0x7D
 VK_UP                   = 0x7E
 
-# ISO keyboards only
-VK_ISO_Section          = 0x0A
+# ISO layout specific
+VK_ISO_SECTION          = 0x0A
 
-# JIS keyboards only
-VK_YEN                  = 0x5D
-VK_UNDERSCORE           = 0x5E
-VK_KeypadComma          = 0x5F
-VK_Eisu                 = 0x66
-VK_Kana                 = 0x68
+# ANSI layout specific
+VK_ANSI_CLOSEBRACKET    = 0x1E
+VK_ANSI_OPENBRACKET     = 0x21
+VK_ANSI_QUOTE           = 0x27
+VK_ANSI_BACKSLASH       = 0x2A
+VK_ANSI_PLUS            = 0x18
 
+# JIS layout specific
+VK_JIS_OPENBRACKET      = 0x1E
+VK_JIS_CLOSEBRACKET     = 0x2A
+VK_JIS_COLON            = 0x27
+VK_JIS_BACKSLASH        = 0x5E
+VK_JIS_YEN              = 0x5D
+VK_JIS_KeypadComma      = 0x5F
+VK_JIS_EISU             = 0x66
+VK_JIS_KANA             = 0x68
+VK_JIS_ATMARK           = 0x21
+VK_JIS_CARET            = 0x18
 
 MODKEY_ALT   = 0x00000001
 MODKEY_CTRL  = 0x00000002

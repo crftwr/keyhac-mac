@@ -1,3 +1,4 @@
+from keyhac_core import Hook
 from keyhac_const import *
 import keyhac_console
 
@@ -16,7 +17,6 @@ class KeyCondition:
     str_vk_table = {}
 
     vk_str_table_common = {
-
         VK_A : "A",
         VK_B : "B",
         VK_C : "C",
@@ -56,7 +56,6 @@ class KeyCondition:
         VK_9 : "9",
 
         VK_MINUS  : "Minus",
-        VK_PLUS   : "Plus",
         VK_COMMA  : "Comma",
         VK_PERIOD : "Period",
 
@@ -130,29 +129,31 @@ class KeyCondition:
         VK_FUNCTION : "Fn",
     }
 
-    vk_str_table_std = {
+    vk_str_table_ansi = {
         VK_SEMICOLON    : "Semicolon",
         VK_SLASH        : "Slash",
-        VK_GRAVE        : "BackQuote",
-        VK_OPENBRACKET  : "OpenBracket",
-        VK_BACKSLASH    : "BackSlash",
-        VK_CLOSEBRACKET : "CloseBracket",
-        VK_QUOTE        : "Quote",
+        VK_BACKQUOTE    : "BackQuote",
+        VK_ANSI_OPENBRACKET  : "OpenBracket",
+        VK_ANSI_BACKSLASH    : "BackSlash",
+        VK_ANSI_CLOSEBRACKET : "CloseBracket",
+        VK_ANSI_QUOTE   : "Quote",
+        VK_ANSI_PLUS   : "Plus",
     }
 
-    vk_str_table_jpn = {
-        #VK_OEM_1        : "Colon", # FIXME : test on macOS
+    vk_str_table_jis = {
+        VK_SEMICOLON    : "Semicolon",
+        VK_JIS_COLON    : "Colon",
         VK_SLASH        : "Slash",
-        #VK_OEM_3        : "Atmark", # FIXME : test on macOS
-        VK_OPENBRACKET  : "OpenBracket",
-        #VK_OEM_5        : "Yen", # FIXME : test on macOS
-        VK_CLOSEBRACKET : "CloseBracket",
-        #VK_OEM_7        : "Caret", # FIXME : test on macOS
-        VK_BACKSLASH    : "BackSlash",
+        VK_BACKQUOTE    : "BackQuote",
+        VK_JIS_ATMARK   : "Atmark",
+        VK_JIS_OPENBRACKET  : "OpenBracket",
+        VK_JIS_YEN          : "Yen",
+        VK_JIS_CLOSEBRACKET : "CloseBracket",
+        VK_JIS_CARET        : "Caret",
+        VK_JIS_BACKSLASH : "BackSlash",
     }
 
     str_vk_table_common = {
-
         "A" : VK_A,
         "B" : VK_B,
         "C" : VK_C,
@@ -192,7 +193,6 @@ class KeyCondition:
         "9" : VK_9,
 
         "MINUS"  : VK_MINUS,
-        "PLUS"   : VK_PLUS,
         "COMMA"  : VK_COMMA,
         "PERIOD" : VK_PERIOD,
 
@@ -274,41 +274,42 @@ class KeyCondition:
         "FN" : VK_FUNCTION,
     }
 
-    str_vk_table_std = {
-
+    str_vk_table_ansi = {
         "SEMICOLON"     : VK_SEMICOLON,
         "COLON"         : VK_SEMICOLON,
         "SLASH"         : VK_SLASH,
-        "BACKQUOTE"     : VK_GRAVE,
-        "OPENBRACKET"   : VK_OPENBRACKET,
-        "BACKSLASH"     : VK_BACKSLASH,
-        "YEN"           : VK_BACKSLASH,
-        "CLOSEBRACKET"  : VK_CLOSEBRACKET,
-        "QUOTE"         : VK_QUOTE,
-        "DOUBLEQUOTE"   : VK_QUOTE,
+        "BACKQUOTE"     : VK_BACKQUOTE,
+        "TILDE"         : VK_BACKQUOTE,
+        "OPENBRACKET"   : VK_ANSI_OPENBRACKET,
+        "CLOSEBRACKET"  : VK_ANSI_CLOSEBRACKET,
+        "BACKSLASH"     : VK_ANSI_BACKSLASH,
+        "YEN"           : VK_ANSI_BACKSLASH,
+        "QUOTE"         : VK_ANSI_QUOTE,
+        "DOUBLEQUOTE"   : VK_ANSI_QUOTE,
         "UNDERSCORE"    : VK_MINUS,
         "ASTERISK"      : VK_8,
         "ATMARK"        : VK_2,
         "CARET"         : VK_6,
+        "PLUS"          : VK_ANSI_PLUS,
     }
 
-    str_vk_table_jpn = {
-
-        "SEMICOLON"     : VK_PLUS,
-        #"COLON"         : VK_OEM_1, # FIXME : test on macOS
+    str_vk_table_jis = {
+        "SEMICOLON"     : VK_SEMICOLON,
+        "COLON"         : VK_JIS_COLON,
         "SLASH"         : VK_SLASH,
-        "BACKQUOTE"     : VK_GRAVE,
-        #"TILDE"         : VK_OEM_7, # FIXME : test on macOS
-        "OPENBRACKET"   : VK_OPENBRACKET,
-        "BACKSLASH"     : VK_BACKSLASH,
-        "YEN"           : VK_YEN,
-        "CLOSEBRACKET"  : VK_CLOSEBRACKET,
+        "BACKQUOTE"     : VK_BACKQUOTE,
+        "TILDE"         : VK_JIS_CARET,
+        "OPENBRACKET"   : VK_JIS_OPENBRACKET,
+        "CLOSEBRACKET"  : VK_JIS_CLOSEBRACKET,
+        "BACKSLASH"     : VK_JIS_BACKSLASH,
+        "YEN"           : VK_JIS_YEN,
         "QUOTE"         : VK_7,
         "DOUBLEQUOTE"   : VK_2,
-        "UNDERSCORE"    : VK_UNDERSCORE,
-        #"ASTERISK"      : VK_OEM_1, # FIXME : test on macOS
-        #"ATMARK"        : VK_OEM_3, # FIXME : test on macOS
-        #"CARET"         : VK_OEM_7, # FIXME : test on macOS
+        "UNDERSCORE"    : VK_JIS_BACKSLASH,
+        "ASTERISK"      : VK_JIS_COLON,
+        "ATMARK"        : VK_JIS_ATMARK,
+        "CARET"         : VK_JIS_CARET,
+        "PLUS"          : VK_SEMICOLON,
     }
 
     str_mod_table = {
@@ -467,18 +468,20 @@ class KeyCondition:
         Detect keyboard type and initialize internal key code translation tables.
         """
 
-        # FIXME: detect keyboard type
-        keyboard_type = 0
+        keyboard_layout = Hook.get_keyboard_layout()
+        logger.debug(f"Keyboard layout: {keyboard_layout}")
 
         KeyCondition.str_vk_table = KeyCondition.str_vk_table_common
         KeyCondition.vk_str_table = KeyCondition.vk_str_table_common
 
-        if keyboard_type==7:
-            KeyCondition.str_vk_table.update(KeyCondition.str_vk_table_jpn)
-            KeyCondition.vk_str_table.update(KeyCondition.vk_str_table_jpn)
+        if keyboard_layout=="jis":
+            KeyCondition.str_vk_table.update(KeyCondition.str_vk_table_jis)
+            KeyCondition.vk_str_table.update(KeyCondition.vk_str_table_jis)
+        elif keyboard_layout in ["ansi"]:
+            KeyCondition.str_vk_table.update(KeyCondition.str_vk_table_ansi)
+            KeyCondition.vk_str_table.update(KeyCondition.vk_str_table_ansi)
         else:
-            KeyCondition.str_vk_table.update(KeyCondition.str_vk_table_std)
-            KeyCondition.vk_str_table.update(KeyCondition.vk_str_table_std)
+            logger.error(f"Unsupported keyboard layout: {keyboard_layout}")
 
     @staticmethod
     def str_to_vk(name: str) -> int:
