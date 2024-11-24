@@ -119,24 +119,15 @@ class KeyCondition:
         VK_NEXT     : "PageDown",
         VK_PRIOR    : "PageUp",
 
-        #VK_MENU     : "Alt", # FIXME : test on macOS
-        VK_LMENU    : "LAlt",
-        VK_RMENU    : "RAlt",
-        #VK_CONTROL  : "Ctrl", # FIXME : test on macOS
+        VK_LALT     : "LAlt",
+        VK_RALT     : "RAlt",
         VK_LCONTROL : "LCtrl",
         VK_RCONTROL : "RCtrl",
-        #VK_SHIFT    : "Shift", # FIXME : test on macOS
         VK_LSHIFT   : "LShift",
         VK_RSHIFT   : "RShift",
-        #VK_LWIN     : "LWin", # FIXME : test on macOS
-        #VK_RWIN     : "RWin", # FIXME : test on macOS
         VK_LCOMMAND : "LCmd",
         VK_RCOMMAND : "RCmd",
         VK_FUNCTION : "Fn",
-
-        #VK_SNAPSHOT : "PrintScreen", # FIXME : test on macOS
-        #VK_SCROLL   : "ScrollLock", # FIXME : test on macOS
-        #VK_PAUSE    : "Pause", # FIXME : test on macOS
     }
 
     vk_str_table_std = {
@@ -268,9 +259,9 @@ class KeyCondition:
         "PAGEDOWN" : VK_NEXT,
         "PAGEUP"   : VK_PRIOR,
 
-        "ALT"  : VK_LMENU,
-        "LALT" : VK_LMENU,
-        "RALT" : VK_RMENU,
+        "ALT"  : VK_LALT,
+        "LALT" : VK_LALT,
+        "RALT" : VK_RALT,
         "CTRL"  : VK_LCONTROL,
         "LCTRL" : VK_LCONTROL,
         "RCTRL" : VK_RCONTROL,
@@ -281,10 +272,6 @@ class KeyCondition:
         "LCMD" : VK_LCOMMAND,
         "RCMD" : VK_RCOMMAND,
         "FN" : VK_FUNCTION,
-
-        #"PRINTSCREEN" : VK_SNAPSHOT, # FIXME : test on macOS
-        #"SCROLLLOCK"  : VK_SCROLL, # FIXME : test on macOS
-        #"PAUSE"       : VK_PAUSE, # FIXME : test on macOS
     }
 
     str_vk_table_std = {

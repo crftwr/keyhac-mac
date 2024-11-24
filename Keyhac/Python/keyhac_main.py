@@ -94,8 +94,8 @@ class Keymap:
         self._vk_mod_map[VK_RSHIFT   ] = MODKEY_SHIFT_R
         self._vk_mod_map[VK_LCONTROL ] = MODKEY_CTRL_L
         self._vk_mod_map[VK_RCONTROL ] = MODKEY_CTRL_R
-        self._vk_mod_map[VK_LMENU    ] = MODKEY_ALT_L
-        self._vk_mod_map[VK_RMENU    ] = MODKEY_ALT_R
+        self._vk_mod_map[VK_LALT     ] = MODKEY_ALT_L
+        self._vk_mod_map[VK_RALT     ] = MODKEY_ALT_R
         self._vk_mod_map[VK_LCOMMAND ] = MODKEY_CMD_L
         self._vk_mod_map[VK_RCOMMAND ] = MODKEY_CMD_R
         self._vk_mod_map[VK_FUNCTION ] = MODKEY_FN_L
