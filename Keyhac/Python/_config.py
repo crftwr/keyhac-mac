@@ -47,12 +47,17 @@ def configure(keymap):
         def run(self):
             logger.info("ThreadedActionTest running")
 
-            for c in "HELLO":
+            for c in "Hello Keyhac":
+                time.sleep(0.3)
                 with keymap.get_input_context() as input_ctx:
-                    key = f"Shift-{c}"
+                    if "a" <= c <= "z":
+                        key = f"{c}"
+                    elif "A" <= c <= "Z":
+                        key = f"Shift-{c}"
+                    elif c == " ":
+                        key = f"Space"
                     logger.info(f"Sending key input from sub-thread - {key}")
                     input_ctx.send_key(key)
-                time.sleep(0.5)
 
             return True
 
