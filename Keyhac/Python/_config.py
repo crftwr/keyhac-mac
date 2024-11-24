@@ -54,13 +54,6 @@ def configure(keymap):
                     input_ctx.send_key(key)
                 time.sleep(0.5)
 
-            for c in "KEYHAC":
-                with keymap.get_input_context() as input_ctx:
-                    key = f"Shift-{c}"
-                    logger.info(f"Sending key input from sub-thread - {key}")
-                    input_ctx.send_key(key)
-                time.sleep(0.5)
-
             return True
 
         def finished(self, result):
