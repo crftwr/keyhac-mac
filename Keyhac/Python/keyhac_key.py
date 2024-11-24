@@ -104,6 +104,7 @@ class KeyCondition:
         VK_RIGHT    : "Right",
         VK_UP       : "Up",
         VK_DOWN     : "Down",
+
         VK_SPACE    : "Space",
         VK_TAB      : "Tab",
         VK_BACK     : "Back",
@@ -119,6 +120,9 @@ class KeyCondition:
         VK_NEXT     : "PageDown",
         VK_PRIOR    : "PageUp",
 
+        VK_JIS_EISU : "Eisu", # JIS specific but no overwrap
+        VK_JIS_KANA : "Kana", # JIS specific but no overwrap
+
         VK_LALT     : "LAlt",
         VK_RALT     : "RAlt",
         VK_LCONTROL : "LCtrl",
@@ -131,27 +135,27 @@ class KeyCondition:
     }
 
     vk_str_table_ansi = {
-        VK_SEMICOLON    : "Semicolon",
-        VK_SLASH        : "Slash",
-        VK_BACKQUOTE    : "BackQuote",
+        VK_SEMICOLON         : "Semicolon",
+        VK_SLASH             : "Slash",
+        VK_BACKQUOTE         : "BackQuote",
         VK_ANSI_OPENBRACKET  : "OpenBracket",
-        VK_ANSI_BACKSLASH    : "BackSlash",
         VK_ANSI_CLOSEBRACKET : "CloseBracket",
-        VK_ANSI_QUOTE   : "Quote",
-        VK_ANSI_EQUAL   : "Equal",
+        VK_ANSI_BACKSLASH    : "BackSlash",
+        VK_ANSI_QUOTE        : "Quote",
+        VK_ANSI_EQUAL        : "Equal",
     }
 
     vk_str_table_jis = {
-        VK_SEMICOLON    : "Semicolon",
-        VK_JIS_COLON    : "Colon",
-        VK_SLASH        : "Slash",
-        VK_BACKQUOTE    : "BackQuote",
-        VK_JIS_ATMARK   : "Atmark",
+        VK_SEMICOLON        : "Semicolon",
+        VK_JIS_COLON        : "Colon",
+        VK_SLASH            : "Slash",
+        VK_BACKQUOTE        : "BackQuote",
+        VK_JIS_ATMARK       : "Atmark",
         VK_JIS_OPENBRACKET  : "OpenBracket",
         VK_JIS_YEN          : "Yen",
         VK_JIS_CLOSEBRACKET : "CloseBracket",
         VK_JIS_CARET        : "Caret",
-        VK_JIS_BACKSLASH : "BackSlash",
+        VK_JIS_BACKSLASH    : "BackSlash",
     }
 
     str_vk_table_common = {
@@ -238,13 +242,14 @@ class KeyCondition:
         "F19" : VK_F19,
         "F20" : VK_F20,
 
-        "LEFT"     : VK_LEFT  ,
-        "RIGHT"    : VK_RIGHT ,
-        "UP"       : VK_UP    ,
-        "DOWN"     : VK_DOWN  ,
-        "SPACE"    : VK_SPACE ,
-        "TAB"      : VK_TAB   ,
-        "BACK"     : VK_BACK  ,
+        "LEFT"     : VK_LEFT,
+        "RIGHT"    : VK_RIGHT,
+        "UP"       : VK_UP,
+        "DOWN"     : VK_DOWN,
+
+        "SPACE"    : VK_SPACE,
+        "TAB"      : VK_TAB,
+        "BACK"     : VK_BACK,
         "RETURN"   : VK_RETURN,
         "ENTER"    : VK_RETURN,
         "ESCAPE"   : VK_ESCAPE,
@@ -260,6 +265,9 @@ class KeyCondition:
         "END"      : VK_END,
         "PAGEDOWN" : VK_NEXT,
         "PAGEUP"   : VK_PRIOR,
+
+        "EISU" : VK_JIS_EISU, # JIS specific but no overwrap
+        "KANA" : VK_JIS_KANA, # JIS specific but no overwrap
 
         "ALT"  : VK_LALT,
         "LALT" : VK_LALT,
@@ -477,6 +485,8 @@ class KeyCondition:
 
         KeyCondition.str_vk_table = KeyCondition.str_vk_table_common
         KeyCondition.vk_str_table = KeyCondition.vk_str_table_common
+
+        assert KeyCondition.str_vk_table_ansi.keys() == KeyCondition.str_vk_table_jis.keys()
 
         if keyboard_layout=="jis":
             KeyCondition.str_vk_table.update(KeyCondition.str_vk_table_jis)
