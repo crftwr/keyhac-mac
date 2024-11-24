@@ -90,6 +90,14 @@ class KeyCondition:
         VK_F10 : "F10",
         VK_F11 : "F11",
         VK_F12 : "F12",
+        VK_F13 : "F13",
+        VK_F14 : "F14",
+        VK_F15 : "F15",
+        VK_F16 : "F16",
+        VK_F17 : "F17",
+        VK_F18 : "F18",
+        VK_F19 : "F19",
+        VK_F20 : "F20",
 
         VK_LEFT     : "Left",
         VK_RIGHT    : "Right",
@@ -226,6 +234,14 @@ class KeyCondition:
         "F10" : VK_F10,
         "F11" : VK_F11,
         "F12" : VK_F12,
+        "F13" : VK_F13,
+        "F14" : VK_F14,
+        "F15" : VK_F15,
+        "F16" : VK_F16,
+        "F17" : VK_F17,
+        "F18" : VK_F18,
+        "F19" : VK_F19,
+        "F20" : VK_F20,
 
         "LEFT"     : VK_LEFT  ,
         "RIGHT"    : VK_RIGHT ,
@@ -259,8 +275,6 @@ class KeyCondition:
         "SHIFT"  : VK_LSHIFT,
         "LSHIFT" : VK_LSHIFT,
         "RSHIFT" : VK_RSHIFT,
-        #"LWIN" : VK_LWIN, # FIXME : test on macOS
-        #"RWIN" : VK_RWIN, # FIXME : test on macOS
         "CMD"  : VK_LCOMMAND,
         "LCMD" : VK_LCOMMAND,
         "RCMD" : VK_RCOMMAND,
