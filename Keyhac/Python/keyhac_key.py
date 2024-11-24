@@ -60,7 +60,8 @@ class KeyCondition:
         VK_COMMA  : "Comma",
         VK_PERIOD : "Period",
 
-        #VK_NUMLOCK  : "NumLock", # FIXME : test on macOS
+        VK_NUMPAD_CLEAR : "NumClear",
+        VK_NUMPAD_ENTER : "NumEnter",
         VK_DIVIDE   : "Divide",
         VK_MULTIPLY : "Multiply",
         VK_SUBTRACT : "Subtract",
@@ -204,7 +205,8 @@ class KeyCondition:
         "COMMA"  : VK_COMMA,
         "PERIOD" : VK_PERIOD,
 
-        #"NUMLOCK"  : VK_NUMLOCK, # FIXME : test on macOS
+        "NumClear" : VK_NUMPAD_CLEAR,
+        "NumEnter" : VK_NUMPAD_ENTER,
         "DIVIDE"   : VK_DIVIDE,
         "MULTIPLY" : VK_MULTIPLY,
         "SUBTRACT" : VK_SUBTRACT,
