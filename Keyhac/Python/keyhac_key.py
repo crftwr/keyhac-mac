@@ -112,7 +112,7 @@ class KeyCondition:
         VK_CAPITAL  : "CapsLock",
         VK_MENU     : "Menu",
 
-        #VK_INSERT   : "Insert", # FIXME : test on macOS
+        VK_HELP     : "Help",
         VK_DELETE   : "Delete",
         VK_HOME     : "Home",
         VK_END      : "End",
@@ -252,7 +252,7 @@ class KeyCondition:
         "CAPITAL"  : VK_CAPITAL,
         "MENU"     : VK_MENU,
 
-        #"INSERT"   : VK_INSERT, # FIXME : test on macOS
+        "HELP"     : VK_HELP,
         "DELETE"   : VK_DELETE,
         "HOME"     : VK_HOME,
         "END"      : VK_END,
@@ -279,8 +279,7 @@ class KeyCondition:
         "SEMICOLON"     : VK_SEMICOLON,
         "COLON"         : VK_SEMICOLON,
         "SLASH"         : VK_SLASH,
-        "BACKQUOTE"     : VK_GRAVE,
-        #"TILDE"         : VK_OEM_3, # FIXME : test on macOS
+        "BACKQUOTE"     : VK_GRAVE,   #"TILDE"         : VK_OEM_3, # FIXME : test on macOS
         "OPENBRACKET"   : VK_OPENBRACKET,
         "BACKSLASH"     : VK_BACKSLASH,
         "YEN"           : VK_BACKSLASH,
