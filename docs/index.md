@@ -292,6 +292,7 @@ For more details about UIElement, see the [Keyhac API reference](./api_reference
 | A - Z         |               |
 | 0 - 9         |               |
 | Minus         | -             |
+| Equal         | =             |
 | Plus          | +             |
 | Comma         | ,             |
 | Period        | .             |
@@ -310,18 +311,20 @@ For more details about UIElement, see the [Keyhac API reference](./api_reference
 | Asterisk      | *             |
 | Atmark        | @             |
 | Caret         | ^             |
-| NumLock       |               |
+| NumClear      | Clear (ten key) |
+| NumEnter      | Enter (ten key) |
+| NumEqual      | = (ten key) |
 | Divide        | / (ten key)   |
 | Multiply      | * (ten key)   |
 | Subtract      | - (ten key)   |
 | Add           | + (ten key)   |
 | Decimal       | . (ten key)   |
 | Num0 - Num9   | 0-9 (ten key) |
-| F1 - F12      |               |
+| F1 - F20      | Function keys |
 | Left, Right, Up, Down |       |
 | Space         |               |
 | Tab           |               |
-| Back          | Delete        |
+| Back          | "Delete" on macOS keyboard |
 | Enter/Return  |               |
 | Escape/Esc    |               |
 | CapsLock/Caps/Capital |       |
@@ -330,6 +333,10 @@ For more details about UIElement, see the [Keyhac API reference](./api_reference
 | End           |               |
 | PageUp        |               |
 | PageDown      |               |
+| Help          | Help          |
+| Menu          | Menu          |
+| Eisu          | Eisu (JIS specific) |
+| Kana          | Kana (JIS specific) |
 | LAlt          | Left Option   |
 | RAlt          | Right Option  |
 | LCtrl         | Left Control  |
