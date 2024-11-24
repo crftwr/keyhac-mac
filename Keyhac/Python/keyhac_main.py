@@ -217,7 +217,7 @@ class Keymap:
             Key input context
         """
 
-        return InputContext(self._modifier, self._vk_mod_map)
+        return InputContext(self)
 
     def _get_focused_element(self):
 

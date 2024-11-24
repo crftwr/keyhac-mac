@@ -451,6 +451,9 @@ public class Hook {
     }
     
     public func acquireLock() {
+        var py_allow_thread = PyAllowThread(true)
+        defer { py_allow_thread.End() }
+
         lock.lock()
     }
     

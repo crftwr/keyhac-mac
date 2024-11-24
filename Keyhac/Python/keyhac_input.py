@@ -1,4 +1,4 @@
-import keyhac_core
+from keyhac_core import Hook
 from keyhac_const import *
 from keyhac_key import KeyCondition
 
@@ -19,23 +19,34 @@ class InputContext:
             input_ctx.send_key("Cmd-Shift-Right")
     """
 
-    def __init__(self, real_modifier, vk_mod_map):
+    def __init__(self, keymap):
 
         """
         Initialize the input context.
         To create InputContext object, use Keymap.get_input_context(). Don't directly use InputContext.__init__().
         """
 
-        self._real_modifier = real_modifier
-        self._virtual_modifier = real_modifier
-        self._vk_mod_map = vk_mod_map
+        self._keymap = keymap
+        self._entered = False
         self._input_seq = []
 
     def __enter__(self):
+
+        Hook.acquire_lock()
+
+        self._entered = True
+
+        # Need to get modifier state after locking hook
+        self._real_modifier = self._keymap._modifier
+        self._virtual_modifier = self._keymap._modifier
+        self._vk_mod_map = self._keymap._vk_mod_map
+
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self._flush()
+        self._entered = False
+        Hook.release_lock()
 
     def __str__(self):
         return str(self._input_seq)
@@ -48,6 +59,9 @@ class InputContext:
         Args:
             s: Key expression string
         """
+
+        if not self._entered:
+            raise ValueError("Not in the context.")
 
         s = s.upper()
 
@@ -95,6 +109,9 @@ class InputContext:
             down: True: key down, False: key up
         """
 
+        if not self._entered:
+            raise ValueError("Not in the context.")
+
         if down:
             event_name = "keyDown"
         else:
@@ -110,14 +127,14 @@ class InputContext:
             mod: Target modifier state
         """
 
-        # モディファイア押す
+        # Key down modifier keys
         for vk_mod in self._vk_mod_map.items():
             if vk_mod[1] & MODKEY_USER_ALL: continue
             if not ( vk_mod[1] & self._virtual_modifier ) and ( vk_mod[1] & mod ):
                 self._input_seq.append( ("keyDown", vk_mod[0]) )
                 self._virtual_modifier |= vk_mod[1]
 
-        # モディファイア離す
+        # Key up modifier keys
         for vk_mod in self._vk_mod_map.items():
             if vk_mod[1] & MODKEY_USER_ALL: continue
             if ( vk_mod[1] & self._virtual_modifier ) and not ( vk_mod[1] & mod ):
@@ -127,6 +144,6 @@ class InputContext:
     def _flush(self):
         self.send_modifier_keys(self._real_modifier)
         for event in self._input_seq:
-            keyhac_core.Hook.send_keyboard_event(event[0], event[1])
+            Hook.send_keyboard_event(event[0], event[1])
         self._input_seq = []
 
