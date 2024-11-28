@@ -26,23 +26,6 @@ public class Hook {
         NX_SECONDARYFNMASK
     ))
     
-    /*
-     NX_DEVICELCTLKEYMASK:   0x00000001
-     NX_DEVICERCTLKEYMASK:   0x00002000
-     NX_COMMANDMASK:         0x00100000
-     NX_DEVICELSHIFTKEYMASK: 0x00000002
-     NX_DEVICERSHIFTKEYMASK: 0x00000004
-     NX_SHIFTMASK:           0x00020000
-     NX_DEVICELALTKEYMASK:   0x00000020
-     NX_DEVICERALTKEYMASK:   0x00000040
-     NX_ALTERNATEMASK:       0x00080000
-     NX_DEVICELCMDKEYMASK:   0x00000008
-     NX_DEVICERCMDKEYMASK:   0x00000010
-     NX_COMMANDMASK:         0x00100000
-     NX_SECONDARYFNMASK:     0x00800000
-     NX_ALPHASHIFTMASK:      0x00010000
-     */
-    
     enum KeyEventDirection {
         case keyDown
         case keyUp
@@ -77,9 +60,10 @@ public class Hook {
     // Virtual modifier key state
     var virtualModifier: CGEventFlags = CGEventFlags()
     
-    // Python object pointer for "on_key()"
+    // Python object pointer for "on_key()", "on_clipboard()"
     var keyboardCallback = PyObjectPtr()
-    
+    var clipboardCallback = PyObjectPtr()
+
     func TRACE(_ s: String) {
         #if DEBUG
         print(s)
@@ -109,6 +93,8 @@ public class Hook {
             switch name {
             case "Keyboard":
                 self.setKeyboardCallback(callback: callback)
+            case "Clipboard":
+                self.setClipboardCallback(callback: callback)
             default:
                 break
             }
@@ -117,6 +103,8 @@ public class Hook {
             switch name {
             case "Keyboard":
                 self.unsetKeyboardCallback()
+            case "Clipboard":
+                self.unsetClipboardCallback()
             default:
                 break
             }
@@ -131,6 +119,16 @@ public class Hook {
     private func unsetKeyboardCallback() {
         self.keyboardCallback.DecRef()
         self.keyboardCallback = PyObjectPtr()
+    }
+    
+    private func setClipboardCallback(callback: PyObjectPtr) {
+        self.clipboardCallback = callback
+        self.clipboardCallback.IncRef()
+    }
+    
+    private func unsetClipboardCallback() {
+        self.clipboardCallback.DecRef()
+        self.clipboardCallback = PyObjectPtr()
     }
     
     // Install keyboard hook to the OS
@@ -270,9 +268,6 @@ public class Hook {
         lock.lock()
         defer { lock.unlock() }
 
-        var gil = PyGIL(true);
-        defer { gil.Release() }
-        
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
         
         let keyEventSource: KeyEventSource
@@ -330,6 +325,10 @@ public class Hook {
             
             if keyEventSource == .real {
                 if self.keyboardCallback.ptr() != nil {
+
+                    var gil = PyGIL(true);
+                    defer { gil.Release() }
+                    
                     let json = """
                     {"type": "\(keyEventDirection)", "keyCode": \(keyCode)}
                     """
@@ -402,6 +401,26 @@ public class Hook {
             if flushRealKeyEventsCountDown <= 0 {
                 flushRealKeyEvents()
             }
+        }
+
+        if Clipboard.getInstance().changed {
+            onClipboardChanged()
+        }
+    }
+    
+    private func onClipboardChanged() {
+        if self.clipboardCallback.ptr() != nil {
+
+            var gil = PyGIL(true);
+            defer { gil.Release() }
+            
+            let json = "{}"
+            
+            var arg = PythonBridge.buildPythonString(json)
+            var pyresult = PythonBridge.invokeCallable(self.clipboardCallback, arg)
+            
+            arg.DecRef()
+            pyresult.DecRef()
         }
     }
     

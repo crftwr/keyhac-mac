@@ -585,6 +585,87 @@ PyTypeObject UIElement_Type = {
 
 // ------------------------------------------
 
+struct Clipboard_Object
+{
+    PyObject_HEAD
+    //Clipboard impl;
+};
+
+static PyObject * Clipboard_get(Clipboard_Object * self, PyObject* args)
+{
+    if(!PyArg_ParseTuple(args, ""))
+    {
+        return NULL;
+    }
+    
+    std::string s = Clipboard::getInstance().get();
+
+    PyObject * pys = Py_BuildValue( "s", s.c_str() );
+    return pys;
+}
+
+static PyObject * Clipboard_set(Clipboard_Object * self, PyObject* args)
+{
+    if(!PyArg_ParseTuple(args, ""))
+    {
+        return NULL;
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMethodDef Clipboard_methods[] = {
+    { "get", (PyCFunction)Clipboard_get, METH_STATIC|METH_VARARGS, "" },
+    { "set", (PyCFunction)Clipboard_set, METH_STATIC|METH_VARARGS, "" },
+    {NULL,NULL}
+};
+
+PyTypeObject Clipboard_Type = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "Clipboard",            /* tp_name */
+    sizeof(Clipboard_Type), /* tp_basicsize */
+    0,                      /* tp_itemsize */
+    0,                      /* tp_dealloc */
+    0,                      /* tp_print */
+    0,                      /* tp_getattr */
+    0,                      /* tp_setattr */
+    0,                      /* tp_compare */
+    0,                      /* tp_repr */
+    0,                      /* tp_as_number */
+    0,                      /* tp_as_sequence */
+    0,                      /* tp_as_mapping */
+    0,                      /* tp_hash */
+    0,                      /* tp_call */
+    0,                      /* tp_str */
+    0,                      /* tp_getattro */
+    0,                      /* tp_setattro */
+    0,                      /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,   /* tp_flags */
+    "",                     /* tp_doc */
+    0,                      /* tp_traverse */
+    0,                      /* tp_clear */
+    0,                      /* tp_richcompare */
+    0,                      /* tp_weaklistoffset */
+    0,                      /* tp_iter */
+    0,                      /* tp_iternext */
+    Clipboard_methods,      /* tp_methods */
+    0,                      /* tp_members */
+    0,                      /* tp_getset */
+    0,                      /* tp_base */
+    0,                      /* tp_dict */
+    0,                      /* tp_descr_get */
+    0,                      /* tp_descr_set */
+    0,                      /* tp_dictoffset */
+    0,                      /* tp_init */
+    0,                      /* tp_alloc */
+    PyType_GenericNew,      /* tp_new */
+    0,                      /* tp_free */
+};
+
+
+// ------------------------------------------
+
 struct Hook_Object
 {
     PyObject_HEAD
@@ -820,16 +901,7 @@ PyTypeObject Console_Type = {
 
 // ------------------------------------------
 
-static PyObject * _getFocus(PyObject *self, PyObject *args)
-{
-    std::string focus = "Hello";
-    
-    //return PyLong_FromLong(0);
-    return PyUnicode_FromString(focus.c_str());
-}
-
 static PyMethodDef keyhac_core_methods[] = {
-    {"getFocus", _getFocus, METH_VARARGS, "Get focus information in string format"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
@@ -845,6 +917,7 @@ static struct PyModuleDef keyhac_core_module = {
 PyObject * keyhacCoreModuleInit(void)
 {
     if( PyType_Ready(&Hook_Type)<0 ) return NULL;
+    if( PyType_Ready(&Clipboard_Type)<0 ) return NULL;
     if( PyType_Ready(&UIElement_Type)<0 ) return NULL;
     if( PyType_Ready(&Console_Type)<0 ) return NULL;
 
@@ -855,6 +928,9 @@ PyObject * keyhacCoreModuleInit(void)
 
     Py_INCREF(&Hook_Type);
     PyModule_AddObject( m, "Hook", (PyObject*)&Hook_Type );
+
+    Py_INCREF(&Clipboard_Type);
+    PyModule_AddObject( m, "Clipboard", (PyObject*)&Clipboard_Type );
 
     Py_INCREF(&UIElement_Type);
     PyModule_AddObject( m, "UIElement", (PyObject*)&UIElement_Type );

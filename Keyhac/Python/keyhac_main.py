@@ -4,7 +4,7 @@ import json
 import traceback
 from collections.abc import Callable
 
-from keyhac_core import Hook, UIElement, Console
+from keyhac_core import Hook, Clipboard, UIElement, Console
 import keyhac_config
 import keyhac_console
 from keyhac_key import KeyCondition, KeyTable
@@ -68,7 +68,8 @@ class Keymap:
         self._record_seq = None             # Recoreded key sequence
 
         Hook.set_callback("Keyboard", self._on_key)
-        
+        Hook.set_callback("Clipboard", self._on_clipboard)
+
         print("\n" + CONSOLE_STYLE_TITLE + "Welcome to Keyhac" + CONSOLE_STYLE_DEFAULT + "\n")
 
     def configure(self):
@@ -450,6 +451,10 @@ class Keymap:
             for focus_condition, keytable in self._keytable_list:
                 if focus_condition.check(self._focus_path, self._focus_elm):
                     self._unified_keytable.update(keytable.table)
+
+    def _on_clipboard(self, s):
+        d = Clipboard.get()
+        print("Clipboard:", d)
 
     @property
     def focus(self) -> UIElement:
