@@ -6,28 +6,84 @@
 //
 
 import Foundation
-import Cocoa
+import AppKit
 
 public class Clipboard {
     
-    private static let instance = Clipboard()
-    public static func getInstance() -> Clipboard { return instance }
+    static var previousChangeCount: NSInteger = 0
     
-    var changeCount: NSInteger = 0
+    var items: [NSPasteboardItem] = []
     
-    public var changed: Bool {
-        let newCount = NSPasteboard.general.changeCount
+    public init() {
+    }
+    
+    private init(src: [NSPasteboardItem]) {
+        items = Clipboard.copyItems(src: src)
+    }
+    
+    deinit {
+    }
+    
+    public func destroy() {
+        items = []
+    }
+    
+    public static var changed: Bool {
+        let changeCount = NSPasteboard.general.changeCount
         
-        if self.changeCount != newCount {
-            self.changeCount = newCount
+        if Clipboard.previousChangeCount != changeCount {
+            Clipboard.previousChangeCount = changeCount
             return true
         }
 
         return false
     }
     
-    public func get() -> String {
-        if let s = NSPasteboard.general.string(forType: .string) {
+    public static func getCurrent() -> Clipboard {
+        
+        if let items = NSPasteboard.general.pasteboardItems {
+            let c = Clipboard(src: items)
+            return c
+        }
+        
+        return Clipboard()
+    }
+    
+    public static func setCurrent(src: Clipboard) {
+        
+        // FIXME : better solution
+        Clipboard.previousChangeCount += 1
+        
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.writeObjects(copyItems(src: src.items))
+    }
+    
+    static func copyItems( src: [NSPasteboardItem] ) -> [NSPasteboardItem] {
+        
+        var dst: [NSPasteboardItem] = []
+        
+        for srcItem in src {
+            let item = NSPasteboardItem()
+            
+            for type in srcItem.types {
+                if let data = srcItem.data(forType: type) {
+                    item.setData(data, forType: type)
+                }
+            }
+            
+            dst.append(item)
+        }
+        
+        return dst
+    }
+    
+    public func getString() -> String {
+        
+        let s = items.first?.string(forType: .string)
+        if var s {
+            // Workaround for https://github.com/swiftlang/swift/issues/69870
+            s.makeContiguousUTF8()
+
             return s
         }
         return ""

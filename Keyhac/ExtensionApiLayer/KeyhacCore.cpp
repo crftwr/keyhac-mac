@@ -585,39 +585,100 @@ PyTypeObject UIElement_Type = {
 
 // ------------------------------------------
 
+extern PyTypeObject Clipboard_Type;
+#define Clipboard_Check(op) PyObject_TypeCheck(op, &Clipboard_Type)
+
 struct Clipboard_Object
 {
     PyObject_HEAD
-    //Clipboard impl;
+    Clipboard impl;
 };
 
-static PyObject * Clipboard_get(Clipboard_Object * self, PyObject* args)
+static int Clipboard_init(Clipboard_Object * self, PyObject * args, PyObject * kwds)
+{
+    if( ! PyArg_ParseTuple( args, "" ) )
+    {
+        return -1;
+    }
+    
+    self->impl = Clipboard::init();
+
+    return 0;
+}
+
+static void Clipboard_dealloc(Clipboard_Object * self)
+{
+    self->impl.~Clipboard();
+
+    ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Clipboard_destroy(Clipboard_Object * self, PyObject* args)
 {
     if(!PyArg_ParseTuple(args, ""))
     {
         return NULL;
     }
     
-    std::string s = Clipboard::getInstance().get();
+    self->impl.destroy();
 
-    PyObject * pys = Py_BuildValue( "s", s.c_str() );
-    return pys;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyObject * Clipboard_set(Clipboard_Object * self, PyObject* args)
+static PyObject * Clipboard_get_string(Clipboard_Object * self, PyObject* args)
 {
     if(!PyArg_ParseTuple(args, ""))
     {
         return NULL;
     }
+    
+    std::string s = self->impl.getString();
+
+    PyObject * pys = Py_BuildValue( "s", s.c_str() );
+    return pys;
+}
+
+static Clipboard_Object * Clipboard_getCurrent(Clipboard_Object * self, PyObject* args)
+{
+    if(!PyArg_ParseTuple(args, ""))
+    {
+        return NULL;
+    }
+    
+    auto clipboard = Clipboard::getCurrent();
+
+    Clipboard_Object * pyclipboard = (Clipboard_Object*)Clipboard_Type.tp_alloc(&Clipboard_Type, 0);
+    pyclipboard->impl = clipboard;
+
+    return pyclipboard;
+}
+
+static PyObject * Clipboard_setCurrent(Clipboard_Object * self, PyObject* args)
+{
+    Clipboard_Object * pyclipboard;
+    if(!PyArg_ParseTuple(args, "O", &pyclipboard))
+    {
+        return NULL;
+    }
+    
+    if(!Clipboard_Check(pyclipboard))
+    {
+        PyErr_SetString( PyExc_TypeError, "value must be a Clipboard object.");
+        return NULL;
+    }
+
+    Clipboard::setCurrent(pyclipboard->impl);
     
     Py_INCREF(Py_None);
     return Py_None;
 }
 
 static PyMethodDef Clipboard_methods[] = {
-    { "get", (PyCFunction)Clipboard_get, METH_STATIC|METH_VARARGS, "" },
-    { "set", (PyCFunction)Clipboard_set, METH_STATIC|METH_VARARGS, "" },
+    { "destroy", (PyCFunction)Clipboard_destroy, METH_VARARGS, "" },
+    { "get_string", (PyCFunction)Clipboard_get_string, METH_VARARGS, "" },
+    { "get_current", (PyCFunction)Clipboard_getCurrent, METH_STATIC|METH_VARARGS, "" },
+    { "set_current", (PyCFunction)Clipboard_setCurrent, METH_STATIC|METH_VARARGS, "" },
     {NULL,NULL}
 };
 
@@ -626,7 +687,7 @@ PyTypeObject Clipboard_Type = {
     "Clipboard",            /* tp_name */
     sizeof(Clipboard_Type), /* tp_basicsize */
     0,                      /* tp_itemsize */
-    0,                      /* tp_dealloc */
+    (destructor)Clipboard_dealloc,/* tp_dealloc */
     0,                      /* tp_print */
     0,                      /* tp_getattr */
     0,                      /* tp_setattr */
@@ -657,7 +718,7 @@ PyTypeObject Clipboard_Type = {
     0,                      /* tp_descr_get */
     0,                      /* tp_descr_set */
     0,                      /* tp_dictoffset */
-    0,                      /* tp_init */
+    (initproc)Clipboard_init,/* tp_init */
     0,                      /* tp_alloc */
     PyType_GenericNew,      /* tp_new */
     0,                      /* tp_free */

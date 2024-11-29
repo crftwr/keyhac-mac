@@ -66,6 +66,9 @@ class Keymap:
         self._last_keydown = None           # Key code of the last key down, to detect one-shot event
         self._record_status = None          # Key recording status ("recording" or None)
         self._record_seq = None             # Recoreded key sequence
+        
+        # FIXME: testing
+        self._clipboard_history = []
 
         Hook.set_callback("Keyboard", self._on_key)
         Hook.set_callback("Clipboard", self._on_clipboard)
@@ -452,9 +455,33 @@ class Keymap:
                 if focus_condition.check(self._focus_path, self._focus_elm):
                     self._unified_keytable.update(keytable.table)
 
+    # FIXME: testing
     def _on_clipboard(self, s):
-        d = Clipboard.get()
-        print("Clipboard:", d)
+        d = Clipboard.get_current()
+        self._clipboard_history.insert(0, d)
+        
+        while len(self._clipboard_history) > 10:
+            oldest = self._clipboard_history.pop()
+            oldest.destroy()
+        
+        print("------")
+        for i, d in enumerate(self._clipboard_history):
+            print(f"Clipboard[{i}]:", d.get_string())
+
+    # FIXME: testing
+    def pop_clipboard(self):
+
+        if len(self._clipboard_history)<=1:
+            return
+
+        latest = self._clipboard_history.pop(0)
+        latest.destroy()
+        
+        Clipboard.set_current( self._clipboard_history[0] )
+        
+        print("------")
+        for i, d in enumerate(self._clipboard_history):
+            print(f"Clipboard[{i}]:", d.get_string())
 
     @property
     def focus(self) -> UIElement:

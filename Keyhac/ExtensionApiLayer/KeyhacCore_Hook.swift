@@ -403,7 +403,7 @@ public class Hook {
             }
         }
 
-        if Clipboard.getInstance().changed {
+        if Clipboard.changed {
             onClipboardChanged()
         }
     }

@@ -21,6 +21,9 @@ def configure(keymap):
 
     keytable_global = keymap.define_keytable(focus_path_pattern="*")
 
+    # FIXME: testing
+    keytable_global["User0-P"] = keymap.pop_clipboard
+
     # -----------------------------------------------------
     # Fn-A: Sample of assigning callable object to key
     def hello_world():
