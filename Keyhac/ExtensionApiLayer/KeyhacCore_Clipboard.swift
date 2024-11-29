@@ -10,6 +10,8 @@ import AppKit
 
 public class Clipboard {
     
+    private static let lock = NSRecursiveLock()
+    
     static var previousChangeCount: NSInteger = 0
     
     var items: [NSPasteboardItem] = []
@@ -29,6 +31,10 @@ public class Clipboard {
     }
     
     public static var changed: Bool {
+        
+        lock.lock()
+        defer { lock.unlock() }
+
         let changeCount = NSPasteboard.general.changeCount
         
         if Clipboard.previousChangeCount != changeCount {
@@ -41,6 +47,9 @@ public class Clipboard {
     
     public static func getCurrent() -> Clipboard {
         
+        lock.lock()
+        defer { lock.unlock() }
+
         if let items = NSPasteboard.general.pasteboardItems {
             let c = Clipboard(src: items)
             return c
@@ -51,7 +60,10 @@ public class Clipboard {
     
     public static func setCurrent(src: Clipboard) {
         
-        // FIXME : better solution
+        lock.lock()
+        defer { lock.unlock() }
+
+        // Don't detect clipboard change by self
         Clipboard.previousChangeCount += 1
         
         NSPasteboard.general.clearContents()
