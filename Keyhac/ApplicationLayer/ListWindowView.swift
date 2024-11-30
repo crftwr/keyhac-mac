@@ -30,7 +30,8 @@ struct ListWindowView: View {
                     stringValue: $searchText,
                     placeholder: "Search",
                     autoFocus: true,
-                    tag: 1
+                    tag: 1,
+                    onKeyDown: self.onKeyDown
                 )
             }
             .offset(x: 0, y: 2)
@@ -68,6 +69,40 @@ struct ListWindowView: View {
         .padding(.all, 4)
     }
     
+    func onKeyDown(_ key: CustomTextFieldView.Key) {
+        print("CustomTextFieldView.onKeyDown key: \(key)")
+        
+        switch key {
+            
+        case .up:
+            
+            let searchResults = self.searchResults
+            
+            focusedListItem = max(focusedListItem-1, 0)
+            if focusedListItem < searchResults.count {
+                scrollPosition.scrollTo(id: searchResults[focusedListItem], anchor: .top)
+            }
+            else {
+                scrollPosition.scrollTo(edge: .top)
+            }
+            
+        case .down:
+            
+            let searchResults = self.searchResults
+            
+            focusedListItem = max(min(focusedListItem+1, searchResults.count-1), 0)
+            if focusedListItem < searchResults.count {
+                scrollPosition.scrollTo(id: searchResults[focusedListItem], anchor: .bottom)
+            }
+            else {
+                scrollPosition.scrollTo(edge: .top)
+            }
+            
+        default:
+            break
+        }
+    }
+    
     var searchResults: [AttributedString] {
         if searchText.isEmpty {
             let filteredNames = names
@@ -83,6 +118,133 @@ struct ListWindowView: View {
                 try! AttributedString(markdown: $0.replacingOccurrences(of: searchText, with: String(format: "**%@**", searchText) ))
             }
             return attributedNames
+        }
+    }
+}
+
+struct CustomTextFieldView: NSViewRepresentable {
+    
+    enum Key {
+        case tab
+        case enter
+        case escape
+        case up
+        case down
+    }
+
+    @Binding var stringValue: String
+    var placeholder: String
+    var autoFocus = false
+    var tag: Int = 0
+    var focusTag: Binding<Int>?
+    var onChange: (() -> Void)?
+    var onCommit: (() -> Void)?
+    var onKeyDown: ((Key) -> Void)?
+    @State private var didFocus = false
+    
+    func makeNSView(context: Context) -> NSTextField {
+        let textField = NSTextField()
+        textField.stringValue = stringValue
+        textField.placeholderString = placeholder
+        textField.delegate = context.coordinator
+        textField.alignment = .left
+        textField.bezelStyle = .squareBezel
+        textField.tag = tag
+        return textField
+    }
+    
+    func updateNSView(_ nsView: NSTextField, context: Context) {
+        if autoFocus && !didFocus {
+            // FIXME: mainWindow限定？
+            NSApplication.shared.mainWindow?.perform(
+                #selector(NSApplication.shared.mainWindow?.makeFirstResponder(_:)),
+                with: nsView,
+                afterDelay: 0.0
+            )
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                didFocus = true
+            }
+        }
+        
+        if let focusTag = focusTag {
+            if focusTag.wrappedValue == nsView.tag {
+                NSApplication.shared.mainWindow?.perform(
+                    #selector(NSApplication.shared.mainWindow?.makeFirstResponder(_:)),
+                    with: nsView,
+                    afterDelay: 0.0
+                )
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.focusTag?.wrappedValue = 0
+                }
+            }
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(with: self)
+    }
+
+    class Coordinator: NSObject, NSTextFieldDelegate {
+        let parent: CustomTextFieldView
+        
+        init(with parent: CustomTextFieldView) {
+            self.parent = parent
+            super.init()
+            
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(handleAppDidBecomeActive(notification:)),
+                name: NSApplication.didBecomeActiveNotification,
+                object: nil)
+        }
+        
+        @objc
+        func handleAppDidBecomeActive(notification: Notification) {
+            if parent.autoFocus && !parent.didFocus {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    self.parent.didFocus = false
+                }
+            }
+        }
+
+        func controlTextDidChange(_ obj: Notification) {
+            guard let textField = obj.object as? NSTextField else { return }
+            parent.stringValue = textField.stringValue
+            parent.onChange?()
+        }
+        
+        func control(_ control: NSControl, textShouldEndEditing fieldEditor: NSText) -> Bool {
+            parent.stringValue = fieldEditor.string
+            parent.onCommit?()
+            return true
+        }
+        
+        func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+            
+            if commandSelector == #selector(NSStandardKeyBindingResponding.insertTab(_:)) {
+                parent.onKeyDown?(.tab)
+                return true
+            }
+            else if commandSelector == #selector(NSStandardKeyBindingResponding.insertNewline(_:)) {
+                parent.onKeyDown?(.enter)
+                return true
+            }
+            else if commandSelector == #selector(NSStandardKeyBindingResponding.cancelOperation(_:)) {
+                parent.onKeyDown?(.escape)
+                return true
+            }
+            else if commandSelector == #selector(NSStandardKeyBindingResponding.moveUp(_:)) {
+                parent.onKeyDown?(.up)
+                return true
+            }
+            else if commandSelector == #selector(NSStandardKeyBindingResponding.moveDown(_:)) {
+                parent.onKeyDown?(.down)
+                return true
+            }
+
+            return false
         }
     }
 }
