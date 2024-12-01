@@ -11,7 +11,33 @@ import Cocoa
 
 struct ListWindowView: View {
     
-    let names = ["Holly", "Josh", "Rhonda", "Ted", "Item001", "Item002", "Item003", "Item004"]
+    struct Item {
+        let icon: String
+        let text: String
+        let uuid: String
+    }
+
+    struct AttributedItem: Hashable {
+        let icon: String
+        let attrText: AttributedString
+        let uuid: String
+        let renderId: String = UUID().uuidString
+        
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(uuid)
+        }
+    }
+
+    let items = [
+        Item(icon: "👤", text: "Holly", uuid: UUID().uuidString),
+        Item(icon: "👤", text: "Josh", uuid: UUID().uuidString),
+        Item(icon: "👤", text: "Rhonda", uuid: UUID().uuidString),
+        Item(icon: "👤", text: "Ted", uuid: UUID().uuidString),
+        Item(icon: "📋", text: "Item001", uuid: UUID().uuidString),
+        Item(icon: "📋", text: "Item002", uuid: UUID().uuidString),
+        Item(icon: "📋", text: "Item003", uuid: UUID().uuidString),
+        Item(icon: "📋", text: "Item004", uuid: UUID().uuidString),
+    ]
     
     @State private var searchText = ""
     @State private var focusedListItem: Int = 0
@@ -38,22 +64,22 @@ struct ListWindowView: View {
             ScrollView {
                 LazyVStack {
                     let searchResults = self.searchResults
-                    
-                    ForEach(Array(searchResults.enumerated()), id: \.element) { index, name in
+
+                    ForEach(Array(searchResults.enumerated()), id: \.element) { index, item in
                         
                         let focused = focusedListItem == index
-                        
+
                         HStack {
-                            Text("📋")
+                            Text(item.icon)
                                 .font(.system(size: 8))
                                 .frame(width: 12)
                                 .foregroundStyle(.opacity(0.5))
                             
-                            Text(name)
+                            Text(item.attrText)
                             
                             Spacer()
                         }
-                        .id(name)
+                        .id(item.renderId)
                         .background(focused ? Color.blue.opacity(0.3) : Color.clear)
                     }
                 }
@@ -73,7 +99,7 @@ struct ListWindowView: View {
             
             focusedListItem = max(focusedListItem-1, 0)
             if focusedListItem < searchResults.count {
-                scrollPosition.scrollTo(id: searchResults[focusedListItem], anchor: .top)
+                scrollPosition.scrollTo(id: searchResults[focusedListItem].uuid, anchor: .top)
             }
             else {
                 scrollPosition.scrollTo(edge: .top)
@@ -84,7 +110,7 @@ struct ListWindowView: View {
             
             focusedListItem = max(min(focusedListItem+1, searchResults.count-1), 0)
             if focusedListItem < searchResults.count {
-                scrollPosition.scrollTo(id: searchResults[focusedListItem], anchor: .bottom)
+                scrollPosition.scrollTo(id: searchResults[focusedListItem].uuid, anchor: .bottom)
             }
             else {
                 scrollPosition.scrollTo(edge: .top)
@@ -95,36 +121,37 @@ struct ListWindowView: View {
         }
     }
     
-    var searchResults: [AttributedString] {
+    var searchResults: [AttributedItem] {
         
         let trimmedString = self.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         let words = trimmedString.components(separatedBy: " ")
         
-        let filteredNames = self.names.filter {
+        let filteredItems = self.items.filter {
             for word in words {
                 if word.isEmpty {
                     continue
                 }
-                if $0.range(of: word, options: .caseInsensitive) == nil {
+                if $0.text.range(of: word, options: .caseInsensitive) == nil {
                     return false
                 }
             }
             return true
         }
         
-        let attributedNames = filteredNames.map {
-            var attrString = AttributedString($0)
+        let attributedItems = filteredItems.map {
+            var attrString = AttributedString($0.text)
             for word in words {
                 if word.isEmpty {
                     continue
                 }
                 if let range = attrString.range(of: word, options: .caseInsensitive) {
+                    print("Underline range: \(range)")
                     attrString[range].underlineStyle = Text.LineStyle(pattern: .solid, color: .gray)
                 }
             }
-            return attrString
+            return AttributedItem(icon: $0.icon, attrText: attrString, uuid: $0.uuid)
         }
-        return attributedNames
+        return attributedItems
     }
 }
 
