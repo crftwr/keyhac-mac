@@ -40,8 +40,10 @@ struct ListWindowView: View {
     ]
     
     @State private var searchText = ""
-    @State private var focusedListItem: Int = 0
+    @State private var selectedIndex: Int = 0
+    @State private var selectedUuid: String = ""
     @State private var scrollPosition = ScrollPosition(edge: .top)
+    @State private var searchResults: [AttributedItem] = []
     
     var body: some View {
         VStack {
@@ -56,18 +58,20 @@ struct ListWindowView: View {
                     stringValue: $searchText,
                     placeholder: "Search",
                     autoFocus: true,
+                    onChange: self.onSearchTextChange,
                     onKeyDown: self.onKeyDown
                 )
+                .onAppear {
+                    self.onSearchTextChange()
+                }
             }
             .offset(x: 0, y: 2)
             
             ScrollView {
                 LazyVStack {
-                    let searchResults = self.searchResults
-
                     ForEach(Array(searchResults.enumerated()), id: \.element) { index, item in
                         
-                        let focused = focusedListItem == index
+                        let focused = selectedIndex == index
 
                         HStack {
                             Text(item.icon)
@@ -92,41 +96,17 @@ struct ListWindowView: View {
         .padding(.all, 4)
     }
     
-    func onKeyDown(_ key: CustomTextFieldView.Key) {
-        switch key {
-        case .up:
-            let searchResults = self.searchResults
-            
-            focusedListItem = max(focusedListItem-1, 0)
-            if focusedListItem < searchResults.count {
-                scrollPosition.scrollTo(id: searchResults[focusedListItem].uuid, anchor: .top)
-            }
-            else {
-                scrollPosition.scrollTo(edge: .top)
-            }
-            
-        case .down:
-            let searchResults = self.searchResults
-            
-            focusedListItem = max(min(focusedListItem+1, searchResults.count-1), 0)
-            if focusedListItem < searchResults.count {
-                scrollPosition.scrollTo(id: searchResults[focusedListItem].uuid, anchor: .bottom)
-            }
-            else {
-                scrollPosition.scrollTo(edge: .top)
-            }
-            
-        default:
-            break
-        }
-    }
-    
-    var searchResults: [AttributedItem] {
-        
+    func onSearchTextChange() {
+
         let trimmedString = self.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         let words = trimmedString.components(separatedBy: " ")
+
+        // Select the first item by default
+        selectedIndex = 0
         
+        var index = 0
         let filteredItems = self.items.filter {
+            
             for word in words {
                 if word.isEmpty {
                     continue
@@ -135,10 +115,17 @@ struct ListWindowView: View {
                     return false
                 }
             }
+            
+            // Keep item selection by UUID
+            if $0.uuid == selectedUuid {
+                selectedIndex = index
+            }
+            index += 1
+            
             return true
         }
         
-        let attributedItems = filteredItems.map {
+        self.searchResults = filteredItems.map {
             var attrString = AttributedString($0.text)
             for word in words {
                 if word.isEmpty {
@@ -151,7 +138,33 @@ struct ListWindowView: View {
             }
             return AttributedItem(icon: $0.icon, attrText: attrString, uuid: $0.uuid)
         }
-        return attributedItems
+    }
+    
+    func onKeyDown(_ key: CustomTextFieldView.Key) {
+        switch key {
+        case .up:
+            selectedIndex = max(selectedIndex-1, 0)
+            if selectedIndex < searchResults.count {
+                scrollPosition.scrollTo(id: searchResults[selectedIndex].uuid, anchor: .top)
+            }
+            else {
+                scrollPosition.scrollTo(edge: .top)
+            }
+            selectedUuid = searchResults[selectedIndex].uuid
+            
+        case .down:
+            selectedIndex = max(min(selectedIndex+1, searchResults.count-1), 0)
+            if selectedIndex < searchResults.count {
+                scrollPosition.scrollTo(id: searchResults[selectedIndex].uuid, anchor: .bottom)
+            }
+            else {
+                scrollPosition.scrollTo(edge: .top)
+            }
+            selectedUuid = searchResults[selectedIndex].uuid
+
+        default:
+            break
+        }
     }
 }
 
