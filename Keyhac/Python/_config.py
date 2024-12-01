@@ -1,6 +1,7 @@
 import sys
 import time
 import uuid
+import json
 import urllib.parse
 import subprocess
 from keyhac import *
@@ -48,11 +49,18 @@ def configure(keymap):
             ("📋", "Item004", str(uuid.uuid4()) ),
         ]
 
-        def onSelected():
-            pass
+        print(items)
 
-        def onCanceled():
-            pass
+        def onSelected(arg):
+            print("onSelected", arg)
+            arg = json.loads(arg)
+            for item in items:
+                if item[2]==arg["uuid"]:
+                    print(item)
+                    break
+
+        def onCanceled(arg):
+            print("onCanceled", arg)
 
         list_window = ListWindow.open("test", items, onSelected, onCanceled)
         print(list_window)

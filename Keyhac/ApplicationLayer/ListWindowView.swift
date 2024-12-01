@@ -36,19 +36,6 @@ struct ListWindowView: View {
     
     let listName: String
 
-    /*
-    let items = [
-        ListWindowItem(icon: "👤", text: "Holly", uuid: UUID().uuidString),
-        ListWindowItem(icon: "👤", text: "Josh", uuid: UUID().uuidString),
-        ListWindowItem(icon: "👤", text: "Rhonda", uuid: UUID().uuidString),
-        ListWindowItem(icon: "👤", text: "Ted", uuid: UUID().uuidString),
-        ListWindowItem(icon: "📋", text: "Item001", uuid: UUID().uuidString),
-        ListWindowItem(icon: "📋", text: "Item002", uuid: UUID().uuidString),
-        ListWindowItem(icon: "📋", text: "Item003", uuid: UUID().uuidString),
-        ListWindowItem(icon: "📋", text: "Item004", uuid: UUID().uuidString),
-    ]
-    */
-    
     @State private var searchText = ""
     @State private var selectedIndex: Int = 0
     @State private var selectedUuid: String = ""
@@ -176,6 +163,14 @@ struct ListWindowView: View {
             }
             selectedUuid = searchResults[selectedIndex].uuid
 
+        case .enter:
+            guard let listWindow = ListWindow.getInstance(name: self.listName) else { break }
+            listWindow.onSelected(uuid: searchResults[selectedIndex].uuid)
+            
+        case .escape:
+            guard let listWindow = ListWindow.getInstance(name: self.listName) else { break }
+            listWindow.onCanceled()
+            
         default:
             break
         }
