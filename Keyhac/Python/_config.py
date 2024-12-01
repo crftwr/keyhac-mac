@@ -51,7 +51,7 @@ def configure(keymap):
 
         print(items)
 
-        def onSelected(arg):
+        def on_selected(arg):
             print("onSelected", arg)
             arg = json.loads(arg)
             for item in items:
@@ -59,10 +59,10 @@ def configure(keymap):
                     print(item)
                     break
 
-        def onCanceled(arg):
+        def on_canceled(arg):
             print("onCanceled", arg)
 
-        list_window = ListWindow.open("test", items, onSelected, onCanceled)
+        list_window = ListWindow.open("test", items, on_selected, on_canceled)
         print(list_window)
 
     keytable_global["Fn-A"] = hello_world
