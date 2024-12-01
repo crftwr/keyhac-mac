@@ -30,7 +30,6 @@ struct ListWindowView: View {
                     stringValue: $searchText,
                     placeholder: "Search",
                     autoFocus: true,
-                    tag: 1,
                     onKeyDown: self.onKeyDown
                 )
             }
@@ -61,8 +60,6 @@ struct ListWindowView: View {
                 .padding(.all, 8)
             }
             .background(Color.white)
-            //        .focusable()
-            //        .focused($focusedField, equals: .list)
             .scrollPosition($scrollPosition)
         }
         .frame(minWidth: 200, idealWidth: 200, maxWidth: 500, minHeight: 32, idealHeight: 32, maxHeight: 500, alignment: .top)
@@ -70,12 +67,8 @@ struct ListWindowView: View {
     }
     
     func onKeyDown(_ key: CustomTextFieldView.Key) {
-        print("CustomTextFieldView.onKeyDown key: \(key)")
-        
         switch key {
-            
         case .up:
-            
             let searchResults = self.searchResults
             
             focusedListItem = max(focusedListItem-1, 0)
@@ -87,7 +80,6 @@ struct ListWindowView: View {
             }
             
         case .down:
-            
             let searchResults = self.searchResults
             
             focusedListItem = max(min(focusedListItem+1, searchResults.count-1), 0)
@@ -104,18 +96,41 @@ struct ListWindowView: View {
     }
     
     var searchResults: [AttributedString] {
-        if searchText.isEmpty {
+        
+        let trimmedString = self.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let words = trimmedString.components(separatedBy: " ")
+        
+        if words.isEmpty {
             let filteredNames = names
             let attributedNames = filteredNames.map {
-                // FIXME: escape
-                try! AttributedString(markdown: $0)
+                AttributedString($0)
             }
             return attributedNames
         } else {
-            let filteredNames = names.filter { $0.contains(searchText) }
+            
+            let filteredNames = self.names.filter {
+                for word in words {
+                    if word.isEmpty {
+                        continue
+                    }
+                    if !$0.contains(word) {
+                        return false
+                    }
+                }
+                return true
+            }
+            
             let attributedNames = filteredNames.map {
-                // FIXME: escape
-                try! AttributedString(markdown: $0.replacingOccurrences(of: searchText, with: String(format: "**%@**", searchText) ))
+                var attrString = AttributedString($0)
+                for word in words {
+                    if word.isEmpty {
+                        continue
+                    }
+                    if let range = attrString.range(of: word) {
+                        attrString[range].underlineStyle = Text.LineStyle(pattern: .solid, color: .gray)
+                    }
+                }
+                return attrString
             }
             return attributedNames
         }
@@ -135,10 +150,7 @@ struct CustomTextFieldView: NSViewRepresentable {
     @Binding var stringValue: String
     var placeholder: String
     var autoFocus = false
-    var tag: Int = 0
-    var focusTag: Binding<Int>?
     var onChange: (() -> Void)?
-    var onCommit: (() -> Void)?
     var onKeyDown: ((Key) -> Void)?
     @State private var didFocus = false
     
@@ -149,7 +161,6 @@ struct CustomTextFieldView: NSViewRepresentable {
         textField.delegate = context.coordinator
         textField.alignment = .left
         textField.bezelStyle = .squareBezel
-        textField.tag = tag
         return textField
     }
     
@@ -164,20 +175,6 @@ struct CustomTextFieldView: NSViewRepresentable {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 didFocus = true
-            }
-        }
-        
-        if let focusTag = focusTag {
-            if focusTag.wrappedValue == nsView.tag {
-                NSApplication.shared.mainWindow?.perform(
-                    #selector(NSApplication.shared.mainWindow?.makeFirstResponder(_:)),
-                    with: nsView,
-                    afterDelay: 0.0
-                )
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self.focusTag?.wrappedValue = 0
-                }
             }
         }
     }
@@ -213,12 +210,6 @@ struct CustomTextFieldView: NSViewRepresentable {
             guard let textField = obj.object as? NSTextField else { return }
             parent.stringValue = textField.stringValue
             parent.onChange?()
-        }
-        
-        func control(_ control: NSControl, textShouldEndEditing fieldEditor: NSText) -> Bool {
-            parent.stringValue = fieldEditor.string
-            parent.onCommit?()
-            return true
         }
         
         func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
