@@ -49,8 +49,6 @@ def configure(keymap):
             ("📋", "Item004", str(uuid.uuid4()) ),
         ]
 
-        print(items)
-
         def on_selected(arg):
             print("onSelected", arg)
             arg = json.loads(arg)

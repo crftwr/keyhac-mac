@@ -972,6 +972,13 @@ struct ListWindow_Object
     ListWindow impl;
 };
 
+static void ListWindow_dealloc(ListWindow_Object * self)
+{
+    self->impl.~ListWindow();
+
+    ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
+}
+
 static ListWindow_Object * ListWindow_open(ListWindow_Object * self, PyObject* args)
 {
     PyObject * pyname;
@@ -1067,7 +1074,7 @@ PyTypeObject ListWindow_Type = {
     "ListWindow",           /* tp_name */
     sizeof(ListWindow_Type),/* tp_basicsize */
     0,                      /* tp_itemsize */
-    0,                      /* tp_dealloc */
+    (destructor)ListWindow_dealloc,/* tp_dealloc */
     0,                      /* tp_print */
     0,                      /* tp_getattr */
     0,                      /* tp_setattr */

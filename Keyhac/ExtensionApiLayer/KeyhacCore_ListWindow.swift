@@ -11,17 +11,21 @@ import SwiftUI
 public class ListWindow {
     
     @Environment(\.openWindow) static private var openWindow
-    
+    @Environment(\.dismissWindow) static private var dismissWindow
+
     private static var instances: [String : ListWindow] = [:]
     public static func getInstance(name: String) -> ListWindow? {
         return instances[name]
     }
     
+    var name: String
     var items: [ListWindowItem]
     var onSelectedCallback: PyObjectPtr
     var onCanceledCallback: PyObjectPtr
     
-    init( items: [ListWindowItem], onSelectedCallback: PyObjectPtr, onCanceledCallback: PyObjectPtr ) {
+    init( name: String, items: [ListWindowItem], onSelectedCallback: PyObjectPtr, onCanceledCallback: PyObjectPtr ) {
+        
+        self.name = name
         
         self.items = items
         
@@ -42,7 +46,7 @@ public class ListWindow {
             existingListWindow.destroy()
         }
         
-        let listWindow = ListWindow( items: items, onSelectedCallback: onSelectedCallback, onCanceledCallback: onCanceledCallback )
+        let listWindow = ListWindow( name: name, items: items, onSelectedCallback: onSelectedCallback, onCanceledCallback: onCanceledCallback )
         instances[name] = listWindow
         
         openWindow(id: "list", value: name)
@@ -52,6 +56,11 @@ public class ListWindow {
     }
     
     public func destroy() {
+        
+        var gil = PyGIL(true);
+        defer { gil.Release() }
+
+        self.items.removeAll()
         
         self.onSelectedCallback.DecRef()
         self.onSelectedCallback = PyObjectPtr()
@@ -77,6 +86,10 @@ public class ListWindow {
             arg.DecRef()
             pyresult.DecRef()
         }
+        
+        ListWindow.dismissWindow(id: "list", value: name)
+        
+        destroy()
     }
     
     public func onCanceled() {
@@ -94,5 +107,9 @@ public class ListWindow {
             arg.DecRef()
             pyresult.DecRef()
         }
+
+        ListWindow.dismissWindow(id: "list", value: name)
+
+        destroy()
     }
 }
