@@ -100,40 +100,31 @@ struct ListWindowView: View {
         let trimmedString = self.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         let words = trimmedString.components(separatedBy: " ")
         
-        if words.isEmpty {
-            let filteredNames = names
-            let attributedNames = filteredNames.map {
-                AttributedString($0)
-            }
-            return attributedNames
-        } else {
-            
-            let filteredNames = self.names.filter {
-                for word in words {
-                    if word.isEmpty {
-                        continue
-                    }
-                    if !$0.contains(word) {
-                        return false
-                    }
+        let filteredNames = self.names.filter {
+            for word in words {
+                if word.isEmpty {
+                    continue
                 }
-                return true
-            }
-            
-            let attributedNames = filteredNames.map {
-                var attrString = AttributedString($0)
-                for word in words {
-                    if word.isEmpty {
-                        continue
-                    }
-                    if let range = attrString.range(of: word) {
-                        attrString[range].underlineStyle = Text.LineStyle(pattern: .solid, color: .gray)
-                    }
+                if $0.range(of: word, options: .caseInsensitive) == nil {
+                    return false
                 }
-                return attrString
             }
-            return attributedNames
+            return true
         }
+        
+        let attributedNames = filteredNames.map {
+            var attrString = AttributedString($0)
+            for word in words {
+                if word.isEmpty {
+                    continue
+                }
+                if let range = attrString.range(of: word, options: .caseInsensitive) {
+                    attrString[range].underlineStyle = Text.LineStyle(pattern: .solid, color: .gray)
+                }
+            }
+            return attrString
+        }
+        return attributedNames
     }
 }
 
