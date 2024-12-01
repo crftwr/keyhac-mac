@@ -9,15 +9,21 @@ import SwiftUI
 import AppKit
 import Cocoa
 
+public struct ListWindowItem {
+    let icon: String
+    let text: String
+    let uuid: String
+    
+    public init(icon: String, text: String, uuid: String) {
+        self.icon = icon
+        self.text = text
+        self.uuid = uuid
+    }
+}
+
 struct ListWindowView: View {
     
-    struct Item {
-        let icon: String
-        let text: String
-        let uuid: String
-    }
-
-    struct AttributedItem: Hashable {
+    private struct AttributedItem: Hashable {
         let icon: String
         let attrText: AttributedString
         let uuid: String
@@ -27,17 +33,21 @@ struct ListWindowView: View {
             hasher.combine(uuid)
         }
     }
+    
+    let listName: String
 
+    /*
     let items = [
-        Item(icon: "👤", text: "Holly", uuid: UUID().uuidString),
-        Item(icon: "👤", text: "Josh", uuid: UUID().uuidString),
-        Item(icon: "👤", text: "Rhonda", uuid: UUID().uuidString),
-        Item(icon: "👤", text: "Ted", uuid: UUID().uuidString),
-        Item(icon: "📋", text: "Item001", uuid: UUID().uuidString),
-        Item(icon: "📋", text: "Item002", uuid: UUID().uuidString),
-        Item(icon: "📋", text: "Item003", uuid: UUID().uuidString),
-        Item(icon: "📋", text: "Item004", uuid: UUID().uuidString),
+        ListWindowItem(icon: "👤", text: "Holly", uuid: UUID().uuidString),
+        ListWindowItem(icon: "👤", text: "Josh", uuid: UUID().uuidString),
+        ListWindowItem(icon: "👤", text: "Rhonda", uuid: UUID().uuidString),
+        ListWindowItem(icon: "👤", text: "Ted", uuid: UUID().uuidString),
+        ListWindowItem(icon: "📋", text: "Item001", uuid: UUID().uuidString),
+        ListWindowItem(icon: "📋", text: "Item002", uuid: UUID().uuidString),
+        ListWindowItem(icon: "📋", text: "Item003", uuid: UUID().uuidString),
+        ListWindowItem(icon: "📋", text: "Item004", uuid: UUID().uuidString),
     ]
+    */
     
     @State private var searchText = ""
     @State private var selectedIndex: Int = 0
@@ -97,6 +107,10 @@ struct ListWindowView: View {
     }
     
     func onSearchTextChange() {
+        
+        guard let listWindow = ListWindow.getInstance(name: self.listName) else {
+            return
+        }
 
         let trimmedString = self.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         let words = trimmedString.components(separatedBy: " ")
@@ -105,7 +119,7 @@ struct ListWindowView: View {
         selectedIndex = 0
         
         var index = 0
-        let filteredItems = self.items.filter {
+        let filteredItems = listWindow.items.filter {
             
             for word in words {
                 if word.isEmpty {

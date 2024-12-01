@@ -1,5 +1,6 @@
 import sys
 import time
+import uuid
 import urllib.parse
 import subprocess
 from keyhac import *
@@ -35,6 +36,26 @@ def configure(keymap):
         logger.warning("Warning message via Console logger")
         logger.error("Error message via Console logger")
         logger.critical("Critical message via Console logger")
+
+        items = [
+            ("👤", "Holly",   str(uuid.uuid4()) ),
+            ("👤", "Josh",    str(uuid.uuid4()) ),
+            ("👤", "Rhonda",  str(uuid.uuid4()) ),
+            ("👤", "Ted",     str(uuid.uuid4()) ),
+            ("📋", "Item001", str(uuid.uuid4()) ),
+            ("📋", "Item002", str(uuid.uuid4()) ),
+            ("📋", "Item003", str(uuid.uuid4()) ),
+            ("📋", "Item004", str(uuid.uuid4()) ),
+        ]
+
+        def onSelected():
+            pass
+
+        def onCanceled():
+            pass
+
+        list_window = ListWindow.open("test", items, onSelected, onCanceled)
+        print(list_window)
 
     keytable_global["Fn-A"] = hello_world
 

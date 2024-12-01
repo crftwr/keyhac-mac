@@ -962,6 +962,151 @@ PyTypeObject Console_Type = {
 
 // ------------------------------------------
 
+
+extern PyTypeObject ListWindow_Type;
+#define ListWindow_Check(op) PyObject_TypeCheck(op, &ListWindow_Type)
+
+struct ListWindow_Object
+{
+    PyObject_HEAD
+    ListWindow impl;
+};
+
+static ListWindow_Object * ListWindow_open(ListWindow_Object * self, PyObject* args)
+{
+    PyObject * pyname;
+    PyObject * pyitems;
+    PyObject * pyselected;
+    PyObject * pycanceled;
+
+    if( ! PyArg_ParseTuple(args, "UOOO", &pyname, &pyitems, &pyselected, &pycanceled ) )
+    {
+        return NULL;
+    }
+    
+    const char * name = PyUnicode_AsUTF8AndSize(pyname, NULL);
+    
+    if( ! PySequence_Check(pyitems) )
+    {
+        PyErr_SetString( PyExc_TypeError, "items must be a sequence object.");
+        return NULL;
+    }
+    
+    auto items = swift::Array<ListWindowItem>::init();
+    for( int i=0 ; i<PySequence_Length(pyitems) ; ++i )
+    {
+        PyObject * pyitem = PySequence_GetItem(pyitems, i);
+        
+        if( ! PySequence_Check(pyitem) )
+        {
+            PyErr_SetString( PyExc_TypeError, "each item must be a tuple.");
+            Py_XDECREF(pyitem);
+            return NULL;
+        }
+        
+        if( PySequence_Length(pyitem) != 3 )
+        {
+            PyErr_SetString( PyExc_TypeError, "item must be a tuple of 3 strings.");
+            Py_XDECREF(pyitem);
+            return NULL;
+        }
+        
+        PyObject * pyicon = PySequence_GetItem(pyitem, 0);
+        PyObject * pytext = PySequence_GetItem(pyitem, 1);
+        PyObject * pyuuid = PySequence_GetItem(pyitem, 2);
+
+        if( !PyUnicode_Check(pyicon) || !PyUnicode_Check(pytext) || !PyUnicode_Check(pyuuid) )
+        {
+            PyErr_SetString( PyExc_TypeError, "all elements in item must be strings.");
+            Py_XDECREF(pyitem);
+            Py_XDECREF(pyicon);
+            Py_XDECREF(pytext);
+            Py_XDECREF(pyuuid);
+            return NULL;
+        }
+
+        const char * icon = PyUnicode_AsUTF8AndSize(pyicon, NULL);
+        const char * text = PyUnicode_AsUTF8AndSize(pytext, NULL);
+        const char * uuid = PyUnicode_AsUTF8AndSize(pyuuid, NULL);
+
+        items.append(ListWindowItem::init(icon, text, uuid));
+    }
+
+    auto onSelected = PyObjectPtr(pyselected);
+    auto onCanceled = PyObjectPtr(pycanceled);
+    
+    auto listWindow = ListWindow::open(name, items, onSelected, onCanceled);
+
+    ListWindow_Object * pyListWindow = (ListWindow_Object*)ListWindow_Type.tp_alloc(&ListWindow_Type, 0);
+    pyListWindow->impl = listWindow;
+    
+    return pyListWindow;
+}
+
+static PyObject * ListWindow_destroy(ListWindow_Object * self, PyObject* args)
+{
+    if( ! PyArg_ParseTuple(args, "" ) )
+    {
+        return NULL;
+    }
+    
+    self->impl.destroy();
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMethodDef ListWindow_methods[] = {
+    { "open", (PyCFunction)ListWindow_open, METH_STATIC|METH_VARARGS, "" },
+    { "destroy", (PyCFunction)ListWindow_destroy, METH_VARARGS, "" },
+    {NULL,NULL}
+};
+
+PyTypeObject ListWindow_Type = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "ListWindow",           /* tp_name */
+    sizeof(ListWindow_Type),/* tp_basicsize */
+    0,                      /* tp_itemsize */
+    0,                      /* tp_dealloc */
+    0,                      /* tp_print */
+    0,                      /* tp_getattr */
+    0,                      /* tp_setattr */
+    0,                      /* tp_compare */
+    0,                      /* tp_repr */
+    0,                      /* tp_as_number */
+    0,                      /* tp_as_sequence */
+    0,                      /* tp_as_mapping */
+    0,                      /* tp_hash */
+    0,                      /* tp_call */
+    0,                      /* tp_str */
+    0,                      /* tp_getattro */
+    0,                      /* tp_setattro */
+    0,                      /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,   /* tp_flags */
+    "",                     /* tp_doc */
+    0,                      /* tp_traverse */
+    0,                      /* tp_clear */
+    0,                      /* tp_richcompare */
+    0,                      /* tp_weaklistoffset */
+    0,                      /* tp_iter */
+    0,                      /* tp_iternext */
+    ListWindow_methods,     /* tp_methods */
+    0,                      /* tp_members */
+    0,                      /* tp_getset */
+    0,                      /* tp_base */
+    0,                      /* tp_dict */
+    0,                      /* tp_descr_get */
+    0,                      /* tp_descr_set */
+    0,                      /* tp_dictoffset */
+    0,                      /* tp_init */
+    0,                      /* tp_alloc */
+    PyType_GenericNew,      /* tp_new */
+    0,                      /* tp_free */
+};
+
+
+// ------------------------------------------
+
 static PyMethodDef keyhac_core_methods[] = {
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
@@ -981,6 +1126,7 @@ PyObject * keyhacCoreModuleInit(void)
     if( PyType_Ready(&Clipboard_Type)<0 ) return NULL;
     if( PyType_Ready(&UIElement_Type)<0 ) return NULL;
     if( PyType_Ready(&Console_Type)<0 ) return NULL;
+    if( PyType_Ready(&ListWindow_Type)<0 ) return NULL;
 
     PyObject *m, *d;
 
@@ -998,6 +1144,9 @@ PyObject * keyhacCoreModuleInit(void)
     
     Py_INCREF(&Console_Type);
     PyModule_AddObject( m, "Console", (PyObject*)&Console_Type );
+    
+    Py_INCREF(&ListWindow_Type);
+    PyModule_AddObject( m, "ListWindow", (PyObject*)&ListWindow_Type );
     
     d = PyModule_GetDict(m);
 
