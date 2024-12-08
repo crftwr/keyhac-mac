@@ -60,8 +60,8 @@ def configure(keymap):
         def on_canceled(arg):
             print("onCanceled", arg)
 
-        list_window = ListWindow.open("test", items, on_selected, on_canceled)
-        print(list_window)
+        chooser = Chooser.open("test", items, on_selected, on_canceled)
+        print(chooser)
 
     keytable_global["Fn-A"] = hello_world
 

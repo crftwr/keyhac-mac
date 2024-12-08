@@ -25,9 +25,9 @@ struct KeyhacApp: App {
             ConsoleWindowView()
         }
 
-        WindowGroup("Keyhac List", id: "list", for: String.self) { name in
-            if let listName = name.wrappedValue {
-                ListWindowView(listName: listName)
+        WindowGroup("Keyhac Chooser", id: "chooser", for: String.self) { name in
+            if let name = name.wrappedValue {
+                ChooserWindowView(chooserName: name)
             }
         }
         .windowResizability(.contentSize)

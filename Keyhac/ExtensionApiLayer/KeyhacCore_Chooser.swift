@@ -1,5 +1,5 @@
 //
-//  KeyhacCore_Clipboard.swift
+//  KeyhacCore_Chooser.swift
 //  Keyhac
 //
 //  Created by Tomonori Shimomura on 2024-11-28.
@@ -8,22 +8,34 @@
 import Foundation
 import SwiftUI
 
-public class ListWindow {
+public struct ChooserItem {
+    let icon: String
+    let text: String
+    let uuid: String
+    
+    public init(icon: String, text: String, uuid: String) {
+        self.icon = icon
+        self.text = text
+        self.uuid = uuid
+    }
+}
+
+public class Chooser {
     
     @Environment(\.openWindow) static private var openWindow
     @Environment(\.dismissWindow) static private var dismissWindow
 
-    private static var instances: [String : ListWindow] = [:]
-    public static func getInstance(name: String) -> ListWindow? {
+    private static var instances: [String : Chooser] = [:]
+    public static func getInstance(name: String) -> Chooser? {
         return instances[name]
     }
     
     var name: String
-    var items: [ListWindowItem]
+    var items: [ChooserItem]
     var onSelectedCallback: PyObjectPtr
     var onCanceledCallback: PyObjectPtr
     
-    init( name: String, items: [ListWindowItem], onSelectedCallback: PyObjectPtr, onCanceledCallback: PyObjectPtr ) {
+    init( name: String, items: [ChooserItem], onSelectedCallback: PyObjectPtr, onCanceledCallback: PyObjectPtr ) {
         
         self.name = name
         
@@ -40,19 +52,19 @@ public class ListWindow {
         self.destroy()
     }
     
-    public static func open( name: String, items: [ListWindowItem], onSelectedCallback: PyObjectPtr, onCanceledCallback: PyObjectPtr ) -> ListWindow {
+    public static func open( name: String, items: [ChooserItem], onSelectedCallback: PyObjectPtr, onCanceledCallback: PyObjectPtr ) -> Chooser {
         
-        if let existingListWindow = getInstance(name: name) {
-            existingListWindow.destroy()
+        if let existingChooser = getInstance(name: name) {
+            existingChooser.destroy()
         }
         
-        let listWindow = ListWindow( name: name, items: items, onSelectedCallback: onSelectedCallback, onCanceledCallback: onCanceledCallback )
-        instances[name] = listWindow
+        let chooser = Chooser( name: name, items: items, onSelectedCallback: onSelectedCallback, onCanceledCallback: onCanceledCallback )
+        instances[name] = chooser
         
-        openWindow(id: "list", value: name)
+        openWindow(id: "chooser", value: name)
         NSApp.activate()
         
-        return listWindow
+        return chooser
     }
     
     public func destroy() {
@@ -87,7 +99,7 @@ public class ListWindow {
             pyresult.DecRef()
         }
         
-        ListWindow.dismissWindow(id: "list", value: name)
+        Chooser.dismissWindow(id: "chooser", value: name)
         
         destroy()
     }
@@ -108,7 +120,7 @@ public class ListWindow {
             pyresult.DecRef()
         }
 
-        ListWindow.dismissWindow(id: "list", value: name)
+        Chooser.dismissWindow(id: "chooser", value: name)
 
         destroy()
     }

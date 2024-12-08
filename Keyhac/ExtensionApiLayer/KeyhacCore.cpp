@@ -963,23 +963,23 @@ PyTypeObject Console_Type = {
 // ------------------------------------------
 
 
-extern PyTypeObject ListWindow_Type;
-#define ListWindow_Check(op) PyObject_TypeCheck(op, &ListWindow_Type)
+extern PyTypeObject Chooser_Type;
+#define Chooser_Check(op) PyObject_TypeCheck(op, &Chooser_Type)
 
-struct ListWindow_Object
+struct Chooser_Object
 {
     PyObject_HEAD
-    ListWindow impl;
+    Chooser impl;
 };
 
-static void ListWindow_dealloc(ListWindow_Object * self)
+static void Chooser_dealloc(Chooser_Object * self)
 {
-    self->impl.~ListWindow();
+    self->impl.~Chooser();
 
     ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
 }
 
-static ListWindow_Object * ListWindow_open(ListWindow_Object * self, PyObject* args)
+static Chooser_Object * Chooser_open(Chooser_Object * self, PyObject* args)
 {
     PyObject * pyname;
     PyObject * pyitems;
@@ -999,7 +999,7 @@ static ListWindow_Object * ListWindow_open(ListWindow_Object * self, PyObject* a
         return NULL;
     }
     
-    auto items = swift::Array<ListWindowItem>::init();
+    auto items = swift::Array<ChooserItem>::init();
     for( int i=0 ; i<PySequence_Length(pyitems) ; ++i )
     {
         PyObject * pyitem = PySequence_GetItem(pyitems, i);
@@ -1036,21 +1036,21 @@ static ListWindow_Object * ListWindow_open(ListWindow_Object * self, PyObject* a
         const char * text = PyUnicode_AsUTF8AndSize(pytext, NULL);
         const char * uuid = PyUnicode_AsUTF8AndSize(pyuuid, NULL);
 
-        items.append(ListWindowItem::init(icon, text, uuid));
+        items.append(ChooserItem::init(icon, text, uuid));
     }
 
     auto onSelected = PyObjectPtr(pyselected);
     auto onCanceled = PyObjectPtr(pycanceled);
     
-    auto listWindow = ListWindow::open(name, items, onSelected, onCanceled);
+    auto chooser = Chooser::open(name, items, onSelected, onCanceled);
 
-    ListWindow_Object * pyListWindow = (ListWindow_Object*)ListWindow_Type.tp_alloc(&ListWindow_Type, 0);
-    pyListWindow->impl = listWindow;
+    Chooser_Object * pychooser = (Chooser_Object*)Chooser_Type.tp_alloc(&Chooser_Type, 0);
+    pychooser->impl = chooser;
     
-    return pyListWindow;
+    return pychooser;
 }
 
-static PyObject * ListWindow_destroy(ListWindow_Object * self, PyObject* args)
+static PyObject * Chooser_destroy(Chooser_Object * self, PyObject* args)
 {
     if( ! PyArg_ParseTuple(args, "" ) )
     {
@@ -1063,18 +1063,18 @@ static PyObject * ListWindow_destroy(ListWindow_Object * self, PyObject* args)
     return Py_None;
 }
 
-static PyMethodDef ListWindow_methods[] = {
-    { "open", (PyCFunction)ListWindow_open, METH_STATIC|METH_VARARGS, "" },
-    { "destroy", (PyCFunction)ListWindow_destroy, METH_VARARGS, "" },
+static PyMethodDef Chooser_methods[] = {
+    { "open", (PyCFunction)Chooser_open, METH_STATIC|METH_VARARGS, "" },
+    { "destroy", (PyCFunction)Chooser_destroy, METH_VARARGS, "" },
     {NULL,NULL}
 };
 
-PyTypeObject ListWindow_Type = {
+PyTypeObject Chooser_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "ListWindow",           /* tp_name */
-    sizeof(ListWindow_Type),/* tp_basicsize */
+    "Chooser",              /* tp_name */
+    sizeof(Chooser_Type),   /* tp_basicsize */
     0,                      /* tp_itemsize */
-    (destructor)ListWindow_dealloc,/* tp_dealloc */
+    (destructor)Chooser_dealloc,/* tp_dealloc */
     0,                      /* tp_print */
     0,                      /* tp_getattr */
     0,                      /* tp_setattr */
@@ -1097,7 +1097,7 @@ PyTypeObject ListWindow_Type = {
     0,                      /* tp_weaklistoffset */
     0,                      /* tp_iter */
     0,                      /* tp_iternext */
-    ListWindow_methods,     /* tp_methods */
+    Chooser_methods,        /* tp_methods */
     0,                      /* tp_members */
     0,                      /* tp_getset */
     0,                      /* tp_base */
@@ -1133,7 +1133,7 @@ PyObject * keyhacCoreModuleInit(void)
     if( PyType_Ready(&Clipboard_Type)<0 ) return NULL;
     if( PyType_Ready(&UIElement_Type)<0 ) return NULL;
     if( PyType_Ready(&Console_Type)<0 ) return NULL;
-    if( PyType_Ready(&ListWindow_Type)<0 ) return NULL;
+    if( PyType_Ready(&Chooser_Type)<0 ) return NULL;
 
     PyObject *m, *d;
 
@@ -1152,8 +1152,8 @@ PyObject * keyhacCoreModuleInit(void)
     Py_INCREF(&Console_Type);
     PyModule_AddObject( m, "Console", (PyObject*)&Console_Type );
     
-    Py_INCREF(&ListWindow_Type);
-    PyModule_AddObject( m, "ListWindow", (PyObject*)&ListWindow_Type );
+    Py_INCREF(&Chooser_Type);
+    PyModule_AddObject( m, "Chooser", (PyObject*)&Chooser_Type );
     
     d = PyModule_GetDict(m);
 

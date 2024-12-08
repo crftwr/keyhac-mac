@@ -76,12 +76,6 @@ struct MenuView: View {
             }
             .keyboardShortcut("a")
 
-            Button("Test List window"){
-                openWindow(id: "list")
-                NSApp.activate()
-            }
-            .keyboardShortcut("l")
-
             Divider()
 
             Button("Quit Keyhac"){

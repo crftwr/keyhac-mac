@@ -1,5 +1,5 @@
 //
-//  ListWindowView.swift
+//  ChooserWindowView.swift
 //  Keyhac
 //
 //  Created by Tomonori Shimomura on 2024-11-28.
@@ -9,19 +9,7 @@ import SwiftUI
 import AppKit
 import Cocoa
 
-public struct ListWindowItem {
-    let icon: String
-    let text: String
-    let uuid: String
-    
-    public init(icon: String, text: String, uuid: String) {
-        self.icon = icon
-        self.text = text
-        self.uuid = uuid
-    }
-}
-
-struct ListWindowView: View {
+struct ChooserWindowView: View {
     
     private struct AttributedItem: Hashable {
         let icon: String
@@ -34,7 +22,7 @@ struct ListWindowView: View {
         }
     }
     
-    let listName: String
+    let chooserName: String
 
     @State private var searchText = ""
     @State private var selectedIndex: Int = 0
@@ -95,7 +83,7 @@ struct ListWindowView: View {
     
     func onSearchTextChange() {
         
-        guard let listWindow = ListWindow.getInstance(name: self.listName) else {
+        guard let chooser = Chooser.getInstance(name: self.chooserName) else {
             return
         }
 
@@ -106,7 +94,7 @@ struct ListWindowView: View {
         selectedIndex = 0
         
         var index = 0
-        let filteredItems = listWindow.items.filter {
+        let filteredItems = chooser.items.filter {
             
             for word in words {
                 if word.isEmpty {
@@ -164,12 +152,13 @@ struct ListWindowView: View {
             selectedUuid = searchResults[selectedIndex].uuid
 
         case .enter:
-            guard let listWindow = ListWindow.getInstance(name: self.listName) else { break }
-            listWindow.onSelected(uuid: searchResults[selectedIndex].uuid)
+            guard let chooser = Chooser.getInstance(name: self.chooserName) else { break }
+            // FIXME: UUID ではなく、Python object を識別用に渡す
+            chooser.onSelected(uuid: searchResults[selectedIndex].uuid)
             
         case .escape:
-            guard let listWindow = ListWindow.getInstance(name: self.listName) else { break }
-            listWindow.onCanceled()
+            guard let chooser = Chooser.getInstance(name: self.chooserName) else { break }
+            chooser.onCanceled()
             
         default:
             break
