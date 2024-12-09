@@ -11,7 +11,7 @@ logger = getLogger("Config")
 def configure(keymap):
 
     # Replacing Right-Shift key with BackSpace
-    keymap.replace_key( "RShift", "Back" )
+    #keymap.replace_key( "RShift", "Back" )
 
     # Defining user defined modifier keys
     keymap.define_modifier( "RCmd", "RUser0" )
@@ -83,6 +83,33 @@ def configure(keymap):
         chooser.open()
 
     keytable_global["Fn-B"] = chooser_B
+
+
+
+    def chooser_Z():
+
+        items = []
+        for clip in keymap._clipboard_history:
+            s = clip.get_string()
+            s = s.replace("\n", " ")
+            items.append( ( "📋", s, str(uuid.uuid4()) ) )
+
+        def on_selected(arg):
+            print("onSelected", arg)
+            arg = json.loads(arg)
+            for item in items:
+                if item[2]==arg["uuid"]:
+                    print(item)
+                    break
+
+        def on_canceled(arg):
+            print("onCanceled", arg)
+
+        chooser = Chooser("clipboard", items, on_selected, on_canceled)
+        chooser.open()
+
+    keytable_global["Fn-Z"] = chooser_Z
+
 
 
 
