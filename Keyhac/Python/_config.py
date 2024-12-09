@@ -52,8 +52,8 @@ def configure(keymap):
         def on_canceled(arg):
             print("onCanceled", arg)
 
-        chooser = Chooser.open("test", items, on_selected, on_canceled)
-        print(chooser)
+        chooser = Chooser("test-a", items, on_selected, on_canceled)
+        chooser.open()
 
     keytable_global["Fn-A"] = chooser_A
 
@@ -79,8 +79,8 @@ def configure(keymap):
         def on_canceled(arg):
             print("onCanceled", arg)
 
-        chooser = Chooser.open("test", items, on_selected, on_canceled)
-        print(chooser)
+        chooser = Chooser("test-b", items, on_selected, on_canceled)
+        chooser.open()
 
     keytable_global["Fn-B"] = chooser_B
 

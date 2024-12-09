@@ -972,14 +972,7 @@ struct Chooser_Object
     Chooser impl;
 };
 
-static void Chooser_dealloc(Chooser_Object * self)
-{
-    self->impl.~Chooser();
-
-    ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
-}
-
-static Chooser_Object * Chooser_open(Chooser_Object * self, PyObject* args)
+static int Chooser_init(Chooser_Object * self, PyObject * args, PyObject * kwds)
 {
     PyObject * pyname;
     PyObject * pyitems;
@@ -1042,12 +1035,29 @@ static Chooser_Object * Chooser_open(Chooser_Object * self, PyObject* args)
     auto onSelected = PyObjectPtr(pyselected);
     auto onCanceled = PyObjectPtr(pycanceled);
     
-    auto chooser = Chooser::open(name, items, onSelected, onCanceled);
-
-    Chooser_Object * pychooser = (Chooser_Object*)Chooser_Type.tp_alloc(&Chooser_Type, 0);
-    pychooser->impl = chooser;
+    self->impl = Chooser::init(name, items, onSelected, onCanceled);
     
-    return pychooser;
+    return 0;
+}
+
+static void Chooser_dealloc(Chooser_Object * self)
+{
+    self->impl.~Chooser();
+
+    ((PyObject*)self)->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Chooser_open(Chooser_Object * self, PyObject* args)
+{
+    if( ! PyArg_ParseTuple(args, "") )
+    {
+        return NULL;
+    }
+    
+    self->impl.open();
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject * Chooser_destroy(Chooser_Object * self, PyObject* args)
@@ -1064,7 +1074,7 @@ static PyObject * Chooser_destroy(Chooser_Object * self, PyObject* args)
 }
 
 static PyMethodDef Chooser_methods[] = {
-    { "open", (PyCFunction)Chooser_open, METH_STATIC|METH_VARARGS, "" },
+    { "open", (PyCFunction)Chooser_open, METH_VARARGS, "" },
     { "destroy", (PyCFunction)Chooser_destroy, METH_VARARGS, "" },
     {NULL,NULL}
 };
@@ -1105,7 +1115,7 @@ PyTypeObject Chooser_Type = {
     0,                      /* tp_descr_get */
     0,                      /* tp_descr_set */
     0,                      /* tp_dictoffset */
-    0,                      /* tp_init */
+    (initproc)Chooser_init, /* tp_init */
     0,                      /* tp_alloc */
     PyType_GenericNew,      /* tp_new */
     0,                      /* tp_free */

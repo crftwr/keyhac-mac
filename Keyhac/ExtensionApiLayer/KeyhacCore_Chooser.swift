@@ -32,7 +32,11 @@ public class Chooser {
     var onSelectedCallback: PyObjectPtr
     var onCanceledCallback: PyObjectPtr
     
-    init( name: String, items: [ChooserItem], onSelectedCallback: PyObjectPtr, onCanceledCallback: PyObjectPtr ) {
+    public init( name: String, items: [ChooserItem], onSelectedCallback: PyObjectPtr, onCanceledCallback: PyObjectPtr ) {
+        
+        if let existingChooser = Chooser.getInstance(name: name) {
+            existingChooser.destroy()
+        }
         
         self.name = name
         
@@ -43,26 +47,18 @@ public class Chooser {
         
         self.onCanceledCallback = onCanceledCallback
         self.onCanceledCallback.IncRef()
+
+        Chooser.instances[name] = self
     }
     
     deinit {
         self.destroy()
     }
     
-    public static func open( name: String, items: [ChooserItem], onSelectedCallback: PyObjectPtr, onCanceledCallback: PyObjectPtr ) -> Chooser {
-        
-        if let existingChooser = getInstance(name: name) {
-            existingChooser.destroy()
-        }
-        
-        let chooser = Chooser( name: name, items: items, onSelectedCallback: onSelectedCallback, onCanceledCallback: onCanceledCallback )
-        instances[name] = chooser
-        
+    public func open() {
         if let url = URL(string: "keyhac://chooser/\(name)") {
             NSWorkspace.shared.open(url)
         }
-        
-        return chooser
     }
     
     public func destroy() {
