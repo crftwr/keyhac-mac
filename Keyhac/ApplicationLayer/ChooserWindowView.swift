@@ -243,6 +243,10 @@ struct CustomTextFieldView: NSViewRepresentable {
                 didFocus = true
             }
         }
+        
+        if nsView.stringValue != stringValue {
+            nsView.stringValue = stringValue
+        }
     }
     
     func makeCoordinator() -> Coordinator {
@@ -292,12 +296,7 @@ struct CustomTextFieldView: NSViewRepresentable {
             }
             else if commandSelector == #selector(NSStandardKeyBindingResponding.insertNewline(_:)) {
                 if let onKeyDown = parent.onKeyDown {
-                    if onKeyDown(.enter) {
-                        if let textField = control as? NSTextField {
-                            textField.stringValue = ""
-                        }
-                        return true
-                    }
+                    return onKeyDown(.enter)
                 }
                 return false
             }

@@ -28,15 +28,7 @@ def configure(keymap):
 
     # -----------------------------------------------------
     # Fn-A: Sample of assigning callable object to key
-    def hello_world():
-
-        print("Hello World!")
-
-        logger.debug("Debug message via Console logger")
-        logger.info("Information message via Console logger")
-        logger.warning("Warning message via Console logger")
-        logger.error("Error message via Console logger")
-        logger.critical("Critical message via Console logger")
+    def chooser_A():
 
         items = [
             ("👤", "Holly",   str(uuid.uuid4()) ),
@@ -63,7 +55,37 @@ def configure(keymap):
         chooser = Chooser.open("test", items, on_selected, on_canceled)
         print(chooser)
 
-    keytable_global["Fn-A"] = hello_world
+    keytable_global["Fn-A"] = chooser_A
+
+
+
+    def chooser_B():
+
+        items = [
+            ("🍎", "りんご", str(uuid.uuid4()) ),
+            ("🍊", "オレンジ", str(uuid.uuid4()) ),
+            ("🍍", "パイナップル", str(uuid.uuid4()) ),
+            ("🍌", "バナナ", str(uuid.uuid4()) ),
+        ]
+
+        def on_selected(arg):
+            print("onSelected", arg)
+            arg = json.loads(arg)
+            for item in items:
+                if item[2]==arg["uuid"]:
+                    print(item)
+                    break
+
+        def on_canceled(arg):
+            print("onCanceled", arg)
+
+        chooser = Chooser.open("test", items, on_selected, on_canceled)
+        print(chooser)
+
+    keytable_global["Fn-B"] = chooser_B
+
+
+
 
     # -----------------------------------------------------
     # User0-Z: Test of threaded action
