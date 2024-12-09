@@ -22,9 +22,6 @@ public struct ChooserItem {
 
 public class Chooser {
     
-    @Environment(\.openWindow) static private var openWindow
-    @Environment(\.dismissWindow) static private var dismissWindow
-
     private static var instances: [String : Chooser] = [:]
     public static func getInstance(name: String) -> Chooser? {
         return instances[name]
@@ -61,8 +58,9 @@ public class Chooser {
         let chooser = Chooser( name: name, items: items, onSelectedCallback: onSelectedCallback, onCanceledCallback: onCanceledCallback )
         instances[name] = chooser
         
-        openWindow(id: "chooser", value: name)
-        NSApp.activate()
+        if let url = URL(string: "keyhac://chooser/\(name)") {
+            NSWorkspace.shared.open(url)
+        }
         
         return chooser
     }
@@ -99,8 +97,6 @@ public class Chooser {
             pyresult.DecRef()
         }
         
-        Chooser.dismissWindow(id: "chooser", value: name)
-        
         destroy()
     }
     
@@ -119,8 +115,6 @@ public class Chooser {
             arg.DecRef()
             pyresult.DecRef()
         }
-
-        Chooser.dismissWindow(id: "chooser", value: name)
 
         destroy()
     }

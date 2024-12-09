@@ -24,17 +24,21 @@ struct KeyhacApp: App {
         Window("Keyhac Console", id: "console") {
             ConsoleWindowView()
         }
+        .handlesExternalEvents(matching: ["console"])
 
-        WindowGroup("Keyhac Chooser", id: "chooser", for: String.self) { name in
-            if let name = name.wrappedValue {
-                ChooserWindowView(chooserName: name)
-            }
+        Window("Keyhac Chooser", id: "chooser") {
+            ChooserWindowView()
         }
         .windowResizability(.contentSize)
+        .handlesExternalEvents(matching: ["chooser"])
 
         Window("About Keyhac", id: "about") {
             AboutWindowView()
+                .onOpenURL { url in
+                    print("url: \(url)")
+                }
         }
         .windowResizability(.contentSize)
+        .handlesExternalEvents(matching: ["about"])
     }
 }

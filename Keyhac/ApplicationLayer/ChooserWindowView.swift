@@ -11,6 +11,8 @@ import Cocoa
 
 struct ChooserWindowView: View {
     
+    @Environment(\.dismissWindow) private var dismissWindow
+
     private struct AttributedItem: Hashable {
         let icon: String
         let attrText: AttributedString
@@ -22,7 +24,7 @@ struct ChooserWindowView: View {
         }
     }
     
-    let chooserName: String
+    @State private var chooserName: String = ""
 
     @State private var searchText = ""
     @State private var selectedIndex: Int = 0
@@ -32,7 +34,6 @@ struct ChooserWindowView: View {
     
     var body: some View {
         VStack {
-            
             HStack {
                 Image("Search")
                     .imageScale(.medium)
@@ -46,7 +47,22 @@ struct ChooserWindowView: View {
                     onChange: self.onSearchTextChange,
                     onKeyDown: self.onKeyDown
                 )
-                .onAppear {
+                .onOpenURL { url in
+                    
+                    // extract chooser name from the URL
+                    let path = url.path
+                    if path.starts(with: "/") {
+                        let begin = path.index(path.startIndex, offsetBy: 1)
+                        let end = path.index(path.endIndex, offsetBy: 0)
+                        chooserName = String(path[begin..<end])
+                    }
+                    
+                    searchText = ""
+                    selectedIndex = 0
+                    selectedUuid = ""
+                    scrollPosition = ScrollPosition(edge: .top)
+                    searchResults = []
+                    
                     self.onSearchTextChange()
                 }
             }
@@ -129,7 +145,7 @@ struct ChooserWindowView: View {
         }
     }
     
-    func onKeyDown(_ key: CustomTextFieldView.Key) {
+    func onKeyDown(_ key: CustomTextFieldView.Key) -> Bool {
         switch key {
         case .up:
             selectedIndex = max(selectedIndex-1, 0)
@@ -141,6 +157,8 @@ struct ChooserWindowView: View {
             }
             selectedUuid = searchResults[selectedIndex].uuid
             
+            return true
+            
         case .down:
             selectedIndex = max(min(selectedIndex+1, searchResults.count-1), 0)
             if selectedIndex < searchResults.count {
@@ -150,19 +168,38 @@ struct ChooserWindowView: View {
                 scrollPosition.scrollTo(edge: .top)
             }
             selectedUuid = searchResults[selectedIndex].uuid
+            
+            return true
 
         case .enter:
             guard let chooser = Chooser.getInstance(name: self.chooserName) else { break }
-            // FIXME: UUID ではなく、Python object を識別用に渡す
-            chooser.onSelected(uuid: searchResults[selectedIndex].uuid)
-            
+
+            if selectedIndex < searchResults.count {
+                // FIXME: UUID ではなく、Python object を識別用に渡す
+                chooser.onSelected(uuid: searchResults[selectedIndex].uuid)
+                
+                dismissWindow(id: "chooser")
+                
+                return true
+            }
+            else {
+                return false
+            }
+
         case .escape:
             guard let chooser = Chooser.getInstance(name: self.chooserName) else { break }
+
             chooser.onCanceled()
             
+            dismissWindow(id: "chooser")
+
+            return true
+
         default:
             break
         }
+        
+        return false
     }
 }
 
@@ -180,7 +217,7 @@ struct CustomTextFieldView: NSViewRepresentable {
     var placeholder: String
     var autoFocus = false
     var onChange: (() -> Void)?
-    var onKeyDown: ((Key) -> Void)?
+    var onKeyDown: ((Key) -> Bool)?
     @State private var didFocus = false
     
     func makeNSView(context: Context) -> NSTextField {
@@ -237,31 +274,65 @@ struct CustomTextFieldView: NSViewRepresentable {
 
         func controlTextDidChange(_ obj: Notification) {
             guard let textField = obj.object as? NSTextField else { return }
-            parent.stringValue = textField.stringValue
+            textDidChange(textField.stringValue)
+        }
+        
+        func textDidChange(_ text: String) {
+            parent.stringValue = text
             parent.onChange?()
         }
         
         func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
             
             if commandSelector == #selector(NSStandardKeyBindingResponding.insertTab(_:)) {
-                parent.onKeyDown?(.tab)
-                return true
+                if let onKeyDown = parent.onKeyDown {
+                    return onKeyDown(.tab)
+                }
+                return false
             }
             else if commandSelector == #selector(NSStandardKeyBindingResponding.insertNewline(_:)) {
-                parent.onKeyDown?(.enter)
-                return true
+                if let onKeyDown = parent.onKeyDown {
+                    if onKeyDown(.enter) {
+                        if let textField = control as? NSTextField {
+                            textField.stringValue = ""
+                        }
+                        return true
+                    }
+                }
+                return false
             }
             else if commandSelector == #selector(NSStandardKeyBindingResponding.cancelOperation(_:)) {
-                parent.onKeyDown?(.escape)
-                return true
+
+                // If text is not empty, clear it instead of closing window
+                if control.stringValue.count > 0 {
+                    if let textField = control as? NSTextField {
+                        textField.stringValue = ""
+                        textDidChange(textField.stringValue)
+                    }
+                    return true
+                }
+
+                if let onKeyDown = parent.onKeyDown {
+                    return onKeyDown(.escape)
+                }
+
+                return false
             }
             else if commandSelector == #selector(NSStandardKeyBindingResponding.moveUp(_:)) {
-                parent.onKeyDown?(.up)
-                return true
+
+                if let onKeyDown = parent.onKeyDown {
+                    return onKeyDown(.up)
+                }
+
+                return false
             }
             else if commandSelector == #selector(NSStandardKeyBindingResponding.moveDown(_:)) {
-                parent.onKeyDown?(.down)
-                return true
+
+                if let onKeyDown = parent.onKeyDown {
+                    return onKeyDown(.down)
+                }
+
+                return false
             }
 
             return false
