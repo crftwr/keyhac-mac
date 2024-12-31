@@ -12,6 +12,7 @@ import Cocoa
 struct ChooserWindowView: View {
     
     @Environment(\.dismissWindow) private var dismissWindow
+    @Environment(\.controlActiveState) private var controlActiveState
 
     private struct AttributedItem: Hashable {
         let icon: String
@@ -47,6 +48,12 @@ struct ChooserWindowView: View {
                     onChange: self.onSearchTextChange,
                     onKeyDown: self.onKeyDown
                 )
+                .onChange(of: controlActiveState) { oldValue, newValue in
+                    // Close window when deactivated
+                    if newValue == .inactive {
+                        dismissWindow(id: "chooser")
+                    }
+                }
                 .onOpenURL { url in
                     
                     // extract chooser name from the URL
