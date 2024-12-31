@@ -102,9 +102,9 @@ def configure(keymap):
             if role=="AXWindow":
                 break
             elm = elm.get_attribute_value("AXParent")
+        window_title = elm.get_attribute_value("AXTitle")
         window_frame = elm.get_attribute_value("AXFrame")
-        window_center = ( int(window_frame[0]+window_frame[2]/2), int(window_frame[1]+window_frame[3]/2) )
-        print(window_center)
+        print(window_title, window_frame)
 
         def on_selected(arg):
             print("onSelected", arg)
@@ -118,7 +118,7 @@ def configure(keymap):
             print("onCanceled", arg)
 
         chooser = Chooser("clipboard", items, on_selected, on_canceled)
-        chooser.open(window_center)
+        chooser.open(window_frame)
 
     keytable_global["Fn-Z"] = chooser_Z
 

@@ -60,6 +60,8 @@ struct ChooserWindowView: View {
                     // extract desired window center position from the query parameters
                     var x :CGFloat = 0
                     var y :CGFloat = 0
+                    var width :CGFloat = 0
+                    var height :CGFloat = 0
                     let q = url.query(percentEncoded: true)
                     if let q {
                         q.split(separator: "&").forEach { param in
@@ -75,6 +77,12 @@ struct ChooserWindowView: View {
                                 case "y":
                                     let value = Double(value)
                                     if let value { y = value }
+                                case "width":
+                                    let value = Double(value)
+                                    if let value { width = value }
+                                case "height":
+                                    let value = Double(value)
+                                    if let value { height = value }
                                 default:
                                     break
                                 }
@@ -85,12 +93,12 @@ struct ChooserWindowView: View {
                     // set Chooser window position
                     let window = NSApplication.shared.windows.first { $0.title == "Keyhac Chooser" }
                     if let window {
-
+                        
                         let mainScreenFrame = NSScreen.main?.frame
                         if let mainScreenFrame {
                             let position = NSPoint(
-                                x: x - window.frame.width/2,
-                                y: mainScreenFrame.height - (y - window.frame.height/2)
+                                x: x + width/2 - window.frame.width/2,
+                                y: mainScreenFrame.height - (y + height/2 - window.frame.height/2)
                             )
                             window.setFrameTopLeftPoint(position)
                         }
