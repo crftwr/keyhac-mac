@@ -89,15 +89,14 @@ public class Clipboard {
         return dst
     }
     
-    public func getString() -> String {
+    public func getString() -> String? {
         
         let s = items.first?.string(forType: .string)
-        if var s {
-            // Workaround for https://github.com/swiftlang/swift/issues/69870
-            s.makeContiguousUTF8()
+        guard var s = s else { return nil }
 
-            return s
-        }
-        return ""
+        // Workaround for https://github.com/swiftlang/swift/issues/69870
+        s.makeContiguousUTF8()
+
+        return s
     }
 }

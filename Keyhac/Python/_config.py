@@ -91,8 +91,9 @@ def configure(keymap):
         items = []
         for clip in keymap._clipboard_history:
             s = clip.get_string()
-            s = s.replace("\n", " ")
-            items.append( ( "📋", s, str(uuid.uuid4()) ) )
+            if s:
+                s = s.replace("\n", " ")
+                items.append( ( "📋", s, str(uuid.uuid4()) ) )
 
         def on_selected(arg):
             print("onSelected", arg)

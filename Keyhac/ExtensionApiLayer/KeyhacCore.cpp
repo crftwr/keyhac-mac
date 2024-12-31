@@ -632,11 +632,20 @@ static PyObject * Clipboard_get_string(Clipboard_Object * self, PyObject* args)
     {
         return NULL;
     }
-    
-    std::string s = self->impl.getString();
 
-    PyObject * pys = Py_BuildValue( "s", s.c_str() );
-    return pys;
+    auto wrapped_s = self->impl.getString();
+    if(wrapped_s.isSome())
+    {
+        std::string s = wrapped_s.get();
+
+        PyObject * pys = Py_BuildValue( "s", s.c_str() );
+        return pys;
+    }
+    else
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 }
 
 static Clipboard_Object * Clipboard_getCurrent(Clipboard_Object * self, PyObject* args)
