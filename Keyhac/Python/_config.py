@@ -95,6 +95,17 @@ def configure(keymap):
                 s = s.replace("\n", " ")
                 items.append( ( "📋", s, str(uuid.uuid4()) ) )
 
+        # Get window center position
+        elm = keymap.focus
+        while elm:
+            role = elm.get_attribute_value("AXRole")
+            if role=="AXWindow":
+                break
+            elm = elm.get_attribute_value("AXParent")
+        window_frame = elm.get_attribute_value("AXFrame")
+        window_center = ( int(window_frame[0]+window_frame[2]/2), int(window_frame[1]+window_frame[3]/2) )
+        print(window_center)
+
         def on_selected(arg):
             print("onSelected", arg)
             arg = json.loads(arg)
@@ -107,7 +118,7 @@ def configure(keymap):
             print("onCanceled", arg)
 
         chooser = Chooser("clipboard", items, on_selected, on_canceled)
-        chooser.open()
+        chooser.open(window_center)
 
     keytable_global["Fn-Z"] = chooser_Z
 

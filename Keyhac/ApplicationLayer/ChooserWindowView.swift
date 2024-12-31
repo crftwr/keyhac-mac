@@ -57,6 +57,45 @@ struct ChooserWindowView: View {
                         chooserName = String(path[begin..<end])
                     }
                     
+                    // extract desired window center position from the query parameters
+                    var x :CGFloat = 0
+                    var y :CGFloat = 0
+                    let q = url.query(percentEncoded: true)
+                    if let q {
+                        q.split(separator: "&").forEach { param in
+                            let keyValue = param.split(separator: "=")
+                            if keyValue.count == 2 {
+                                let key = String(keyValue[0])
+                                let value = String(keyValue[1])
+                                
+                                switch key {
+                                case "x":
+                                    let value = Double(value)
+                                    if let value { x = value }
+                                case "y":
+                                    let value = Double(value)
+                                    if let value { y = value }
+                                default:
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    
+                    // set Chooser window position
+                    let window = NSApplication.shared.windows.first { $0.title == "Keyhac Chooser" }
+                    if let window {
+
+                        let mainScreenFrame = NSScreen.main?.frame
+                        if let mainScreenFrame {
+                            let position = NSPoint(
+                                x: x - window.frame.width/2,
+                                y: mainScreenFrame.height - (y - window.frame.height/2)
+                            )
+                            window.setFrameTopLeftPoint(position)
+                        }
+                    }
+                    
                     searchText = ""
                     selectedIndex = 0
                     selectedUuid = ""

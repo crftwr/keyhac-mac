@@ -55,8 +55,8 @@ public class Chooser {
         self.destroy()
     }
     
-    public func open() {
-        if let url = URL(string: "keyhac://chooser/\(name)") {
+    public func open( x: Int, y: Int ) {
+        if let url = URL(string: "keyhac://chooser/\(name)?x=\(x)&y=\(y)") {
             NSWorkspace.shared.open(url)
         }
     }

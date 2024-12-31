@@ -1058,12 +1058,14 @@ static void Chooser_dealloc(Chooser_Object * self)
 
 static PyObject * Chooser_open(Chooser_Object * self, PyObject* args)
 {
-    if( ! PyArg_ParseTuple(args, "") )
+    int x,y;
+    
+    if( ! PyArg_ParseTuple(args, "(ii)", &x, &y) )
     {
         return NULL;
     }
     
-    self->impl.open();
+    self->impl.open(x, y);
 
     Py_INCREF(Py_None);
     return Py_None;
