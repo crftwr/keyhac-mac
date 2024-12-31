@@ -1058,9 +1058,9 @@ static void Chooser_dealloc(Chooser_Object * self)
 
 static PyObject * Chooser_open(Chooser_Object * self, PyObject* args)
 {
-    double x,y,width,height;
+    int x,y,width,height;
     
-    if( ! PyArg_ParseTuple(args, "(dddd)", &x, &y, &width, &height) )
+    if( ! PyArg_ParseTuple(args, "(iiii)", &x, &y, &width, &height) )
     {
         return NULL;
     }

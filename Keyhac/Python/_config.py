@@ -118,7 +118,7 @@ def configure(keymap):
             print("onCanceled", arg)
 
         chooser = Chooser("clipboard", items, on_selected, on_canceled)
-        chooser.open(window_frame)
+        chooser.open((int(window_frame[0]), int(window_frame[1]), int(window_frame[2]), int(window_frame[3])))
 
     keytable_global["Fn-Z"] = chooser_Z
 
