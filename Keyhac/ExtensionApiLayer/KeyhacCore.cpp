@@ -1013,9 +1013,9 @@ static int Chooser_init(Chooser_Object * self, PyObject * args, PyObject * kwds)
             return NULL;
         }
         
-        if( PySequence_Length(pyitem) != 3 )
+        if( PySequence_Length(pyitem) < 3 )
         {
-            PyErr_SetString( PyExc_TypeError, "item must be a tuple of 3 strings.");
+            PyErr_SetString( PyExc_TypeError, "item must be a tuple of >=3 elements.");
             Py_XDECREF(pyitem);
             return NULL;
         }
@@ -1026,7 +1026,7 @@ static int Chooser_init(Chooser_Object * self, PyObject * args, PyObject * kwds)
 
         if( !PyUnicode_Check(pyicon) || !PyUnicode_Check(pytext) || !PyUnicode_Check(pyuuid) )
         {
-            PyErr_SetString( PyExc_TypeError, "all elements in item must be strings.");
+            PyErr_SetString( PyExc_TypeError, "first 3 elements in item must be strings.");
             Py_XDECREF(pyitem);
             Py_XDECREF(pyicon);
             Py_XDECREF(pytext);

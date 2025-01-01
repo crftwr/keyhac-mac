@@ -57,35 +57,6 @@ def configure(keymap):
 
     keytable_global["Fn-A"] = chooser_A
 
-
-
-    def chooser_B():
-
-        items = [
-            ("🍎", "りんご", str(uuid.uuid4()) ),
-            ("🍊", "オレンジ", str(uuid.uuid4()) ),
-            ("🍍", "パイナップル", str(uuid.uuid4()) ),
-            ("🍌", "バナナ", str(uuid.uuid4()) ),
-        ]
-
-        def on_selected(arg):
-            print("onSelected", arg)
-            arg = json.loads(arg)
-            for item in items:
-                if item[2]==arg["uuid"]:
-                    print(item)
-                    break
-
-        def on_canceled(arg):
-            print("onCanceled", arg)
-
-        chooser = Chooser("test-b", items, on_selected, on_canceled)
-        chooser.open()
-
-    keytable_global["Fn-B"] = chooser_B
-
-
-
     def chooser_Z():
 
         items = []
@@ -93,18 +64,27 @@ def configure(keymap):
             s = clip.get_string()
             if s:
                 s = s.replace("\n", " ")
-                items.append( ( "📋", s, str(uuid.uuid4()) ) )
+                items.append( ( "📋", s, str(uuid.uuid4()), clip) )
 
-        # Get window center position
+        # Get originally focused window and application
         elm = keymap.focus
+        window = None
+        app = None
+        print("focused elm:", FocusCondition.get_focus_path(elm) )
         while elm:
             role = elm.get_attribute_value("AXRole")
             if role=="AXWindow":
-                break
+                window = elm
+            elif role=="AXApplication":
+                app = elm
             elm = elm.get_attribute_value("AXParent")
-        window_title = elm.get_attribute_value("AXTitle")
-        window_frame = elm.get_attribute_value("AXFrame")
-        print(window_title, window_frame)
+        print("focused window:", FocusCondition.get_focus_path(window))
+        print("focused app:", FocusCondition.get_focus_path(app))
+
+        print( app.get_attribute_names() )
+
+        def focus_original_app():
+            app.set_attribute_value("AXFrontmost", "bool", True)
 
         def on_selected(arg):
             print("onSelected", arg)
@@ -113,12 +93,23 @@ def configure(keymap):
                 if item[2]==arg["uuid"]:
                     print(item)
                     break
+            
+            focus_original_app()
+
+            Clipboard.set_current(item[3])
+            
+            with keymap.get_input_context() as input_ctx:
+                input_ctx.send_key("Cmd-V")
+            
 
         def on_canceled(arg):
-            print("onCanceled", arg)
+            focus_original_app()
 
-        chooser = Chooser("clipboard", items, on_selected, on_canceled)
-        chooser.open((int(window_frame[0]), int(window_frame[1]), int(window_frame[2]), int(window_frame[3])))
+        if window:
+            window_frame = window.get_attribute_value("AXFrame")
+
+            chooser = Chooser("clipboard", items, on_selected, on_canceled)
+            chooser.open((int(window_frame[0]), int(window_frame[1]), int(window_frame[2]), int(window_frame[3])))
 
     keytable_global["Fn-Z"] = chooser_Z
 
