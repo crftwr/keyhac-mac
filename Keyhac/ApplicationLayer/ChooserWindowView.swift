@@ -131,11 +131,13 @@ struct ChooserWindowView: View {
                         HStack {
                             Text(item.icon)
                                 .font(.system(size: 8))
+                                .lineLimit(1)
                                 .frame(width: 12)
                                 .foregroundStyle(.opacity(0.5))
                             
                             Text(item.attrText)
-                            
+                                .lineLimit(1)
+
                             Spacer()
                         }
                         .id(item.renderId)
