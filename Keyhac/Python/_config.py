@@ -60,11 +60,8 @@ def configure(keymap):
     def chooser_Z():
 
         items = []
-        for clip in keymap._clipboard_history:
-            s = clip.get_string()
-            if s:
-                s = s.replace("\n", " ")
-                items.append( ( "📋", s, str(uuid.uuid4()), clip) )
+        for clip, label in keymap._clipboard_history:
+            items.append( ( "📋", label, str(uuid.uuid4()), clip) )
 
         # Get originally focused window and application
         elm = keymap.focus

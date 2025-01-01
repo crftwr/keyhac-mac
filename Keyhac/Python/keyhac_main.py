@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 import json
 import traceback
 from collections.abc import Callable
@@ -457,16 +458,19 @@ class Keymap:
 
     # FIXME: testing
     def _on_clipboard(self, s):
-        d = Clipboard.get_current()
-        self._clipboard_history.insert(0, d)
+        clip = Clipboard.get_current()
+        label = clip.get_string()
+        if s:
+            label = re.sub(r"\s+", " ", label).strip()
+            self._clipboard_history.insert(0, (clip, label) )
         
         while len(self._clipboard_history) > 10:
-            oldest = self._clipboard_history.pop()
+            oldest, _ = self._clipboard_history.pop()
             oldest.destroy()
         
         print("------")
-        for i, d in enumerate(self._clipboard_history):
-            print(f"Clipboard[{i}]:", d.get_string())
+        for i, (clip, label) in enumerate(self._clipboard_history):
+            print(f"Clipboard[{i}]:", label)
 
     # FIXME: testing
     def pop_clipboard(self):
@@ -474,14 +478,14 @@ class Keymap:
         if len(self._clipboard_history)<=1:
             return
 
-        latest = self._clipboard_history.pop(0)
+        latest, _ = self._clipboard_history.pop(0)
         latest.destroy()
         
-        Clipboard.set_current( self._clipboard_history[0] )
+        Clipboard.set_current( self._clipboard_history[0][0] )
         
         print("------")
-        for i, d in enumerate(self._clipboard_history):
-            print(f"Clipboard[{i}]:", d.get_string())
+        for i, (clip, label) in enumerate(self._clipboard_history):
+            print(f"Clipboard[{i}]:", label)
 
     @property
     def focus(self) -> UIElement:
