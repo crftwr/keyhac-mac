@@ -648,6 +648,23 @@ static PyObject * Clipboard_get_string(Clipboard_Object * self, PyObject* args)
     }
 }
 
+static PyObject * Clipboard_set_string(Clipboard_Object * self, PyObject* args)
+{
+    PyObject * pys;
+    
+    if(!PyArg_ParseTuple(args, "U", &pys))
+    {
+        return NULL;
+    }
+
+    const char * s = PyUnicode_AsUTF8AndSize(pys, NULL);
+    
+    self->impl.setString(s);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static Clipboard_Object * Clipboard_getCurrent(Clipboard_Object * self, PyObject* args)
 {
     if(!PyArg_ParseTuple(args, ""))
@@ -686,6 +703,7 @@ static PyObject * Clipboard_setCurrent(Clipboard_Object * self, PyObject* args)
 static PyMethodDef Clipboard_methods[] = {
     { "destroy", (PyCFunction)Clipboard_destroy, METH_VARARGS, "" },
     { "get_string", (PyCFunction)Clipboard_get_string, METH_VARARGS, "" },
+    { "set_string", (PyCFunction)Clipboard_set_string, METH_VARARGS, "" },
     { "get_current", (PyCFunction)Clipboard_getCurrent, METH_STATIC|METH_VARARGS, "" },
     { "set_current", (PyCFunction)Clipboard_setCurrent, METH_STATIC|METH_VARARGS, "" },
     {NULL,NULL}

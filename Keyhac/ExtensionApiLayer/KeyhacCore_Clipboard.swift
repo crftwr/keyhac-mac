@@ -34,14 +34,14 @@ public class Clipboard {
         
         lock.lock()
         defer { lock.unlock() }
-
+        
         let changeCount = NSPasteboard.general.changeCount
         
         if Clipboard.previousChangeCount != changeCount {
             Clipboard.previousChangeCount = changeCount
             return true
         }
-
+        
         return false
     }
     
@@ -49,7 +49,7 @@ public class Clipboard {
         
         lock.lock()
         defer { lock.unlock() }
-
+        
         if let items = NSPasteboard.general.pasteboardItems {
             let c = Clipboard(src: items)
             return c
@@ -62,7 +62,7 @@ public class Clipboard {
         
         lock.lock()
         defer { lock.unlock() }
-
+        
         // Don't detect clipboard change by self
         Clipboard.previousChangeCount += 1
         
@@ -93,10 +93,20 @@ public class Clipboard {
         
         let s = items.first?.string(forType: .string)
         guard var s = s else { return nil }
-
+        
         // Workaround for https://github.com/swiftlang/swift/issues/69870
         s.makeContiguousUTF8()
-
+        
         return s
+    }
+    
+    public func setString(s: String) {
+
+        items = []
+        
+        let item = NSPasteboardItem()
+        item.setString(s, forType: .string)
+        
+        items.append(item)
     }
 }
