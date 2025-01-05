@@ -1,16 +1,16 @@
 import sys
 import os
-import re
 import json
 import traceback
 from collections.abc import Callable
 
-from keyhac_core import Hook, Clipboard, UIElement, Console
+from keyhac_core import Hook, UIElement, Console
 import keyhac_config
 import keyhac_console
 from keyhac_key import KeyCondition, KeyTable
 from keyhac_focus import FocusCondition
 from keyhac_input import InputContext
+from keyhac_clipboard import ClipboardHistory
 from keyhac_const import *
 
 keyhac_console.initializeConsole()
@@ -68,11 +68,9 @@ class Keymap:
         self._record_status = None          # Key recording status ("recording" or None)
         self._record_seq = None             # Recoreded key sequence
         
-        # FIXME: testing
-        self._clipboard_history = []
-
         Hook.set_callback("Keyboard", self._on_key)
-        Hook.set_callback("Clipboard", self._on_clipboard)
+
+        self._clipboard_history = ClipboardHistory()
 
         print("\n" + CONSOLE_STYLE_TITLE + "Welcome to Keyhac" + CONSOLE_STYLE_DEFAULT + "\n")
 
@@ -456,37 +454,6 @@ class Keymap:
                 if focus_condition.check(self._focus_path, self._focus_elm):
                     self._unified_keytable.update(keytable.table)
 
-    # FIXME: testing
-    def _on_clipboard(self, s):
-        clip = Clipboard.get_current()
-        label = clip.get_string()
-        if s:
-            label = re.sub(r"\s+", " ", label).strip()
-            self._clipboard_history.insert(0, (clip, label) )
-        
-        while len(self._clipboard_history) > 10:
-            oldest, _ = self._clipboard_history.pop()
-            oldest.destroy()
-        
-        print("------")
-        for i, (clip, label) in enumerate(self._clipboard_history):
-            print(f"Clipboard[{i}]:", label)
-
-    # FIXME: testing
-    def pop_clipboard(self):
-
-        if len(self._clipboard_history)<=1:
-            return
-
-        latest, _ = self._clipboard_history.pop(0)
-        latest.destroy()
-        
-        Clipboard.set_current( self._clipboard_history[0][0] )
-        
-        print("------")
-        for i, (clip, label) in enumerate(self._clipboard_history):
-            print(f"Clipboard[{i}]:", label)
-
     @property
     def focus(self) -> UIElement:
 
@@ -495,6 +462,15 @@ class Keymap:
         """
 
         return self._focus_elm
+
+    @property
+    def clipboard_history(self) -> ClipboardHistory:
+
+        """
+        ClipboardHistory object
+        """
+
+        return self._clipboard_history
 
 def _configure():
     Keymap.getInstance().configure()

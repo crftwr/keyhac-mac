@@ -23,9 +23,6 @@ def configure(keymap):
 
     keytable_global = keymap.define_keytable(focus_path_pattern="*")
 
-    # FIXME: testing
-    keytable_global["User0-P"] = keymap.pop_clipboard
-
     # -----------------------------------------------------
     # Fn-A: Sample of assigning callable object to key
     def chooser_A():
@@ -60,7 +57,7 @@ def configure(keymap):
     def chooser_Z():
 
         items = []
-        for clip, label in keymap._clipboard_history:
+        for clip, label in keymap.clipboard_history.items():
             items.append( ( "📋", label, str(uuid.uuid4()), clip) )
 
         # Get originally focused window and application
@@ -109,9 +106,7 @@ def configure(keymap):
             chooser.open((int(window_frame[0]), int(window_frame[1]), int(window_frame[2]), int(window_frame[3])))
 
     keytable_global["Fn-Z"] = chooser_Z
-
-
-
+    #keytable_global["Fn-Shift-Z"] = keymap.pop_clipboard
 
 
     # -----------------------------------------------------
