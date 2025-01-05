@@ -1,47 +1,44 @@
 import re
+import collections
 
 from keyhac_core import Hook, Clipboard
 
 class ClipboardHistory:
 
     def __init__(self):
-        self._items = []
-        self._max_items = 100
+        self._items = collections.OrderedDict()
+        self._max_items = 5
         Hook.set_callback("Clipboard", self._on_clipboard)
 
     def _on_clipboard(self, s):
+        
         clip = Clipboard.get_current()
-        label = clip.get_string()
+        s = clip.get_string()
         if s:
-            label = re.sub(r"\s+", " ", label).strip()
-            self._items.insert(0, (clip, label) )
+            # Prepare shortened list item
+            label = re.sub(r"\s+", " ", s).strip()
+
+            # Remove duplicate entry
+            if s in self._items:
+                del self._items[s]
+
+            # Add as latest
+            self._items[s] = (clip, label)
         
+        # Remove oldest item if number of items exceeded
         while len(self._items) > self._max_items:
-            oldest, _ = self._items.pop()
-            oldest.destroy()
-        
-        self._dump()
-
-    def pop_clipboard(self):
-
-        if len(self._items)<=1:
-            return
-
-        latest, _ = self._items.pop(0)
-        latest.destroy()
-        
-        Clipboard.set_current( self._items[0][0] )
+            s, clip, label = self._items.popitem(last=False)
+            clip.destroy()
         
         self._dump()
 
     def items(self):
 
-        for item in self._items:
+        for item in reversed(self._items.values()):
             yield item
 
     def _dump(self):
 
         print("------")
-        for i, (_, label) in enumerate(self._items):
+        for i, (_, label) in enumerate(reversed(self._items.values())):
             print(f"Clipboard[{i}]:", label)
-
