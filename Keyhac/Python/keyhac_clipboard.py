@@ -22,16 +22,8 @@ class ClipboardHistory:
     def _on_clipboard(self, s):
         
         clip = Clipboard.get_current()
-        s = clip.get_string()
-        if s:
-            label = self.shorten_string(s)
 
-            if s in self._items:
-                del self._items[s]
-
-            self._items[s] = (clip, label)
-
-        self._cap_num_items()
+        self.add_item(clip)
 
         self.dirty = True
 
@@ -44,6 +36,27 @@ class ClipboardHistory:
 
         for item in reversed(self._items.values()):
             yield item
+
+    def add_item(self, clip):
+
+        s = clip.get_string()
+        if s:
+            label = self.shorten_string(s)
+
+            if s in self._items:
+                del self._items[s]
+
+            self._items[s] = (clip, label)
+
+        self._cap_num_items()
+
+    def set_current(self, clip):
+        self.add_item(clip)
+        Clipboard.set_current(clip)
+
+    def get_current(self):
+        for clip, label in self.items():
+            return clip
 
     def shorten_string(self, s):
         return re.sub(r"\s+", " ", s).strip()
@@ -82,12 +95,11 @@ class ClipboardHistory:
                 for item in reversed(d["clipboard_history"]):
                     if item["type"]=="string":
                         s = item["data"]
-                        label = self.shorten_string(s)
+
                         clip = Clipboard()
                         clip.set_string(s)
-                        self._items[s] = (clip, label)
 
-            self._cap_num_items()
+                        self.add_item(clip)
 
         self.dirty = False
 

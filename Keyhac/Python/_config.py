@@ -64,7 +64,6 @@ def configure(keymap):
         elm = keymap.focus
         window = None
         app = None
-        print("focused elm:", FocusCondition.get_focus_path(elm) )
         while elm:
             role = elm.get_attribute_value("AXRole")
             if role=="AXWindow":
@@ -72,10 +71,6 @@ def configure(keymap):
             elif role=="AXApplication":
                 app = elm
             elm = elm.get_attribute_value("AXParent")
-        print("focused window:", FocusCondition.get_focus_path(window))
-        print("focused app:", FocusCondition.get_focus_path(app))
-
-        print( app.get_attribute_names() )
 
         def focus_original_app():
             app.set_attribute_value("AXFrontmost", "bool", True)
@@ -90,7 +85,7 @@ def configure(keymap):
             
             focus_original_app()
 
-            Clipboard.set_current(item[3])
+            keymap.clipboard_history.set_current(item[3])
             
             with keymap.get_input_context() as input_ctx:
                 input_ctx.send_key("Cmd-V")
