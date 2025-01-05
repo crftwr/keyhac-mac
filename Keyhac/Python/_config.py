@@ -1,6 +1,5 @@
 import sys
 import time
-import uuid
 import json
 import urllib.parse
 import subprocess
@@ -28,23 +27,22 @@ def configure(keymap):
     def chooser_A():
 
         items = [
-            ("👤", "Holly",   str(uuid.uuid4()) ),
-            ("👤", "Josh",    str(uuid.uuid4()) ),
-            ("👤", "Rhonda",  str(uuid.uuid4()) ),
-            ("👤", "Ted",     str(uuid.uuid4()) ),
-            ("📋", "Item001", str(uuid.uuid4()) ),
-            ("📋", "Item002", str(uuid.uuid4()) ),
-            ("📋", "Item003", str(uuid.uuid4()) ),
-            ("📋", "Item004", str(uuid.uuid4()) ),
+            ("👤", "Holly" ),
+            ("👤", "Josh" ),
+            ("👤", "Rhonda" ),
+            ("👤", "Ted" ),
+            ("📋", "Item001" ),
+            ("📋", "Item002" ),
+            ("📋", "Item003" ),
+            ("📋", "Item004" ),
         ]
 
         def on_selected(arg):
             print("onSelected", arg)
             arg = json.loads(arg)
-            for item in items:
-                if item[2]==arg["uuid"]:
-                    print(item)
-                    break
+            index = int(arg["index"])
+            item = items[index]
+            print(item)
 
         def on_canceled(arg):
             print("onCanceled", arg)
@@ -58,7 +56,7 @@ def configure(keymap):
 
         items = []
         for clip, label in keymap.clipboard_history.items():
-            items.append( ( "📋", label, str(uuid.uuid4()), clip) )
+            items.append( ( "📋", label, clip) )
 
         # Get originally focused window and application
         elm = keymap.focus
@@ -78,18 +76,16 @@ def configure(keymap):
         def on_selected(arg):
             print("onSelected", arg)
             arg = json.loads(arg)
-            for item in items:
-                if item[2]==arg["uuid"]:
-                    print(item)
-                    break
+            index = int(arg["index"])
+            item = items[index]
+            print(item)
             
             focus_original_app()
 
-            keymap.clipboard_history.set_current(item[3])
+            keymap.clipboard_history.set_current(item[2])
             
             with keymap.get_input_context() as input_ctx:
                 input_ctx.send_key("Cmd-V")
-            
 
         def on_canceled(arg):
             focus_original_app()

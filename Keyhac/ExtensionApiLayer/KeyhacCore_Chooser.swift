@@ -11,12 +11,11 @@ import SwiftUI
 public struct ChooserItem {
     let icon: String
     let text: String
-    let uuid: String
+    let uuid: String = UUID().uuidString
     
-    public init(icon: String, text: String, uuid: String) {
+    public init(icon: String, text: String) {
         self.icon = icon
         self.text = text
-        self.uuid = uuid
     }
 }
 
@@ -82,8 +81,20 @@ public class Chooser {
             var gil = PyGIL(true);
             defer { gil.Release() }
             
+            var foundIndex: Int = -1
+            for (index, item) in self.items.enumerated() {
+                if item.uuid == uuid {
+                    foundIndex = index
+                    break
+                }
+            }
+            
+            if foundIndex < 0 {
+                return
+            }
+            
             let json = """
-            {"uuid": "\(uuid)"}
+            {"index": "\(foundIndex)"}
             """
             
             var arg = PythonBridge.buildPythonString(json)

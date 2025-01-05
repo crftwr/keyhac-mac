@@ -1040,23 +1040,20 @@ static int Chooser_init(Chooser_Object * self, PyObject * args, PyObject * kwds)
         
         PyObject * pyicon = PySequence_GetItem(pyitem, 0);
         PyObject * pytext = PySequence_GetItem(pyitem, 1);
-        PyObject * pyuuid = PySequence_GetItem(pyitem, 2);
 
-        if( !PyUnicode_Check(pyicon) || !PyUnicode_Check(pytext) || !PyUnicode_Check(pyuuid) )
+        if( !PyUnicode_Check(pyicon) || !PyUnicode_Check(pytext) )
         {
-            PyErr_SetString( PyExc_TypeError, "first 3 elements in item must be strings.");
+            PyErr_SetString( PyExc_TypeError, "first 2 elements in item must be strings.");
             Py_XDECREF(pyitem);
             Py_XDECREF(pyicon);
             Py_XDECREF(pytext);
-            Py_XDECREF(pyuuid);
             return NULL;
         }
 
         const char * icon = PyUnicode_AsUTF8AndSize(pyicon, NULL);
         const char * text = PyUnicode_AsUTF8AndSize(pytext, NULL);
-        const char * uuid = PyUnicode_AsUTF8AndSize(pyuuid, NULL);
 
-        items.append(ChooserItem::init(icon, text, uuid));
+        items.append(ChooserItem::init(icon, text));
     }
 
     auto onSelected = PyObjectPtr(pyselected);
