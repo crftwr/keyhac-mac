@@ -1,8 +1,10 @@
+import json
 import subprocess
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
+from keyhac_core import Chooser
 from keyhac_main import Keymap
 import keyhac_console
 
@@ -136,3 +138,55 @@ class LaunchApplication(ThreadedAction):
     def __repr__(self):
         return f'LaunchApplication("{self.app_name}")'
 
+class PasteClipboardHistory:
+
+    def __init__(self):
+        pass
+
+    def __call__(self):
+
+        keymap = Keymap.getInstance()
+
+        items = []
+        for clip, label in keymap.clipboard_history.items():
+            items.append( ( "📋", label, clip) )
+
+        # Get originally focused window and application
+        elm = keymap.focus
+        window = None
+        app = None
+        while elm:
+            role = elm.get_attribute_value("AXRole")
+            if role=="AXWindow":
+                window = elm
+            elif role=="AXApplication":
+                app = elm
+            elm = elm.get_attribute_value("AXParent")
+
+        def focus_original_app():
+            app.set_attribute_value("AXFrontmost", "bool", True)
+
+        def on_selected(arg):
+            print("onSelected", arg)
+            arg = json.loads(arg)
+            index = int(arg["index"])
+            item = items[index]
+            
+            focus_original_app()
+
+            keymap.clipboard_history.set_current(item[2])
+            
+            with keymap.get_input_context() as input_ctx:
+                input_ctx.send_key("Cmd-V")
+
+        def on_canceled(arg):
+            focus_original_app()
+
+        if window:
+            window_frame = window.get_attribute_value("AXFrame")
+
+            chooser = Chooser("clipboard", items, on_selected, on_canceled)
+            chooser.open((int(window_frame[0]), int(window_frame[1]), int(window_frame[2]), int(window_frame[3])))
+
+    def __repr__(self):
+        return f"ShowClipboardHistory()"
