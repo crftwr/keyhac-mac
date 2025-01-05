@@ -30,8 +30,6 @@ class ClipboardHistory:
         # FIXME: reduce file I/O frequency
         self.save()
 
-        self._dump()
-
     def items(self):
 
         for item in reversed(self._items.values()):
@@ -106,11 +104,5 @@ class ClipboardHistory:
     def _cap_num_items(self):
 
         while len(self._items) > self._max_items:
-            s, clip, label = self._items.popitem(last=False)
+            s, (clip, label) = self._items.popitem(last=False)
             clip.destroy()
-
-    def _dump(self):
-
-        print("------")
-        for i, (_, label) in enumerate(reversed(self._items.values())):
-            print(f"Clipboard[{i}]:", label)

@@ -1031,9 +1031,9 @@ static int Chooser_init(Chooser_Object * self, PyObject * args, PyObject * kwds)
             return NULL;
         }
         
-        if( PySequence_Length(pyitem) < 3 )
+        if( PySequence_Length(pyitem) < 2 )
         {
-            PyErr_SetString( PyExc_TypeError, "item must be a tuple of >=3 elements.");
+            PyErr_SetString( PyExc_TypeError, "item must be a tuple of >=2 elements.");
             Py_XDECREF(pyitem);
             return NULL;
         }

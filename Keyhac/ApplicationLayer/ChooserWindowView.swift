@@ -239,7 +239,6 @@ struct ChooserWindowView: View {
             guard let chooser = Chooser.getInstance(name: self.chooserName) else { break }
 
             if selectedIndex < searchResults.count {
-                // FIXME: UUID ではなく、Python object を識別用に渡す
                 chooser.onSelected(uuid: searchResults[selectedIndex].uuid)
                 
                 dismissWindow(id: "chooser")

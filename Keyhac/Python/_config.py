@@ -23,82 +23,41 @@ def configure(keymap):
     keytable_global = keymap.define_keytable(focus_path_pattern="*")
 
     # -----------------------------------------------------
-    # Fn-A: Sample of assigning callable object to key
-    def chooser_A():
+    # Fn-V: Show clipboard history by Chooser window
+    keytable_global["Fn-V"] = PasteClipboardHistory()
 
-        items = [
-            ("👤", "Holly" ),
-            ("👤", "Josh" ),
-            ("👤", "Rhonda" ),
-            ("👤", "Ted" ),
-            ("📋", "Item001" ),
-            ("📋", "Item002" ),
-            ("📋", "Item003" ),
-            ("📋", "Item004" ),
-        ]
+    # -----------------------------------------------------
+    # Fn-Shift-V: Show snippets by Chooser window
+    class DateTimeString:
+        
+        def __init__(self, format):
+            self.format = format
+        
+        def __call__(self):
+            import datetime
+            return datetime.datetime.now().strftime(self.format)
 
-        def on_selected(arg):
-            print("onSelected", arg)
-            arg = json.loads(arg)
-            index = int(arg["index"])
-            item = items[index]
-            print(item)
+    snippets = [
+        ("👤", "myname@email.address"),
+        ("👤", "01-2345-6789"),
+        ("👤", "Mailing address", "400 Broad St, Seattle, WA 98109"),
+        ("👤", "Zoom invitation",
+            "\n".join((
+                "John Doe is inviting you to a scheduled Zoom meeting.",
+                "",
+                "Topic: John Doe's Personal Meeting Room",
+                "Join Zoom Meeting",
+                "https://us04web.zoom.us/j/1234567890?pwd=abcdefgHIJKLMNopqrstuVWXYZ.1",
+                "",
+                "Meeting ID: 123 456 7890",
+                "Passcode: ABCDEF",
+            ))
+        ),
+        ("🕒", "YYYY-MM-DD HH:MM:SS", DateTimeString("%Y-%m-%d %H:%M:%S")),
+        ("🕒", "YYYYMMDD_HHMMSS", DateTimeString("%Y%m%d_%H%M%S")),
+    ]
 
-        def on_canceled(arg):
-            print("onCanceled", arg)
-
-        chooser = Chooser("test-a", items, on_selected, on_canceled)
-        chooser.open()
-
-    keytable_global["Fn-A"] = chooser_A
-
-    def chooser_Z():
-
-        items = []
-        for clip, label in keymap.clipboard_history.items():
-            items.append( ( "📋", label, clip) )
-
-        # Get originally focused window and application
-        elm = keymap.focus
-        window = None
-        app = None
-        while elm:
-            role = elm.get_attribute_value("AXRole")
-            if role=="AXWindow":
-                window = elm
-            elif role=="AXApplication":
-                app = elm
-            elm = elm.get_attribute_value("AXParent")
-
-        def focus_original_app():
-            app.set_attribute_value("AXFrontmost", "bool", True)
-
-        def on_selected(arg):
-            print("onSelected", arg)
-            arg = json.loads(arg)
-            index = int(arg["index"])
-            item = items[index]
-            print(item)
-            
-            focus_original_app()
-
-            keymap.clipboard_history.set_current(item[2])
-            
-            with keymap.get_input_context() as input_ctx:
-                input_ctx.send_key("Cmd-V")
-
-        def on_canceled(arg):
-            focus_original_app()
-
-        if window:
-            window_frame = window.get_attribute_value("AXFrame")
-
-            chooser = Chooser("clipboard", items, on_selected, on_canceled)
-            chooser.open((int(window_frame[0]), int(window_frame[1]), int(window_frame[2]), int(window_frame[3])))
-
-    keytable_global["Fn-Z"] = chooser_Z
-    #keytable_global["Fn-Shift-Z"] = keymap.pop_clipboard
-
+    keytable_global["Fn-Shift-V"] = PasteSnippet(snippets)
 
     # -----------------------------------------------------
     # User0-Z: Test of threaded action
@@ -133,7 +92,6 @@ def configure(keymap):
             return "ThreadedActionTest()"
 
     keytable_global["User0-Z"] = ThreadedActionTest()
-
 
     # -----------------------------------------------------
     # User0-D: Lookup selected words in the dictionary app

@@ -4,7 +4,7 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
-from keyhac_core import Chooser
+from keyhac_core import Chooser, Clipboard
 from keyhac_main import Keymap
 import keyhac_console
 
@@ -167,7 +167,6 @@ class PasteClipboardHistory:
             app.set_attribute_value("AXFrontmost", "bool", True)
 
         def on_selected(arg):
-            print("onSelected", arg)
             arg = json.loads(arg)
             index = int(arg["index"])
             item = items[index]
@@ -190,3 +189,66 @@ class PasteClipboardHistory:
 
     def __repr__(self):
         return f"ShowClipboardHistory()"
+
+
+class PasteSnippet:
+
+    def __init__(self, snippets):
+        self.snippets = snippets
+
+    def __call__(self):
+
+        keymap = Keymap.getInstance()
+
+        # Get originally focused window and application
+        elm = keymap.focus
+        window = None
+        app = None
+        while elm:
+            role = elm.get_attribute_value("AXRole")
+            if role=="AXWindow":
+                window = elm
+            elif role=="AXApplication":
+                app = elm
+            elm = elm.get_attribute_value("AXParent")
+
+        def focus_original_app():
+            app.set_attribute_value("AXFrontmost", "bool", True)
+
+        def on_selected(arg):
+            arg = json.loads(arg)
+            index = int(arg["index"])
+            item = self.snippets[index]
+            
+            focus_original_app()
+
+            s = None
+            if len(item)==2:
+                s = item[1]
+            elif len(item)==3:
+                if isinstance(item[2], str):
+                    s = item[2]
+                elif callable(item[2]):
+                    s = item[2]()
+
+            if isinstance(s, str):
+
+                clip = Clipboard()
+                clip.set_string(s)
+
+                keymap.clipboard_history.set_current(clip)
+                
+                with keymap.get_input_context() as input_ctx:
+                    input_ctx.send_key("Cmd-V")
+
+        def on_canceled(arg):
+            focus_original_app()
+
+        if window:
+            window_frame = window.get_attribute_value("AXFrame")
+
+            chooser = Chooser("clipboard", self.snippets, on_selected, on_canceled)
+            chooser.open((int(window_frame[0]), int(window_frame[1]), int(window_frame[2]), int(window_frame[3])))
+
+    def __repr__(self):
+        return f"PasteSnippet()"
