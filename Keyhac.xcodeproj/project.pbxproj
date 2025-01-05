@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		FE5C48152CB351A00046C3DC /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = FE5C48142CB351A00046C3DC /* Python */; };
-		FE5C48162CB351A00046C3DC /* Python in Embed Libraries */ = {isa = PBXBuildFile; fileRef = FE5C48142CB351A00046C3DC /* Python */; };
+		FE5C48162CB351A00046C3DC /* Python in Embed Libraries */ = {isa = PBXBuildFile; fileRef = FE5C48142CB351A00046C3DC /* Python */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		FE9A43BC2CCE0883008FA157 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = FE9A43BB2CCE0883008FA157 /* SwiftTerm */; };
 /* End PBXBuildFile section */
 
@@ -126,7 +126,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1600;
-				LastUpgradeCheck = 1610;
+				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					FEBAF4FE2CB33AD000200C1F = {
 						CreatedOnToolsVersion = 16.0;
