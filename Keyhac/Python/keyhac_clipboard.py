@@ -7,7 +7,7 @@ class ClipboardHistory:
 
     def __init__(self):
         self._items = collections.OrderedDict()
-        self._max_items = 5
+        self._max_items = 100
         Hook.set_callback("Clipboard", self._on_clipboard)
 
     def _on_clipboard(self, s):

@@ -199,6 +199,14 @@ struct ChooserWindowView: View {
             }
             return AttributedItem(icon: $0.icon, attrText: attrString, uuid: $0.uuid)
         }
+        
+        if selectedIndex < searchResults.count {
+            scrollPosition.scrollTo(id: searchResults[selectedIndex].renderId, anchor: .bottom)
+            scrollPosition.scrollTo(id: searchResults[selectedIndex].renderId, anchor: .top)
+        }
+        else {
+            scrollPosition.scrollTo(edge: .top)
+        }
     }
     
     func onKeyDown(_ key: CustomTextFieldView.Key) -> Bool {
@@ -206,7 +214,7 @@ struct ChooserWindowView: View {
         case .up:
             selectedIndex = max(selectedIndex-1, 0)
             if selectedIndex < searchResults.count {
-                scrollPosition.scrollTo(id: searchResults[selectedIndex].uuid, anchor: .top)
+                scrollPosition.scrollTo(id: searchResults[selectedIndex].renderId, anchor: .top)
             }
             else {
                 scrollPosition.scrollTo(edge: .top)
@@ -218,7 +226,7 @@ struct ChooserWindowView: View {
         case .down:
             selectedIndex = max(min(selectedIndex+1, searchResults.count-1), 0)
             if selectedIndex < searchResults.count {
-                scrollPosition.scrollTo(id: searchResults[selectedIndex].uuid, anchor: .bottom)
+                scrollPosition.scrollTo(id: searchResults[selectedIndex].renderId, anchor: .bottom)
             }
             else {
                 scrollPosition.scrollTo(edge: .top)
