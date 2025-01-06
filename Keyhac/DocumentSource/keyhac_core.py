@@ -170,3 +170,84 @@ class Console:
             name: "lastKey" or "focusPath"
             text: Contents of the special text field.
         """
+
+class Chooser:
+
+    """
+    List window
+    """
+
+    def __init__(self, name: str, items: ((str,str)), on_selected, on_canceled ):
+        """
+        Initializes the Chooser object.
+
+        Argumeng `items` is a sequence (list or tuple) of candidate items.
+        Each candidate item is a tuple of (icon, label, ...).
+        First two elements have to be strings. The tuple can contain any types of optional elements after the first two elements.
+
+        Args:
+            name: Name of the Chooser object
+            items: List items. Sequence (list or tuple) of (icon string, label string, ...)
+            on_selected: Callback function for when an item is selected and decided
+            on_canceled: Callback function for when Chooser is canceled
+        """
+
+    def destroy(self) -> None:
+        """
+        Releases retained Python objects
+        """
+
+    def open(self, frame: (int,int,int,int)) -> None:
+        """
+        Open Chooser window
+
+        Args:
+            frame: Poistion and size in screen coordinates. Tuple of int (x,y,width,height). Chooser window will be centered within this rectangle.
+        """
+
+class Clipboard:
+
+    """
+    Clipboard data
+    """
+    
+    def __init__(self):
+        """
+        Initializes the Clipboard object with empty content.
+        """
+
+    def destroy(self) -> None:
+        """
+        Releases clipboard data.
+        """
+
+    def get_string(self) -> str:
+        """
+        Get the string data from the Clipboard.
+        """
+
+    def set_string(self, s: str) -> None:
+        """
+        Set a string data in the Clipboard object.
+
+        Args:
+            s: String data to set
+        """
+
+    @staticmethod
+    def get_current():
+        """
+        Get the current Clipboard object from the OS.
+
+        Returns:
+            Current Clipboard object
+        """
+
+    @staticmethod
+    def set_current(clip) -> None:
+        """
+        Set a Clipboard object to the OS's clipboard.
+
+        Args:
+            clip: Clipboard object to set
+        """
