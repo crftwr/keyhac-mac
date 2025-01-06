@@ -445,7 +445,7 @@ Send modifier key events to match the target modifier state
 
 
 ### <kbd>class</kbd> `MoveWindow`
-A key action class to move focused window 
+A action class to move focused window 
 
 ### <kbd>method</kbd> `MoveWindow.__init__`
 
@@ -470,7 +470,7 @@ Initializes the action object.
 
 
 ### <kbd>class</kbd> `LaunchApplication`
-A key action class to launch an application. 
+A action class to launch an application. 
 
 This action launches the application you specified if it is not running yet. If the application is already running, macOS automatically make it foreground. 
 
@@ -595,6 +595,193 @@ starting()
 ```
 
 Virtual method called immediately when the action is triggered. 
+
+
+---
+
+
+### <kbd>class</kbd> `ShowClipboardHistory`
+Action class to show clipboard history with Chooser window. 
+
+### <kbd>method</kbd> `ShowClipboardHistory.__init__`
+
+```python
+__init__()
+```
+
+Initializes the ShowClipboardHistory object. 
+
+
+
+
+---
+
+#### <kbd>method</kbd> `ShowClipboardHistory.list_items`
+
+```python
+list_items()
+```
+
+
+
+
+
+---
+
+#### <kbd>method</kbd> `ShowClipboardHistory.on_chosen`
+
+```python
+on_chosen(item)
+```
+
+
+
+
+
+---
+
+#### <kbd>method</kbd> `ShowClipboardHistory.paste`
+
+```python
+paste(clip) → None
+```
+
+Paste the content of Clipboard to the current active window 
+
+
+
+**Args:**
+ 
+ - <b>`clip`</b>:  Clipboard object to paste 
+
+
+---
+
+
+### <kbd>class</kbd> `ShowClipboardSnippets`
+Action class to show clipboard snippets with Chooser window. 
+
+### <kbd>method</kbd> `ShowClipboardSnippets.__init__`
+
+```python
+__init__(snippets)
+```
+
+
+
+
+
+
+
+
+---
+
+#### <kbd>method</kbd> `ShowClipboardSnippets.list_items`
+
+```python
+list_items()
+```
+
+
+
+
+
+---
+
+#### <kbd>method</kbd> `ShowClipboardSnippets.on_chosen`
+
+```python
+on_chosen(item)
+```
+
+
+
+
+
+---
+
+#### <kbd>method</kbd> `ShowClipboardSnippets.paste`
+
+```python
+paste(clip) → None
+```
+
+Paste the content of Clipboard to the current active window 
+
+
+
+**Args:**
+ 
+ - <b>`clip`</b>:  Clipboard object to paste 
+
+
+---
+
+
+### <kbd>class</kbd> `ChooserAction`
+Base class for actions to use Chooser window. 
+
+To define your own action class to use Chooser, derive the ChooserAction class and implement list_items() and on_chosen() methods. list_items() is executed when the Chooser opens to list items. on_chosen() is executed when an item is chosen and the Chooser closes. 
+
+### <kbd>method</kbd> `ChooserAction.__init__`
+
+```python
+__init__()
+```
+
+
+
+
+
+
+
+
+---
+
+#### <kbd>method</kbd> `ChooserAction.list_items`
+
+```python
+list_items()
+```
+
+Virtual method to list items. 
+
+
+
+**Returns:**
+  List of tuple (icon string, label string, ...) 
+
+---
+
+#### <kbd>method</kbd> `ChooserAction.on_chosen`
+
+```python
+on_chosen(item) → None
+```
+
+Virtual method to handle chosen item. 
+
+
+
+**Args:**
+ 
+ - <b>`item`</b>:  Chosen item 
+
+---
+
+#### <kbd>method</kbd> `ChooserAction.paste`
+
+```python
+paste(clip) → None
+```
+
+Paste the content of Clipboard to the current active window 
+
+
+
+**Args:**
+ 
+ - <b>`clip`</b>:  Clipboard object to paste 
 
 
 ---

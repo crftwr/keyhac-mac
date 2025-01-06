@@ -71,7 +71,7 @@ class ThreadedAction:
 class MoveWindow:
 
     """
-    A key action class to move focused window
+    A action class to move focused window
     """
 
     def __init__(self, x: int, y: int):
@@ -111,7 +111,7 @@ class MoveWindow:
 class LaunchApplication(ThreadedAction):
 
     """
-    A key action class to launch an application.
+    A action class to launch an application.
 
     This action launches the application you specified if it is not running yet.
     If the application is already running, macOS automatically make it foreground.
@@ -140,6 +140,15 @@ class LaunchApplication(ThreadedAction):
 
 
 class ChooserAction:
+
+    """
+    Base class for actions to use Chooser window.
+
+    To define your own action class to use Chooser, derive the ChooserAction class
+    and implement list_items() and on_chosen() methods.
+    list_items() is executed when the Chooser opens to list items.
+    on_chosen() is executed when an item is chosen and the Chooser closes.
+    """
 
     def __init__(self):
         pass
@@ -182,10 +191,36 @@ class ChooserAction:
             chooser.open((int(window_frame[0]), int(window_frame[1]), int(window_frame[2]), int(window_frame[3])))
 
     def list_items(self):
+        
+        """
+        Virtual method to list items.
+
+        Returns:
+            List of tuple (icon string, label string, ...)
+        """
+        
         return []
 
-    def paste(self, clip):
+    def on_chosen(self, item) -> None:
 
+        """
+        Virtual method to handle chosen item.
+
+        Args:
+            item: Chosen item
+        """
+        
+        pass
+
+    def paste(self, clip) -> None:
+
+        """
+        Paste the content of Clipboard to the current active window
+
+        Args:
+            clip: Clipboard object to paste
+        """
+        
         keymap = Keymap.getInstance()
 
         keymap.clipboard_history.set_current(clip)
@@ -199,10 +234,20 @@ class ChooserAction:
 
 class ShowClipboardHistory(ChooserAction):
 
+    """
+    Action class to show clipboard history with Chooser window.
+    """
+
     def __init__(self):
+
+        """
+        Initializes the ShowClipboardHistory object.
+        """
+
         super().__init__()
 
     def list_items(self):
+
         items = []
         for clip, label in Keymap.getInstance().clipboard_history.items():
             items.append( ( "📋", label, clip) )
@@ -216,6 +261,10 @@ class ShowClipboardHistory(ChooserAction):
 
 
 class ShowClipboardSnippets(ChooserAction):
+
+    """
+    Action class to show clipboard snippets with Chooser window.
+    """
 
     def __init__(self, snippets):
         super().__init__()
