@@ -33,8 +33,11 @@ api_names = [
     "LaunchApplication",
     "ThreadedAction",
     "UIElement",
+    "ClipboardHistory",
     "Console",
     "Hook",
+    "Clipboard",
+    "Chooser",
     "getLogger",
 ]
 

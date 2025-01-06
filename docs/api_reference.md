@@ -16,6 +16,12 @@ Initializes keymap object.
 
 ---
 
+##### <kbd>property</kbd> Keymap.clipboard_history
+
+ClipboardHistory object 
+
+---
+
 ##### <kbd>property</kbd> Keymap.focus
 
 Current focused UI element 
@@ -721,6 +727,94 @@ Set value of an attribute.
 ---
 
 
+### <kbd>class</kbd> `ClipboardHistory`
+Clipboard history 
+
+ClipboardHistory object automatically captures historical clipboard contents. Currently this class only supports text data. 
+
+### <kbd>method</kbd> `ClipboardHistory.__init__`
+
+```python
+__init__()
+```
+
+Initializes the ClipboardHistory object. 
+
+Loads saved clipboard history data from file (`~/.keyhac/clipboard.json`), and installs clipboard hook to the OS. 
+
+
+
+
+---
+
+#### <kbd>method</kbd> `ClipboardHistory.add_item`
+
+```python
+add_item(clip: keyhac_core.Clipboard) → None
+```
+
+Add a Clipboard object to the history. 
+
+Existing duplicate items are automatically deleted. 
+
+
+
+**Args:**
+ 
+ - <b>`clip`</b>:  Clipboard object to add 
+
+---
+
+#### <kbd>method</kbd> `ClipboardHistory.get_current`
+
+```python
+get_current() → Clipboard
+```
+
+Get the current Clipboard object from the clipboard history. 
+
+
+
+**Returns:**
+  Current Clipboard object  
+
+---
+
+#### <kbd>method</kbd> `ClipboardHistory.items`
+
+```python
+items()
+```
+
+Iterates the list of Clipboard objects. 
+
+First item is the latest. 
+
+
+
+**Returns:**
+  Clipboard object and shortened label (Clipboard, str) 
+
+---
+
+#### <kbd>method</kbd> `ClipboardHistory.set_current`
+
+```python
+set_current(clip: keyhac_core.Clipboard) → None
+```
+
+Set a Clipboard object to the OS's clipboard and latest entry of the clipboard history 
+
+
+
+**Args:**
+ 
+ - <b>`clip`</b>:  Clipboard object to set 
+
+
+---
+
+
 ### <kbd>class</kbd> `Console`
 
 
@@ -857,6 +951,151 @@ Keyhac automatically sets callbacks to the core hook system. So you don't usuall
  
  - <b>`name`</b>:  name of the hook. Currently only "Keyboard" is supported. 
  - <b>`func`</b>:  callback function 
+
+
+---
+
+
+### <kbd>class</kbd> `Clipboard`
+Clipboard data 
+
+### <kbd>method</kbd> `Clipboard.__init__`
+
+```python
+__init__()
+```
+
+Initializes the Clipboard object with empty content. 
+
+
+
+
+---
+
+#### <kbd>method</kbd> `Clipboard.destroy`
+
+```python
+destroy() → None
+```
+
+Releases clipboard data. 
+
+---
+
+#### <kbd>method</kbd> `Clipboard.get_current`
+
+```python
+get_current()
+```
+
+Get the current Clipboard object from the OS. 
+
+
+
+**Returns:**
+  Current Clipboard object 
+
+---
+
+#### <kbd>method</kbd> `Clipboard.get_string`
+
+```python
+get_string() → str
+```
+
+Get the string data from the Clipboard. 
+
+---
+
+#### <kbd>method</kbd> `Clipboard.set_current`
+
+```python
+set_current(clip) → None
+```
+
+Set a Clipboard object to the OS's clipboard. 
+
+
+
+**Args:**
+ 
+ - <b>`clip`</b>:  Clipboard object to set 
+
+---
+
+#### <kbd>method</kbd> `Clipboard.set_string`
+
+```python
+set_string(s: str) → None
+```
+
+Set a string data in the Clipboard object. 
+
+
+
+**Args:**
+ 
+ - <b>`s`</b>:  String data to set 
+
+
+---
+
+
+### <kbd>class</kbd> `Chooser`
+List window 
+
+### <kbd>method</kbd> `Chooser.__init__`
+
+```python
+__init__(
+    name: str,
+    items: (<class 'str'>, <class 'str'>),
+    on_selected,
+    on_canceled
+)
+```
+
+Initializes the Chooser object. 
+
+Argumeng `items` is a sequence (list or tuple) of candidate items. Each candidate item is a tuple of (icon, label, ...). First two elements have to be strings. The tuple can contain any types of optional elements after the first two elements. 
+
+
+
+**Args:**
+ 
+ - <b>`name`</b>:  Name of the Chooser object 
+ - <b>`items`</b>:  List items. Sequence (list or tuple) of (icon string, label string, ...) 
+ - <b>`on_selected`</b>:  Callback function for when an item is selected and decided 
+ - <b>`on_canceled`</b>:  Callback function for when Chooser is canceled 
+
+
+
+
+---
+
+#### <kbd>method</kbd> `Chooser.destroy`
+
+```python
+destroy() → None
+```
+
+Releases retained Python objects 
+
+---
+
+#### <kbd>method</kbd> `Chooser.open`
+
+```python
+open(frame: (<class 'int'>, <class 'int'>, <class 'int'>, <class 'int'>)) → None
+```
+
+Open Chooser window 
+
+
+
+**Args:**
+ 
+ - <b>`frame`</b>:  Poistion and size in screen coordinates. Tuple of int (x,y,width,height). Chooser window will be centered within this rectangle. 
 
 
 ---
