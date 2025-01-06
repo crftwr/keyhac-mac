@@ -39,7 +39,8 @@ Keyhac gives you the flexibility to customize the behavior of various applicatio
 - Launch an application by keyboard
 - Define custom actions in Python
 - Define custom modifier keys in addition to the standard ones
-- Execute actions with a "one-shot" modifier keystroke.
+- Execute actions with a "one-shot" modifier keystroke
+- Clipboard history and clipboard snippets
 - (Coming soon) Record and play back keystrokes
 
 
@@ -47,6 +48,12 @@ Keyhac gives you the flexibility to customize the behavior of various applicatio
 
 **Menu bar icon and menu**
 <br/><img src="docs/images/menubar-extra.png" alt="menubar-extra" style="width:300px;"/>
+
+**Clipboard history**
+<br/><img src="docs/images/clipboard-history.png" alt="clipboard-history" style="width:300px;"/>
+
+**Clipboard snippets**
+<br/><img src="docs/images/clipboard-snippets.png" alt="clipboard-snippets" style="width:200px;"/>
 
 **Console window**
 <br/><img src="docs/images/console-window.png" alt="console-window" style="width:400px;"/>
