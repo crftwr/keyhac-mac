@@ -24,7 +24,7 @@ def configure(keymap):
 
     # -----------------------------------------------------
     # Fn-V: Show clipboard history by Chooser window
-    keytable_global["Fn-V"] = ChooseClipboardHistory()
+    keytable_global["Fn-V"] = ShowClipboardHistory()
 
     # -----------------------------------------------------
     # Fn-Shift-V: Show snippets by Chooser window
@@ -34,7 +34,7 @@ def configure(keymap):
         def __call__(self):
             return datetime.datetime.now().strftime(self.format)
 
-    keytable_global["Fn-Shift-V"] = ChooseSnippet([
+    keytable_global["Fn-Shift-V"] = ShowClipboardSnippets([
         ("👤", "myname@email.address"),
         ("👤", "01-2345-6789"),
         ("👤", "Mailing address", "400 Broad St, Seattle, WA 98109"),

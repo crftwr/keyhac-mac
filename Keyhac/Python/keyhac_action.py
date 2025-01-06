@@ -139,7 +139,7 @@ class LaunchApplication(ThreadedAction):
         return f'LaunchApplication("{self.app_name}")'
 
 
-class ChoosingAction:
+class ChooserAction:
 
     def __init__(self):
         pass
@@ -194,10 +194,10 @@ class ChoosingAction:
             input_ctx.send_key("Cmd-V")
 
     def __repr__(self):
-        return f"ChoosingAction()"
+        return f"ChooserAction()"
 
 
-class ChooseClipboardHistory(ChoosingAction):
+class ShowClipboardHistory(ChooserAction):
 
     def __init__(self):
         super().__init__()
@@ -212,10 +212,10 @@ class ChooseClipboardHistory(ChoosingAction):
         self.paste(item[2])
 
     def __repr__(self):
-        return f"ChooseClipboardHistory()"
+        return f"ShowClipboardHistory()"
 
 
-class ChooseSnippet(ChoosingAction):
+class ShowClipboardSnippets(ChooserAction):
 
     def __init__(self, snippets):
         super().__init__()
@@ -241,4 +241,4 @@ class ChooseSnippet(ChoosingAction):
             self.paste(clip)
 
     def __repr__(self):
-        return f"ChooseSnippet({self.snippets})"
+        return f"ShowClipboardSnippets({self.snippets})"
