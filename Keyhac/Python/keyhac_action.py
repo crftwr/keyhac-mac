@@ -138,21 +138,18 @@ class LaunchApplication(ThreadedAction):
     def __repr__(self):
         return f'LaunchApplication("{self.app_name}")'
 
-class PasteClipboardHistory:
+
+class ChoosingAction:
 
     def __init__(self):
         pass
 
     def __call__(self):
 
-        keymap = Keymap.getInstance()
-
-        items = []
-        for clip, label in keymap.clipboard_history.items():
-            items.append( ( "📋", label, clip) )
+        items = self.list_items()
 
         # Get originally focused window and application
-        elm = keymap.focus
+        elm = Keymap.getInstance().focus
         window = None
         app = None
         while elm:
@@ -163,92 +160,85 @@ class PasteClipboardHistory:
                 app = elm
             elm = elm.get_attribute_value("AXParent")
 
-        def focus_original_app():
+        def _focus_original_app():
             app.set_attribute_value("AXFrontmost", "bool", True)
 
-        def on_selected(arg):
+        def _on_selected(arg):
             arg = json.loads(arg)
             index = int(arg["index"])
             item = items[index]
             
-            focus_original_app()
+            _focus_original_app()
 
-            keymap.clipboard_history.set_current(item[2])
-            
-            with keymap.get_input_context() as input_ctx:
-                input_ctx.send_key("Cmd-V")
+            self.on_chosen(item)
 
-        def on_canceled(arg):
-            focus_original_app()
+        def _on_canceled(arg):
+            _focus_original_app()
 
         if window:
             window_frame = window.get_attribute_value("AXFrame")
 
-            chooser = Chooser("clipboard", items, on_selected, on_canceled)
+            chooser = Chooser("clipboard", items, _on_selected, _on_canceled)
             chooser.open((int(window_frame[0]), int(window_frame[1]), int(window_frame[2]), int(window_frame[3])))
 
-    def __repr__(self):
-        return f"ShowClipboardHistory()"
+    def list_items(self):
+        return []
 
-
-class PasteSnippet:
-
-    def __init__(self, snippets):
-        self.snippets = snippets
-
-    def __call__(self):
+    def paste(self, clip):
 
         keymap = Keymap.getInstance()
 
-        # Get originally focused window and application
-        elm = keymap.focus
-        window = None
-        app = None
-        while elm:
-            role = elm.get_attribute_value("AXRole")
-            if role=="AXWindow":
-                window = elm
-            elif role=="AXApplication":
-                app = elm
-            elm = elm.get_attribute_value("AXParent")
-
-        def focus_original_app():
-            app.set_attribute_value("AXFrontmost", "bool", True)
-
-        def on_selected(arg):
-            arg = json.loads(arg)
-            index = int(arg["index"])
-            item = self.snippets[index]
-            
-            focus_original_app()
-
-            s = None
-            if len(item)==2:
-                s = item[1]
-            elif len(item)==3:
-                if isinstance(item[2], str):
-                    s = item[2]
-                elif callable(item[2]):
-                    s = item[2]()
-
-            if isinstance(s, str):
-
-                clip = Clipboard()
-                clip.set_string(s)
-
-                keymap.clipboard_history.set_current(clip)
-                
-                with keymap.get_input_context() as input_ctx:
-                    input_ctx.send_key("Cmd-V")
-
-        def on_canceled(arg):
-            focus_original_app()
-
-        if window:
-            window_frame = window.get_attribute_value("AXFrame")
-
-            chooser = Chooser("clipboard", self.snippets, on_selected, on_canceled)
-            chooser.open((int(window_frame[0]), int(window_frame[1]), int(window_frame[2]), int(window_frame[3])))
+        keymap.clipboard_history.set_current(clip)
+        
+        with keymap.get_input_context() as input_ctx:
+            input_ctx.send_key("Cmd-V")
 
     def __repr__(self):
-        return f"PasteSnippet()"
+        return f"ChoosingAction()"
+
+
+class ChooseClipboardHistory(ChoosingAction):
+
+    def __init__(self):
+        super().__init__()
+
+    def list_items(self):
+        items = []
+        for clip, label in Keymap.getInstance().clipboard_history.items():
+            items.append( ( "📋", label, clip) )
+        return items
+    
+    def on_chosen(self, item):
+        self.paste(item[2])
+
+    def __repr__(self):
+        return f"ChooseClipboardHistory()"
+
+
+class ChooseSnippet(ChoosingAction):
+
+    def __init__(self, snippets):
+        super().__init__()
+        self.snippets = snippets
+
+    def list_items(self):
+        return self.snippets
+    
+    def on_chosen(self, item):
+
+        s = None
+        if len(item)==2:
+            s = item[1]
+        elif len(item)==3:
+            if isinstance(item[2], str):
+                s = item[2]
+            elif callable(item[2]):
+                s = item[2]()
+
+        if isinstance(s, str):
+            clip = Clipboard()
+            clip.set_string(s)
+            self.paste(clip)
+
+    def __repr__(self):
+        return f"ChooseSnippet({self.snippets})"

@@ -1,8 +1,8 @@
-import sys
 import time
-import json
+import datetime
 import urllib.parse
 import subprocess
+
 from keyhac import *
 
 logger = getLogger("Config")
@@ -24,20 +24,17 @@ def configure(keymap):
 
     # -----------------------------------------------------
     # Fn-V: Show clipboard history by Chooser window
-    keytable_global["Fn-V"] = PasteClipboardHistory()
+    keytable_global["Fn-V"] = ChooseClipboardHistory()
 
     # -----------------------------------------------------
     # Fn-Shift-V: Show snippets by Chooser window
     class DateTimeString:
-        
         def __init__(self, format):
             self.format = format
-        
         def __call__(self):
-            import datetime
             return datetime.datetime.now().strftime(self.format)
 
-    snippets = [
+    keytable_global["Fn-Shift-V"] = ChooseSnippet([
         ("👤", "myname@email.address"),
         ("👤", "01-2345-6789"),
         ("👤", "Mailing address", "400 Broad St, Seattle, WA 98109"),
@@ -55,9 +52,7 @@ def configure(keymap):
         ),
         ("🕒", "YYYY-MM-DD HH:MM:SS", DateTimeString("%Y-%m-%d %H:%M:%S")),
         ("🕒", "YYYYMMDD_HHMMSS", DateTimeString("%Y%m%d_%H%M%S")),
-    ]
-
-    keytable_global["Fn-Shift-V"] = PasteSnippet(snippets)
+    ])
 
     # -----------------------------------------------------
     # User0-Z: Test of threaded action
