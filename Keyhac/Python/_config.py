@@ -173,6 +173,12 @@ def configure(keymap):
     # One-shot RCmd: Launch Terminal
     keytable_global["O-RCmd"] = LaunchApplication("Terminal.app")
 
+
+    # Testing key replay feature
+    keytable_global["Fn-R"] = keymap.replay_buffer.toggle_recording
+    keytable_global["Fn-P"] = keymap.replay_buffer.playback
+
+
     # =====================================================
     # Key table for Xcode
     # =====================================================

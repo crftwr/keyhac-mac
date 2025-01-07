@@ -10,6 +10,7 @@ import keyhac_console
 from keyhac_key import KeyCondition, KeyTable
 from keyhac_focus import FocusCondition
 from keyhac_input import InputContext
+from keyhac_replay import KeyReplayBuffer
 from keyhac_clipboard import ClipboardHistory
 from keyhac_const import *
 
@@ -52,7 +53,7 @@ class Keymap:
         # Notes:
         #
         # - When setting this option to True, "Shift-Tab" (decrement indent level)
-        #   stopped working for Xcode. I behave as if a "Tab" without Shift.
+        #   stopped working for Xcode. It behave as if a "Tab" without Shift.
         #
         self._passthru_by_send = False
 
@@ -65,9 +66,9 @@ class Keymap:
         self._focus_elm = None              # UIElement of the current focus
         self._modifier = 0                  # Flags of currently pressed modifier keys
         self._last_keydown = None           # Key code of the last key down, to detect one-shot event
-        self._record_status = None          # Key recording status ("recording" or None)
-        self._record_seq = None             # Recoreded key sequence
-        
+
+        self.replay_buffer = KeyReplayBuffer()
+
         Hook.set_callback("Keyboard", self._on_key)
 
         self._clipboard_history = ClipboardHistory()
@@ -261,7 +262,8 @@ class Keymap:
 
         self._check_focus_change()
 
-        self._record_key( vk, False )
+        if self.replay_buffer.recording:
+            self.replay_buffer.record(vk, True)
 
         try:
             vk = self._vk_vk_map[vk]
@@ -309,7 +311,8 @@ class Keymap:
 
         self._check_focus_change()
 
-        self._record_key( vk, True )
+        if self.replay_buffer.recording:
+            self.replay_buffer.record(vk, False)
 
         try:
             vk = self._vk_vk_map[vk]
@@ -367,13 +370,6 @@ class Keymap:
 
         # Modifier key state is not reliable anymore. Resetting.
         self._modifier = 0
-
-    def _record_key( self, vk, up ):
-        if self._record_status=="recording":
-            if len(self._record_seq)>=1000:
-                logger.error(f"Keyboard macro is too long.")
-                return
-            self._record_seq.append( ( vk, up ) )
 
     def _is_key_configured( self, key ):
         return key in self._unified_keytable
