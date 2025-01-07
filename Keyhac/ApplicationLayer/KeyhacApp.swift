@@ -34,9 +34,6 @@ struct KeyhacApp: App {
 
         Window("About Keyhac", id: "about") {
             AboutWindowView()
-                .onOpenURL { url in
-                    print("url: \(url)")
-                }
         }
         .windowResizability(.contentSize)
         .handlesExternalEvents(matching: ["about"])
