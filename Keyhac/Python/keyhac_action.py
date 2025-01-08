@@ -291,3 +291,84 @@ class ShowClipboardSnippets(ChooserAction):
 
     def __repr__(self):
         return f"ShowClipboardSnippets({self.snippets})"
+
+
+class StartRecordingKeys:
+
+    """
+    A action class to start recording keys in replay buffer
+    """
+
+    def __init__(self):
+        """
+        Initializes the StartRecordingKeys object.
+        """
+        pass
+
+    def __call__(self):
+        keymap = Keymap.getInstance()
+        keymap.replay_buffer.start_recording()
+
+    def __repr__(self):
+        return f"StartRecordingKeys()"
+
+
+class StopRecordingKeys:
+
+    """
+    A action class to stop recording keys in replay buffer
+    """
+
+    def __init__(self):
+        """
+        Initializes the StopRecordingKeys object.
+        """
+        pass
+
+    def __call__(self):
+        keymap = Keymap.getInstance()
+        keymap.replay_buffer.stop_recording()
+
+    def __repr__(self):
+        return f"StopRecordingKeys()"
+
+
+class ToggleRecordingKeys:
+
+    """
+    A action class to start or stop recording keys in replay buffer
+    """
+
+    def __init__(self):
+        """
+        Initializes the ToggleRecordingKeys object.
+        """
+        pass
+
+    def __call__(self):
+        keymap = Keymap.getInstance()
+        keymap.replay_buffer.toggle_recording()
+
+    def __repr__(self):
+        return f"ToggleRecordingKeys()"
+
+
+class PlaybackRecordedKeys:
+
+    """
+    A action class to playback recorded keys in replay buffer
+    """
+
+    def __init__(self):
+        """
+        Initializes the PlaybackRecordedKeys object.
+        """
+        pass
+
+    def __call__(self):
+        keymap = Keymap.getInstance()
+        keymap.replay_buffer.playback()
+
+    def __repr__(self):
+        return f"PlaybackRecordedKeys()"
+

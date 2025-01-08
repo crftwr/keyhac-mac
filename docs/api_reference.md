@@ -106,7 +106,7 @@ Get the Keymap singleton instance.
 #### <kbd>method</kbd> `Keymap.get_input_context`
 
 ```python
-get_input_context() → InputContext
+get_input_context(replay=False) → InputContext
 ```
 
 Get a key input context to send virtual key input sequence. 
@@ -115,8 +115,14 @@ Use this method to get a key input context object and to programmatically send v
 
 
 
+**Args:**
+ 
+ - <b>`replay`</b>:  Set `replay` mode to re-evaluate injected key events by the Keymap 
+
+
+
 **Returns:**
-  Key input context 
+ Key input context 
 
 ---
 
@@ -383,7 +389,7 @@ usage:  with keymap.get_input_context() as input_ctx:  input_ctx.send_key("Cmd-L
 ### <kbd>method</kbd> `InputContext.__init__`
 
 ```python
-__init__(keymap)
+__init__(keymap, replay=False)
 ```
 
 Initialize the input context. To create InputContext object, use Keymap.get_input_context(). Don't directly use InputContext.__init__(). 
@@ -713,6 +719,78 @@ Paste the content of Clipboard to the current active window
 **Args:**
  
  - <b>`clip`</b>:  Clipboard object to paste 
+
+
+---
+
+
+### <kbd>class</kbd> `StartRecordingKeys`
+A action class to start recording keys in replay buffer 
+
+### <kbd>method</kbd> `StartRecordingKeys.__init__`
+
+```python
+__init__()
+```
+
+Initializes the StartRecordingKeys object. 
+
+
+
+
+
+---
+
+
+### <kbd>class</kbd> `StopRecordingKeys`
+A action class to stop recording keys in replay buffer 
+
+### <kbd>method</kbd> `StopRecordingKeys.__init__`
+
+```python
+__init__()
+```
+
+Initializes the StopRecordingKeys object. 
+
+
+
+
+
+---
+
+
+### <kbd>class</kbd> `ToggleRecordingKeys`
+A action class to start or stop recording keys in replay buffer 
+
+### <kbd>method</kbd> `ToggleRecordingKeys.__init__`
+
+```python
+__init__()
+```
+
+Initializes the ToggleRecordingKeys object. 
+
+
+
+
+
+---
+
+
+### <kbd>class</kbd> `PlaybackRecordedKeys`
+A action class to playback recorded keys in replay buffer 
+
+### <kbd>method</kbd> `PlaybackRecordedKeys.__init__`
+
+```python
+__init__()
+```
+
+Initializes the PlaybackRecordedKeys object. 
+
+
+
 
 
 ---
