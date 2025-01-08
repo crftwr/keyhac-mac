@@ -132,14 +132,18 @@ class InputContext:
 
         # Key down modifier keys
         for vk_mod in self._vk_mod_map.items():
-            if vk_mod[1] & MODKEY_USER_ALL: continue
+            # Ignore user modifier keys (when not replay mode), otherwise it causes key events of original meaning
+            if (vk_mod[1] & MODKEY_USER_ALL) and (not self._replay):
+                continue
             if not ( vk_mod[1] & self._virtual_modifier ) and ( vk_mod[1] & mod ):
                 self._input_seq.append( ("keyDown", vk_mod[0]) )
                 self._virtual_modifier |= vk_mod[1]
 
         # Key up modifier keys
         for vk_mod in self._vk_mod_map.items():
-            if vk_mod[1] & MODKEY_USER_ALL: continue
+            # Ignore user modifier keys (when not replay mode), otherwise it causes key events of original meaning
+            if (vk_mod[1] & MODKEY_USER_ALL) and (not self._replay):
+                continue
             if ( vk_mod[1] & self._virtual_modifier ) and not ( vk_mod[1] & mod ):
                 self._input_seq.append( ("keyUp", vk_mod[0]) )
                 self._virtual_modifier &= ~vk_mod[1]
