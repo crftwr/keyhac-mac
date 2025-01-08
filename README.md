@@ -41,7 +41,7 @@ Keyhac gives you the flexibility to customize the behavior of various applicatio
 - Define custom modifier keys in addition to the standard ones
 - Execute actions with a "one-shot" modifier keystroke
 - Clipboard history and clipboard snippets
-- (Coming soon) Record and play back keystrokes
+- Record and playback keystrokes
 
 
 ### Screenshots
@@ -83,6 +83,10 @@ def configure(keymap):
     keytable_global = keymap.define_keytable(focus_path_pattern="*")
 
     # -----------------------------------------------------
+    # Fn-V: Show clipboard history by Chooser window
+    keytable_global["Fn-V"] = ShowClipboardHistory()
+
+    # -----------------------------------------------------
     # User0-D: Lookup selected words in the dictionary app
     def lookup_dictionary():
 
@@ -99,28 +103,6 @@ def configure(keymap):
     keytable_global["User0-D"] = lookup_dictionary
 
     # -----------------------------------------------------
-    # Fn-M: Zoom window (Test of UIElement.performAction)
-    def zoom_window():
-
-        elm = keymap.focus
-
-        while elm:
-            role = elm.get_attribute_value("AXRole")
-            if role=="AXWindow":
-                break
-            elm = elm.get_attribute_value("AXParent")
-
-        if elm:
-            names = elm.get_attribute_names()
-            if "AXZoomButton" in names:
-                elm = elm.get_attribute_value("AXZoomButton")
-                if elm:
-                    actions = elm.get_action_names()
-                    elm.perform_action("AXPress")
-
-    keytable_global["Fn-M"] = zoom_window
-
-    # -----------------------------------------------------
     # User0-Left/Right/Up/Down: Move current active window
     keytable_global["User0-Left"]  = MoveWindow(-10,0)
     keytable_global["User0-Right"] = MoveWindow(+10,0)
@@ -132,7 +114,12 @@ def configure(keymap):
     keytable_global["User0-T"] = LaunchApplication("Terminal.app")
     keytable_global["User0-F"] = LaunchApplication("ForkLift.app")
     keytable_global["User0-C"] = LaunchApplication("Visual Studio Code.app")
-    keytable_global["User0-J"] = LaunchApplication("JJJ")
+
+    # -----------------------------------------------------
+    # Fn-R: Start/Stop recoding keys
+    # Fn-P: Playback recorded keys
+    keytable_global["Fn-R"] = ToggleRecordingKeys()
+    keytable_global["Fn-P"] = PlaybackRecordedKeys()
 
 
     # =====================================================
