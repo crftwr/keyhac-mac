@@ -176,8 +176,9 @@ def configure(keymap):
 
     # Testing key replay feature
     keytable_global["Fn-R"] = keymap.replay_buffer.toggle_recording
+    keytable_global["User0-P"] = keymap.replay_buffer.playback
     keytable_global["Fn-P"] = keymap.replay_buffer.playback
-
+    keytable_global["Cmd-P"] = keymap.replay_buffer.playback
 
     # =====================================================
     # Key table for Xcode

@@ -86,12 +86,10 @@ class KeyReplayBuffer:
         logger.info(f"Playing")
 
         keymap = Keymap.getInstance()
-        for vk, down in self.seq:
-            if down:
-                if not keymap._on_key_down(vk):
-                    with keymap.get_input_context() as input_ctx:
-                        input_ctx.send_key_by_vk(vk,down)
-            else:
-                if not keymap._on_key_up(vk):
-                    with keymap.get_input_context() as input_ctx:
-                        input_ctx.send_key_by_vk(vk,down)
+        with keymap.get_input_context(replay=True) as input_ctx:
+            
+            # FIXME: Should release user modifier keys as well
+            input_ctx.send_modifier_keys(0)
+            
+            for vk, down in self.seq:
+                input_ctx.send_key_by_vk(vk, down)

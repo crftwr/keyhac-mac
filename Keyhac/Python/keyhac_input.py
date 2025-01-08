@@ -19,7 +19,7 @@ class InputContext:
             input_ctx.send_key("Cmd-Shift-Right")
     """
 
-    def __init__(self, keymap):
+    def __init__(self, keymap, replay=False):
 
         """
         Initialize the input context.
@@ -27,6 +27,7 @@ class InputContext:
         """
 
         self._keymap = keymap
+        self._replay = replay
         self._entered = False
         self._input_seq = []
 
@@ -146,6 +147,6 @@ class InputContext:
     def _flush(self):
         self.send_modifier_keys(self._real_modifier)
         for event in self._input_seq:
-            Hook.send_keyboard_event(event[0], event[1])
+            Hook.send_keyboard_event(event[0], event[1], self._replay)
         self._input_seq = []
 

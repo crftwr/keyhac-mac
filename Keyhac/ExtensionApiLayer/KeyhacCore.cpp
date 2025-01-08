@@ -791,14 +791,15 @@ static PyObject * Hook_send_keyboard_event(Hook_Object * self, PyObject* args)
 {
     PyObject * pytype;
     int keyCode;
-    if( ! PyArg_ParseTuple(args, "UI", &pytype, &keyCode ) )
+    int replay;
+    if( ! PyArg_ParseTuple(args, "UI|I", &pytype, &keyCode, &replay ) )
     {
         return NULL;
     }
     
     const char * type = PyUnicode_AsUTF8AndSize(pytype, NULL);
     
-    Hook::getInstance().sendKeyboardEvent(type, keyCode);
+    Hook::getInstance().sendKeyboardEvent(type, keyCode, replay);
 
     Py_INCREF(Py_None);
     return Py_None;

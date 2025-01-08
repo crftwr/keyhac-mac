@@ -34,6 +34,7 @@ public class Hook {
     enum KeyEventSource {
         case real
         case virtual
+        case replay
     }
     
     // Allow send virtual keys from threads
@@ -43,7 +44,8 @@ public class Hook {
     var eventTap: CFMachPort?
     var runLoopSource: CFRunLoopSource?
     var eventSource: CGEventSource?
-    
+    var eventSourceForReplay: CGEventSource?
+
     var timer: Timer?
     static let timerInterval = 0.0333
     
@@ -174,7 +176,8 @@ public class Hook {
         CGEvent.tapEnable(tap: self.eventTap!, enable: true)
         
         self.eventSource = CGEventSource(stateID: CGEventSourceStateID.privateState)
-        
+        self.eventSourceForReplay = CGEventSource(stateID: CGEventSourceStateID.privateState)
+
         numPendingVirtualKeyEvents = 0
         deferredRealKeyEvents.removeAll()
 
@@ -209,6 +212,7 @@ public class Hook {
         }
         
         self.eventSource = nil
+        self.eventSourceForReplay = nil
         self.runLoopSource = nil
         self.eventTap = nil
         
@@ -264,17 +268,19 @@ public class Hook {
     
     // Callback for keyboard hook
     private func keyboardCallbackSwift(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
-        
+
         lock.lock()
         defer { lock.unlock() }
-
+        
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
         
         let keyEventSource: KeyEventSource
-        if event.getIntegerValueField(.eventSourceStateID) == eventSource!.sourceStateID.rawValue {
+        switch event.getIntegerValueField(.eventSourceStateID) {
+        case Int64(eventSource!.sourceStateID.rawValue):
             keyEventSource = .virtual
-        }
-        else {
+        case Int64(eventSourceForReplay!.sourceStateID.rawValue):
+            keyEventSource = .replay
+        default:
             keyEventSource = .real
         }
         
@@ -284,6 +290,7 @@ public class Hook {
         // Postpone real events if there are virtual key events pending or if there are preceeding postponed events
         if keyEventSource == .real {
             if numPendingVirtualKeyEvents > 0 || deferredRealKeyEvents.count > 0 {
+                TRACE("keyboardCallbackSwift - defer real event \(numPendingVirtualKeyEvents), \(deferredRealKeyEvents.count)")
                 deferredRealKeyEvents.append(event)
                 return nil;
             }
@@ -323,7 +330,7 @@ public class Hook {
                 break process_event
             }
             
-            if keyEventSource == .real {
+            if keyEventSource == .real || keyEventSource == .replay {
                 if self.keyboardCallback.ptr() != nil {
 
                     var gil = PyGIL(true);
@@ -372,13 +379,13 @@ public class Hook {
         
         // Event order handling:
         // Process postponed real key events once all virtual key events are done
-        if keyEventSource == .virtual {
+        if keyEventSource == .virtual || keyEventSource == .replay {
             numPendingVirtualKeyEvents = max(numPendingVirtualKeyEvents-1, 0)
             if numPendingVirtualKeyEvents == 0 {
                 flushRealKeyEvents()
             }
         }
-        
+
         return Unmanaged.passUnretained(event)
     }
     
@@ -469,8 +476,8 @@ public class Hook {
     }
     
     // Send a virtual key event
-    public func sendKeyboardEvent(type: String, keyCode: Int) {
-        
+    public func sendKeyboardEvent(type: String, keyCode: Int, replay: Bool) {
+
         TRACE("sendKeyboardEvent(\(type), \(keyCode))")
         
         lock.lock()
@@ -486,7 +493,14 @@ public class Hook {
             fatalError("Unknown keyboard event type: \(type)")
         }
         
-        let event = CGEvent(keyboardEventSource: eventSource, virtualKey: CGKeyCode(keyCode), keyDown: keyDown)
+        var src: CGEventSource?
+        if replay {
+            src = eventSourceForReplay
+        } else {
+            src = eventSource
+        }
+        
+        let event = CGEvent(keyboardEventSource: src, virtualKey: CGKeyCode(keyCode), keyDown: keyDown)
         
         if let event = event {
             

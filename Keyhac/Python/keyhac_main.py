@@ -210,18 +210,21 @@ class Keymap:
                     continue
                 input_ctx.send_key_by_vk(vk_mod[0], down=False)
 
-    def get_input_context(self) -> InputContext:
+    def get_input_context(self, replay=False) -> InputContext:
 
         """
         Get a key input context to send virtual key input sequence.
 
         Use this method to get a key input context object and to programmatically send virtual keys.
 
+        Args:
+            replay: Set `replay` mode to re-evaluate injected key events by the Keymap
+
         Returns:
             Key input context
         """
 
-        return InputContext(self)
+        return InputContext(self, replay)
 
     def _get_focused_element(self):
 
