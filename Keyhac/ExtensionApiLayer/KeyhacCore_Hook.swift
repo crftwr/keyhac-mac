@@ -33,7 +33,7 @@ public class Hook {
     
     enum KeyEventSource {
         case real
-        case virtual
+        case translated
         case replay
     }
     
@@ -43,7 +43,7 @@ public class Hook {
     // Keyboard hook at OS level
     var eventTap: CFMachPort?
     var runLoopSource: CFRunLoopSource?
-    var eventSource: CGEventSource?
+    var eventSourceForTranslated: CGEventSource?
     var eventSourceForReplay: CGEventSource?
 
     var timer: Timer?
@@ -139,7 +139,7 @@ public class Hook {
         lock.lock()
         defer { lock.unlock() }
 
-        if self.eventSource != nil {
+        if self.eventSourceForTranslated != nil {
             print("Keyboard hook is already installed.")
             return
         }
@@ -175,7 +175,7 @@ public class Hook {
         CFRunLoopAddSource(CFRunLoopGetCurrent(), self.runLoopSource, .commonModes)
         CGEvent.tapEnable(tap: self.eventTap!, enable: true)
         
-        self.eventSource = CGEventSource(stateID: CGEventSourceStateID.privateState)
+        self.eventSourceForTranslated = CGEventSource(stateID: CGEventSourceStateID.privateState)
         self.eventSourceForReplay = CGEventSource(stateID: CGEventSourceStateID.privateState)
 
         numPendingVirtualKeyEvents = 0
@@ -193,7 +193,7 @@ public class Hook {
         lock.lock()
         defer { lock.unlock() }
 
-        if self.eventSource == nil {
+        if self.eventSourceForTranslated == nil {
             print("Keyboard hook is not installed.")
             return
         }
@@ -211,7 +211,7 @@ public class Hook {
             CFRunLoopRemoveSource(CFRunLoopGetCurrent(), runLoopSource, CFRunLoopMode.commonModes)
         }
         
-        self.eventSource = nil
+        self.eventSourceForTranslated = nil
         self.eventSourceForReplay = nil
         self.runLoopSource = nil
         self.eventTap = nil
@@ -222,7 +222,7 @@ public class Hook {
     
     // Check if keyboard hook is successfully installed
     public func isKeyboardHookInstalled() -> Bool {
-        return self.eventSource != nil
+        return self.eventSourceForTranslated != nil
     }
     
     // Check if the keyboard hook is enabled (not disabled by the OS) and restore it as needed
@@ -276,8 +276,8 @@ public class Hook {
         
         let keyEventSource: KeyEventSource
         switch event.getIntegerValueField(.eventSourceStateID) {
-        case Int64(eventSource!.sourceStateID.rawValue):
-            keyEventSource = .virtual
+        case Int64(eventSourceForTranslated!.sourceStateID.rawValue):
+            keyEventSource = .translated
         case Int64(eventSourceForReplay!.sourceStateID.rawValue):
             keyEventSource = .replay
         default:
@@ -379,7 +379,7 @@ public class Hook {
         
         // Event order handling:
         // Process postponed real key events once all virtual key events are done
-        if keyEventSource == .virtual || keyEventSource == .replay {
+        if keyEventSource == .translated || keyEventSource == .replay {
             numPendingVirtualKeyEvents = max(numPendingVirtualKeyEvents-1, 0)
             if numPendingVirtualKeyEvents == 0 {
                 flushRealKeyEvents()
@@ -493,14 +493,14 @@ public class Hook {
             fatalError("Unknown keyboard event type: \(type)")
         }
         
-        var src: CGEventSource?
+        var eventSource: CGEventSource?
         if replay {
-            src = eventSourceForReplay
+            eventSource = eventSourceForReplay
         } else {
-            src = eventSource
+            eventSource = eventSourceForTranslated
         }
         
-        let event = CGEvent(keyboardEventSource: src, virtualKey: CGKeyCode(keyCode), keyDown: keyDown)
+        let event = CGEvent(keyboardEventSource: eventSource, virtualKey: CGKeyCode(keyCode), keyDown: keyDown)
         
         if let event = event {
             
