@@ -219,6 +219,17 @@ class ChooserAction:
     def __repr__(self):
         return f"ChooserAction()"
 
+def _on_clipboard_chosen_common(clip, modifier_flags: int):
+
+    keymap = Keymap.getInstance()
+    keymap.clipboard_history.set_current(clip)
+
+    # Don't paste when shift key is pressed        
+    if modifier_flags & MODKEY_SHIFT:
+        return
+
+    with keymap.get_input_context() as input_ctx:
+        input_ctx.send_key("Cmd-V")
 
 class ShowClipboardHistory(ChooserAction):
 
@@ -242,16 +253,7 @@ class ShowClipboardHistory(ChooserAction):
         return items
     
     def on_chosen(self, item, modifier_flags: int):
-
-        clip = item[2]
-
-        keymap = Keymap.getInstance()
-        keymap.clipboard_history.set_current(clip)
-
-        # Don't paste when shift key is pressed        
-        if not (modifier_flags & MODKEY_SHIFT):
-            with keymap.get_input_context() as input_ctx:
-                input_ctx.send_key("Cmd-V")
+        _on_clipboard_chosen_common(item[2], modifier_flags)
 
     def __repr__(self):
         return f"ShowClipboardHistory()"
@@ -288,13 +290,7 @@ class ShowClipboardSnippets(ChooserAction):
         clip = Clipboard()
         clip.set_string(s)
 
-        keymap = Keymap.getInstance()
-        keymap.clipboard_history.set_current(clip)
-
-        # Don't paste when shift key is pressed        
-        if not (modifier_flags & MODKEY_SHIFT):
-            with keymap.get_input_context() as input_ctx:
-                input_ctx.send_key("Cmd-V")
+        _on_clipboard_chosen_common(clip, modifier_flags)
 
     def __repr__(self):
         return f"ShowClipboardSnippets({self.snippets})"
