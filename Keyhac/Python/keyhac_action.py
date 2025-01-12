@@ -7,6 +7,7 @@ from typing import Any
 from keyhac_core import Chooser, Clipboard
 from keyhac_main import Keymap
 import keyhac_console
+from keyhac_const import *
 
 logger = keyhac_console.getLogger("Action")
 
@@ -175,11 +176,13 @@ class ChooserAction:
         def _on_selected(arg):
             arg = json.loads(arg)
             index = int(arg["index"])
+            modifier_flags = int(arg["modifierFlags"])
+
             item = items[index]
             
             _focus_original_app()
 
-            self.on_chosen(item)
+            self.on_chosen(item, modifier_flags)
 
         def _on_canceled(arg):
             _focus_original_app()
@@ -201,32 +204,17 @@ class ChooserAction:
         
         return []
 
-    def on_chosen(self, item) -> None:
+    def on_chosen(self, item, modifier_flags: int) -> None:
 
         """
         Virtual method to handle chosen item.
 
         Args:
             item: Chosen item
+            modifier_flags: Combination of pressed modifier flags (MODKEY_SHIFT, etc)
         """
         
         pass
-
-    def paste(self, clip) -> None:
-
-        """
-        Paste the content of Clipboard to the current active window
-
-        Args:
-            clip: Clipboard object to paste
-        """
-        
-        keymap = Keymap.getInstance()
-
-        keymap.clipboard_history.set_current(clip)
-        
-        with keymap.get_input_context() as input_ctx:
-            input_ctx.send_key("Cmd-V")
 
     def __repr__(self):
         return f"ChooserAction()"
@@ -253,8 +241,17 @@ class ShowClipboardHistory(ChooserAction):
             items.append( ( "📋", label, clip) )
         return items
     
-    def on_chosen(self, item):
-        self.paste(item[2])
+    def on_chosen(self, item, modifier_flags: int):
+
+        clip = item[2]
+
+        keymap = Keymap.getInstance()
+        keymap.clipboard_history.set_current(clip)
+
+        # Don't paste when shift key is pressed        
+        if not (modifier_flags & MODKEY_SHIFT):
+            with keymap.get_input_context() as input_ctx:
+                input_ctx.send_key("Cmd-V")
 
     def __repr__(self):
         return f"ShowClipboardHistory()"
@@ -273,8 +270,9 @@ class ShowClipboardSnippets(ChooserAction):
     def list_items(self):
         return self.snippets
     
-    def on_chosen(self, item):
+    def on_chosen(self, item, modifier_flags: int):
 
+        # Get snippet, 1) from 2nd element, 2) from 3rd element, 3) by calling 3rd element
         s = None
         if len(item)==2:
             s = item[1]
@@ -283,11 +281,20 @@ class ShowClipboardSnippets(ChooserAction):
                 s = item[2]
             elif callable(item[2]):
                 s = item[2]()
+        
+        if not isinstance(s, str):
+            return
 
-        if isinstance(s, str):
-            clip = Clipboard()
-            clip.set_string(s)
-            self.paste(clip)
+        clip = Clipboard()
+        clip.set_string(s)
+
+        keymap = Keymap.getInstance()
+        keymap.clipboard_history.set_current(clip)
+
+        # Don't paste when shift key is pressed        
+        if not (modifier_flags & MODKEY_SHIFT):
+            with keymap.get_input_context() as input_ctx:
+                input_ctx.send_key("Cmd-V")
 
     def __repr__(self):
         return f"ShowClipboardSnippets({self.snippets})"

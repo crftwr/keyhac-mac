@@ -19,6 +19,17 @@ public struct ChooserItem {
     }
 }
 
+public enum ModifierFlags: Int {
+    case MODKEY_ALT   = 0x00000001
+    case MODKEY_CTRL  = 0x00000002
+    case MODKEY_SHIFT = 0x00000004
+    case MODKEY_WIN   = 0x00000008
+    case MODKEY_CMD   = 0x00000010
+    case MODKEY_FN    = 0x00000020
+    case MODKEY_USER0 = 0x00000040
+    case MODKEY_USER1 = 0x00000080
+}
+
 public class Chooser {
     
     private static var instances: [String : Chooser] = [:]
@@ -74,7 +85,7 @@ public class Chooser {
         self.onCanceledCallback = PyObjectPtr()
     }
     
-    public func onSelected(uuid: String) {
+    public func onSelected(uuid: String, nsModifierFlags: NSEvent.ModifierFlags) {
         
         if self.onSelectedCallback.ptr() != nil {
             
@@ -93,8 +104,14 @@ public class Chooser {
                 return
             }
             
+            var modifierFlags = 0
+            if nsModifierFlags.contains(.shift) {modifierFlags |= ModifierFlags.MODKEY_SHIFT.rawValue}
+            if nsModifierFlags.contains(.control) {modifierFlags |= ModifierFlags.MODKEY_CTRL.rawValue}
+            if nsModifierFlags.contains(.option) {modifierFlags |= ModifierFlags.MODKEY_ALT.rawValue}
+            if nsModifierFlags.contains(.command) {modifierFlags |= ModifierFlags.MODKEY_CMD.rawValue}
+            
             let json = """
-            {"index": "\(foundIndex)"}
+            {"index": "\(foundIndex)", "modifierFlags": "\(modifierFlags)"}
             """
             
             var arg = PythonBridge.buildPythonString(json)

@@ -210,6 +210,10 @@ struct ChooserWindowView: View {
     }
     
     func onKeyDown(_ key: CustomTextFieldView.Key) -> Bool {
+        
+        let evt = NSApp.currentEvent
+        guard let evt = evt else {return false}
+
         switch key {
         case .up:
             selectedIndex = max(selectedIndex-1, 0)
@@ -239,7 +243,7 @@ struct ChooserWindowView: View {
             guard let chooser = Chooser.getInstance(name: self.chooserName) else { break }
 
             if selectedIndex < searchResults.count {
-                chooser.onSelected(uuid: searchResults[selectedIndex].uuid)
+                chooser.onSelected(uuid: searchResults[selectedIndex].uuid, nsModifierFlags: evt.modifierFlags)
                 
                 dismissWindow(id: "chooser")
                 
@@ -257,9 +261,6 @@ struct ChooserWindowView: View {
             dismissWindow(id: "chooser")
 
             return true
-
-        default:
-            break
         }
         
         return false
@@ -269,7 +270,6 @@ struct ChooserWindowView: View {
 struct CustomTextFieldView: NSViewRepresentable {
     
     enum Key {
-        case tab
         case enter
         case escape
         case up
@@ -351,13 +351,10 @@ struct CustomTextFieldView: NSViewRepresentable {
         
         func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
             
-            if commandSelector == #selector(NSStandardKeyBindingResponding.insertTab(_:)) {
-                if let onKeyDown = parent.onKeyDown {
-                    return onKeyDown(.tab)
-                }
-                return false
-            }
-            else if commandSelector == #selector(NSStandardKeyBindingResponding.insertNewline(_:)) {
+            let evt = NSApp.currentEvent
+            guard let evt = evt else {return false}
+
+            if evt.keyCode == 0x24 {
                 if let onKeyDown = parent.onKeyDown {
                     return onKeyDown(.enter)
                 }
