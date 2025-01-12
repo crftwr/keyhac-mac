@@ -222,12 +222,25 @@ class ChooserAction:
 def _on_clipboard_chosen_common(clip, modifier_flags: int):
 
     keymap = Keymap.getInstance()
+
+    # Add quote mark when alt key is pressed
+    if modifier_flags & MODKEY_ALT:
+        s = clip.get_string()
+        lines = []
+        for line in s.splitlines(keepends=True):
+            lines.append("> " + line)
+        s = "".join(lines)
+        clip = Clipboard()
+        clip.set_string(s)
+
+    # Set current clipboard
     keymap.clipboard_history.set_current(clip)
 
     # Don't paste when shift key is pressed        
     if modifier_flags & MODKEY_SHIFT:
         return
 
+    # Paste
     with keymap.get_input_context() as input_ctx:
         input_ctx.send_key("Cmd-V")
 
