@@ -12,7 +12,18 @@ class ClipboardHistory:
 
     ClipboardHistory object automatically captures historical clipboard contents.
     Currently this class only supports text data.
+
+    ClipboardHistory class has following class variables to configure the maximum length and data size:
+    - max_items: Maximum number of clipboard history item to keep (default: 1000 items)
+    - max_label_length: Maximum length of label strings of clipboard items (default: 4096 bytes)
+    - max_data_size: Maximum data size of single clipboard to keep (default: 10 * 1024 * 1024 = 10MB)
+    - max_persist_data_size: Maximum data size of single clipboard to save in persistent file (default: 64 * 1024 = 64KB)
     """
+
+    max_items = 1000
+    max_label_length = 4096
+    max_data_size = 10 * 1024 * 1024
+    max_persist_data_size = 64 * 1024
 
     def __init__(self):
 
@@ -25,7 +36,6 @@ class ClipboardHistory:
         self.filename = os.path.expanduser("~/.keyhac/clipboard.json")
         
         self._items = collections.OrderedDict()
-        self._max_items = 100
         self.dirty = False
 
         self._load()
@@ -70,6 +80,9 @@ class ClipboardHistory:
 
         s = clip.get_string()
         if s:
+            if len(s) > self.max_data_size:
+                return
+
             label = self._shorten_string(s)
 
             if s in self._items:
@@ -104,6 +117,7 @@ class ClipboardHistory:
             return clip
 
     def _shorten_string(self, s):
+        s = s[:self.max_label_length]
         return re.sub(r"\s+", " ", s).strip()
 
     def _save(self):
@@ -115,7 +129,7 @@ class ClipboardHistory:
 
         for clip, label in self.items():
             s = clip.get_string()
-            if s:
+            if s and len(s) <= self.max_persist_data_size:
                 d["clipboard_history"].append(
                     {
                         "type": "string",
@@ -150,6 +164,7 @@ class ClipboardHistory:
 
     def _cap_num_items(self):
 
-        while len(self._items) > self._max_items:
+        total_data_size = 0
+        while len(self._items) > self.max_items:
             s, (clip, label) = self._items.popitem(last=False)
             clip.destroy()

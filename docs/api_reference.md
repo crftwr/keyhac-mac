@@ -637,28 +637,12 @@ list_items()
 #### <kbd>method</kbd> `ShowClipboardHistory.on_chosen`
 
 ```python
-on_chosen(item)
+on_chosen(item, modifier_flags: int)
 ```
 
 
 
 
-
----
-
-#### <kbd>method</kbd> `ShowClipboardHistory.paste`
-
-```python
-paste(clip) → None
-```
-
-Paste the content of Clipboard to the current active window 
-
-
-
-**Args:**
- 
- - <b>`clip`</b>:  Clipboard object to paste 
 
 
 ---
@@ -697,28 +681,12 @@ list_items()
 #### <kbd>method</kbd> `ShowClipboardSnippets.on_chosen`
 
 ```python
-on_chosen(item)
+on_chosen(item, modifier_flags: int)
 ```
 
 
 
 
-
----
-
-#### <kbd>method</kbd> `ShowClipboardSnippets.paste`
-
-```python
-paste(clip) → None
-```
-
-Paste the content of Clipboard to the current active window 
-
-
-
-**Args:**
- 
- - <b>`clip`</b>:  Clipboard object to paste 
 
 
 ---
@@ -834,7 +802,7 @@ Virtual method to list items.
 #### <kbd>method</kbd> `ChooserAction.on_chosen`
 
 ```python
-on_chosen(item) → None
+on_chosen(item, modifier_flags: int) → None
 ```
 
 Virtual method to handle chosen item. 
@@ -844,22 +812,7 @@ Virtual method to handle chosen item.
 **Args:**
  
  - <b>`item`</b>:  Chosen item 
-
----
-
-#### <kbd>method</kbd> `ChooserAction.paste`
-
-```python
-paste(clip) → None
-```
-
-Paste the content of Clipboard to the current active window 
-
-
-
-**Args:**
- 
- - <b>`clip`</b>:  Clipboard object to paste 
+ - <b>`modifier_flags`</b>:  Combination of pressed modifier flags (MODKEY_SHIFT, etc) 
 
 
 ---
@@ -996,6 +949,12 @@ Set value of an attribute.
 Clipboard history 
 
 ClipboardHistory object automatically captures historical clipboard contents. Currently this class only supports text data. 
+
+ClipboardHistory class has following class variables to configure the maximum length and data size: 
+- max_items: Maximum number of clipboard history item to keep (default: 1000 items)
+- max_label_length: Maximum length of label strings of clipboard items (default: 4096 bytes)
+- max_data_size: Maximum data size of single clipboard to keep (default: 10 * 1024 * 1024 = 10MB) 
+- max_persist_data_size: Maximum data size of single clipboard to save in persistent file (default: 64 * 1024 = 64KB) 
 
 ### <kbd>method</kbd> `ClipboardHistory.__init__`
 
