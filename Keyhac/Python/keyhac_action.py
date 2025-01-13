@@ -219,32 +219,42 @@ class ChooserAction:
     def __repr__(self):
         return f"ChooserAction()"
 
-def _on_clipboard_chosen_common(clip, modifier_flags: int):
 
-    keymap = Keymap.getInstance()
+class ClipboardChooserAction(ChooserAction):
 
-    # Add quote mark when alt key is pressed
-    if modifier_flags & MODKEY_ALT:
-        s = clip.get_string()
-        lines = []
-        for line in s.splitlines(keepends=True):
-            lines.append("> " + line)
-        s = "".join(lines)
-        clip = Clipboard()
-        clip.set_string(s)
+    def __init__(self):
+        super().__init__()
 
-    # Set current clipboard
-    keymap.clipboard_history.set_current(clip)
+    def _on_chosen_common(self, clip, modifier_flags: int):
 
-    # Don't paste when shift key is pressed        
-    if modifier_flags & MODKEY_SHIFT:
-        return
+        keymap = Keymap.getInstance()
 
-    # Paste
-    with keymap.get_input_context() as input_ctx:
-        input_ctx.send_key("Cmd-V")
+        # Add quote mark when alt key is pressed
+        if modifier_flags & MODKEY_ALT:
+            s = clip.get_string()
+            lines = []
+            for line in s.splitlines(keepends=True):
+                lines.append("> " + line)
+            s = "".join(lines)
+            clip = Clipboard()
+            clip.set_string(s)
 
-class ShowClipboardHistory(ChooserAction):
+        # Set current clipboard
+        keymap.clipboard_history.set_current(clip)
+
+        # Don't paste when shift key is pressed        
+        if modifier_flags & MODKEY_SHIFT:
+            return
+
+        # Paste
+        with keymap.get_input_context() as input_ctx:
+            input_ctx.send_key("Cmd-V")
+
+    def __repr__(self):
+        return f"ClipboardChooserAction()"
+
+
+class ShowClipboardHistory(ClipboardChooserAction):
 
     """
     Action class to show clipboard history with Chooser window.
@@ -266,13 +276,13 @@ class ShowClipboardHistory(ChooserAction):
         return items
     
     def on_chosen(self, item, modifier_flags: int):
-        _on_clipboard_chosen_common(item[2], modifier_flags)
+        self._on_chosen_common(item[2], modifier_flags)
 
     def __repr__(self):
         return f"ShowClipboardHistory()"
 
 
-class ShowClipboardSnippets(ChooserAction):
+class ShowClipboardSnippets(ClipboardChooserAction):
 
     """
     Action class to show clipboard snippets with Chooser window.
@@ -303,7 +313,7 @@ class ShowClipboardSnippets(ChooserAction):
         clip = Clipboard()
         clip.set_string(s)
 
-        _on_clipboard_chosen_common(clip, modifier_flags)
+        self._on_chosen_common(clip, modifier_flags)
 
     def __repr__(self):
         return f"ShowClipboardSnippets({self.snippets})"
