@@ -222,6 +222,8 @@ class ChooserAction:
 
 class ClipboardChooserAction(ChooserAction):
 
+    quote_mark = "> "
+
     def __init__(self):
         super().__init__()
 
@@ -234,7 +236,7 @@ class ClipboardChooserAction(ChooserAction):
             s = clip.get_string()
             lines = []
             for line in s.splitlines(keepends=True):
-                lines.append("> " + line)
+                lines.append(self.quote_mark + line)
             s = "".join(lines)
             clip = Clipboard()
             clip.set_string(s)
