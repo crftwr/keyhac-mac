@@ -16,6 +16,11 @@ def configure(keymap):
     keymap.define_modifier( "RCmd", "RUser0" )
     keymap.define_modifier( "RAlt", "RUser1" )
 
+    # Configure clipboard history
+    keymap.clipboard_history.max_items = 1000
+    keymap.clipboard_history.max_data_size = 10 * 1024 * 1024
+    
+
     # =====================================================
     # Global key table
     # =====================================================
