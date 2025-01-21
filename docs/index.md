@@ -285,6 +285,34 @@ keytable_global["Fn-M"] = zoom_window
 For more details about UIElement, see the [Keyhac API reference](./api_reference.md).
 
 
+## Clipboard history, snippets, and conversion tools
+
+As a supplimental feature of Keyhac, you can use clipboard history, clipboard snippets, and clipboard conversion tools. In order to use these features, assign `ShowClipboardHistory`, `ShowClipboardSnippets`, and `ShowClipboardTools` action class instances as below:
+
+``` python
+# Fn-V: Show clipboard history by Chooser window
+keytable_global["Fn-V"] = ShowClipboardHistory()
+
+# Fn-Shift-V: Show snippets by Chooser window
+keytable_global["Fn-Shift-V"] = ShowClipboardSnippets([
+    ("👤", "myname@email.address"),
+    ("👤", "01-2345-6789"),
+    ("👤", "Mailing address", "400 Broad St, Seattle, WA 98109"),
+    ("🕒", "YYYYMMDD_HHMMSS", DateTimeString("%Y%m%d_%H%M%S")),
+])
+
+# Cmd-Shift-V: Choose clipboard tool by Chooser window
+keytable_global["Cmd-Shift-V"] = ShowClipboardTools([
+    ("🔄", "Quote", ShowClipboardTools.quote),
+    ("🔄", "Unindent", ShowClipboardTools.unindent),
+    ("🔄", "Pretty JSON", pretty_json),
+])
+```
+
+**Screenshot**
+<br/><img src="images/clipboard-history.png" alt="clipboard-history" style="width:300px;"/>
+
+
 ## Key expression reference
 
 | Expression    | Key           |
