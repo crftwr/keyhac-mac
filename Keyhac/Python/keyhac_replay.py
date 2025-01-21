@@ -85,7 +85,7 @@ class KeyReplayBuffer:
 
         logger.info(f"Playing")
 
-        keymap = Keymap.getInstance()
+        keymap = Keymap.get_instance()
         with keymap.get_input_context(replay=True) as input_ctx:
             
             # FIXME: Should release user modifier keys as well

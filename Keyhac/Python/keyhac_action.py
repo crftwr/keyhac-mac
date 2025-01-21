@@ -90,7 +90,7 @@ class MoveWindow:
 
     def __call__(self):
 
-        elm = Keymap.getInstance().focus
+        elm = Keymap.get_instance().focus
 
         while elm:
             role = elm.get_attribute_value("AXRole")
@@ -159,7 +159,7 @@ class ChooserAction:
         items = self.list_items()
 
         # Get originally focused window and application
-        elm = Keymap.getInstance().focus
+        elm = Keymap.get_instance().focus
         window = None
         app = None
         while elm:
@@ -229,7 +229,7 @@ class ClipboardChooserAction(ChooserAction):
 
     def _on_chosen_common(self, clip, modifier_flags: int):
 
-        keymap = Keymap.getInstance()
+        keymap = Keymap.get_instance()
 
         # Set current clipboard
         keymap.clipboard_history.set_current(clip)
@@ -263,7 +263,7 @@ class ShowClipboardHistory(ClipboardChooserAction):
     def list_items(self):
 
         items = []
-        for clip, label in Keymap.getInstance().clipboard_history.items():
+        for clip, label in Keymap.get_instance().clipboard_history.items():
             items.append( ( "📋", label, clip) )
         return items
     
@@ -335,7 +335,7 @@ class ShowClipboardTools(ClipboardChooserAction):
     
     def on_chosen(self, item, modifier_flags: int):
         
-        keymap = Keymap.getInstance()
+        keymap = Keymap.get_instance()
 
         clip = keymap.clipboard_history.get_current()
         clip = item[2](clip)
@@ -423,7 +423,7 @@ class StartRecordingKeys:
         pass
 
     def __call__(self):
-        keymap = Keymap.getInstance()
+        keymap = Keymap.get_instance()
         keymap.replay_buffer.start_recording()
 
     def __repr__(self):
@@ -443,7 +443,7 @@ class StopRecordingKeys:
         pass
 
     def __call__(self):
-        keymap = Keymap.getInstance()
+        keymap = Keymap.get_instance()
         keymap.replay_buffer.stop_recording()
 
     def __repr__(self):
@@ -463,7 +463,7 @@ class ToggleRecordingKeys:
         pass
 
     def __call__(self):
-        keymap = Keymap.getInstance()
+        keymap = Keymap.get_instance()
         keymap.replay_buffer.toggle_recording()
 
     def __repr__(self):
@@ -483,7 +483,7 @@ class PlaybackRecordedKeys:
         pass
 
     def __call__(self):
-        keymap = Keymap.getInstance()
+        keymap = Keymap.get_instance()
         keymap.replay_buffer.playback()
 
     def __repr__(self):

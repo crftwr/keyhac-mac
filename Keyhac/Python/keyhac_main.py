@@ -28,7 +28,7 @@ class Keymap:
     _instance = None
             
     @staticmethod
-    def getInstance():
+    def get_instance():
 
         """
         Get the Keymap singleton instance.
@@ -472,4 +472,4 @@ class Keymap:
         return self._clipboard_history
 
 def _configure():
-    Keymap.getInstance().configure()
+    Keymap.get_instance().configure()
