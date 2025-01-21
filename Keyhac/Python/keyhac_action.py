@@ -222,8 +222,6 @@ class ChooserAction:
 
 class ClipboardChooserAction(ChooserAction):
 
-    quote_mark = "> "
-
     def __init__(self):
         super().__init__()
 
@@ -321,6 +319,8 @@ class ShowClipboardTools(ClipboardChooserAction):
     """
     Action class to show clipboard conversion tools with Chooser window.
     """
+
+    quote_mark = "> "
 
     _full_width_chars = "ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ！”＃＄％＆’（）＊＋，−．／：；＜＝＞？＠［＼］＾＿‘｛｜｝～０１２３４５６７８９　"
     _half_width_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}～0123456789 "

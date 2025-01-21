@@ -45,7 +45,6 @@ def configure(keymap):
     # -----------------------------------------------------
     # Fn-V: Show clipboard history by Chooser window
     keytable_global["Fn-V"] = ShowClipboardHistory()
-    keytable_global["Fn-V"].quote_mark = "> "
 
     # -----------------------------------------------------
     # Fn-Shift-V: Show snippets by Chooser window
