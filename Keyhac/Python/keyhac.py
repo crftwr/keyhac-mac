@@ -10,6 +10,7 @@ from keyhac_action import (
     ChooserAction, 
     ShowClipboardHistory, 
     ShowClipboardSnippets,
+    ShowClipboardTools,
     StartRecordingKeys,
     StopRecordingKeys,
     ToggleRecordingKeys,

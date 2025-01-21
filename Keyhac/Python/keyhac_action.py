@@ -231,20 +231,10 @@ class ClipboardChooserAction(ChooserAction):
 
         keymap = Keymap.getInstance()
 
-        # Add quote mark when alt key is pressed
-        if modifier_flags & MODKEY_ALT:
-            s = clip.get_string()
-            lines = []
-            for line in s.splitlines(keepends=True):
-                lines.append(self.quote_mark + line)
-            s = "".join(lines)
-            clip = Clipboard()
-            clip.set_string(s)
-
         # Set current clipboard
         keymap.clipboard_history.set_current(clip)
 
-        # Don't paste when shift key is pressed        
+        # Don't paste when shift key is pressed
         if modifier_flags & MODKEY_SHIFT:
             return
 
@@ -319,6 +309,105 @@ class ShowClipboardSnippets(ClipboardChooserAction):
 
     def __repr__(self):
         return f"ShowClipboardSnippets({self.snippets})"
+
+
+class ShowClipboardTools(ClipboardChooserAction):
+
+    full_width_chars = "ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ！”＃＄％＆’（）＊＋，−．／：；＜＝＞？＠［＼］＾＿‘｛｜｝～０１２３４５６７８９　"
+    half_width_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}～0123456789 "
+
+    def __init__(self, tools=None):
+        super().__init__()
+
+        if tools is None:
+            tools = [
+                ("🔄", "Plain", ShowClipboardTools.to_plain),
+                ("🔄", "Quote", ShowClipboardTools.quote),
+                ("🔄", "Unindent", ShowClipboardTools.unindent),
+                ("🔄", "Half Width", ShowClipboardTools.to_half_width),
+                ("🔄", "Full Width", ShowClipboardTools.to_full_width),
+            ]
+
+        self.tools = tools
+
+    def list_items(self):
+        return self.tools
+    
+    def on_chosen(self, item, modifier_flags: int):
+        
+        keymap = Keymap.getInstance()
+
+        clip = keymap.clipboard_history.get_current()
+        clip = item[2](clip)
+        self._on_chosen_common(clip, modifier_flags)
+
+    def __repr__(self):
+        return f"ShowClipboardTools()"
+
+    @staticmethod
+    def to_plain(clip):
+        s = clip.get_string()
+        clip = Clipboard()
+        clip.set_string(s)
+        return clip
+
+    @staticmethod
+    def quote(clip):
+        s = clip.get_string()
+        lines = []
+        for line in s.splitlines(keepends=True):
+            lines.append(ShowClipboardTools.quote_mark + line)
+        s = "".join(lines)
+        clip = Clipboard()
+        clip.set_string(s)
+        return clip
+
+    @staticmethod
+    def unindent(clip):
+
+        s = clip.get_string()
+
+        def _get_common_white_space_prefix(s):
+            lines = s.splitlines()
+            for i, c in enumerate(lines[0]):
+                for line in lines[1:]:
+                    if not line.strip():
+                        continue
+                    if (len(line) <= i) or (c not in " \t") or (line[i] != c):
+                        return i
+            return i+1
+
+        indent_len = _get_common_white_space_prefix(s)
+
+        lines = []
+        for line in s.splitlines(keepends=True):
+            unindented_line = line[indent_len:]
+            if not unindented_line:
+                if line[-1] == "\n":
+                    unindented_line = "\n"
+            lines.append(unindented_line)
+
+        s = "".join(lines)
+        clip = Clipboard()
+        clip.set_string(s)
+
+        return clip
+
+    @staticmethod
+    def to_half_width(clip):
+        s = clip.get_string()
+        s = s.translate(str.maketrans(ShowClipboardTools.full_width_chars, ShowClipboardTools.half_width_chars))
+        clip = Clipboard()
+        clip.set_string(s)
+        return clip
+
+    @staticmethod
+    def to_full_width(clip):
+        s = clip.get_string()
+        s = s.translate(str.maketrans(ShowClipboardTools.half_width_chars, ShowClipboardTools.full_width_chars))
+        clip = Clipboard()
+        clip.set_string(s)
+        return clip
 
 
 class StartRecordingKeys:

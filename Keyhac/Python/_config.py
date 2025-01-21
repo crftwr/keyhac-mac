@@ -1,6 +1,7 @@
 import time
 import datetime
 import urllib.parse
+import json
 import subprocess
 
 from keyhac import *
@@ -72,6 +73,29 @@ def configure(keymap):
         ),
         ("🕒", "YYYY-MM-DD HH:MM:SS", DateTimeString("%Y-%m-%d %H:%M:%S")),
         ("🕒", "YYYYMMDD_HHMMSS", DateTimeString("%Y%m%d_%H%M%S")),
+    ])
+
+    # -----------------------------------------------------
+    # Cmd-Shift-V: Choose clipboard tool by Chooser window
+    def pretty_json(clip):
+        s = clip.get_string()
+        try:
+            d = json.loads(s)
+        except json.JSONDecodeError as e:
+            logger.error("Clipboard content is not a valid JSON string.")
+            return clip
+        s = json.dumps(d, indent=4)
+        clip = Clipboard()
+        clip.set_string(s)
+        return clip
+
+    keytable_global["Cmd-Shift-V"] = ShowClipboardTools([
+        ("🔄", "Plain", ShowClipboardTools.to_plain),
+        ("🔄", "Quote", ShowClipboardTools.quote),
+        ("🔄", "Unindent", ShowClipboardTools.unindent),
+        ("🔄", "Half Width", ShowClipboardTools.to_half_width),
+        ("🔄", "Full Width", ShowClipboardTools.to_full_width),
+        ("🔄", "Pretty JSON", pretty_json),
     ])
 
     # -----------------------------------------------------
