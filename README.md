@@ -40,7 +40,7 @@ Keyhac gives you the flexibility to customize the behavior of various applicatio
 - Define custom actions in Python
 - Define custom modifier keys in addition to the standard ones
 - Execute actions with a "one-shot" modifier keystroke
-- Clipboard history and clipboard snippets
+- Clipboard history, clipboard snippets and clipboard conversion tools
 - Record and playback keystrokes
 
 
@@ -54,6 +54,9 @@ Keyhac gives you the flexibility to customize the behavior of various applicatio
 
 **Clipboard snippets**
 <br/><img src="docs/images/clipboard-snippets.png" alt="clipboard-snippets" style="width:200px;"/>
+
+**Clipboard conversion tools**
+<br/><img src="docs/images/clipboard-tools.png" alt="clipboard-tools" style="width:120px;"/>
 
 **Console window**
 <br/><img src="docs/images/console-window.png" alt="console-window" style="width:400px;"/>
