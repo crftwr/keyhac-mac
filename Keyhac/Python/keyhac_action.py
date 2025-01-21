@@ -281,6 +281,11 @@ class ShowClipboardSnippets(ClipboardChooserAction):
     """
 
     def __init__(self, snippets):
+
+        """
+        Initializes the ShowClipboardSnippets object.
+        """
+
         super().__init__()
         self.snippets = snippets
 
@@ -313,21 +318,20 @@ class ShowClipboardSnippets(ClipboardChooserAction):
 
 class ShowClipboardTools(ClipboardChooserAction):
 
-    full_width_chars = "ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ！”＃＄％＆’（）＊＋，−．／：；＜＝＞？＠［＼］＾＿‘｛｜｝～０１２３４５６７８９　"
-    half_width_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}～0123456789 "
+    """
+    Action class to show clipboard conversion tools with Chooser window.
+    """
 
-    def __init__(self, tools=None):
+    _full_width_chars = "ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ！”＃＄％＆’（）＊＋，−．／：；＜＝＞？＠［＼］＾＿‘｛｜｝～０１２３４５６７８９　"
+    _half_width_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}～0123456789 "
+
+    def __init__(self, tools):
+
+        """
+        Initializes the ShowClipboardTools object.
+        """
+
         super().__init__()
-
-        if tools is None:
-            tools = [
-                ("🔄", "Plain", ShowClipboardTools.to_plain),
-                ("🔄", "Quote", ShowClipboardTools.quote),
-                ("🔄", "Unindent", ShowClipboardTools.unindent),
-                ("🔄", "Half Width", ShowClipboardTools.to_half_width),
-                ("🔄", "Full Width", ShowClipboardTools.to_full_width),
-            ]
-
         self.tools = tools
 
     def list_items(self):
@@ -346,6 +350,11 @@ class ShowClipboardTools(ClipboardChooserAction):
 
     @staticmethod
     def to_plain(clip):
+
+        """
+        Convert clipboard to plain-text.
+        """
+
         s = clip.get_string()
         clip = Clipboard()
         clip.set_string(s)
@@ -353,6 +362,11 @@ class ShowClipboardTools(ClipboardChooserAction):
 
     @staticmethod
     def quote(clip):
+
+        """
+        Convert clipboard to quoted string.
+        """
+
         s = clip.get_string()
         lines = []
         for line in s.splitlines(keepends=True):
@@ -364,6 +378,10 @@ class ShowClipboardTools(ClipboardChooserAction):
 
     @staticmethod
     def unindent(clip):
+
+        """
+        Remove common white space plex in the clipboard
+        """
 
         s = clip.get_string()
 
@@ -395,16 +413,26 @@ class ShowClipboardTools(ClipboardChooserAction):
 
     @staticmethod
     def to_half_width(clip):
+
+        """
+        Convert full width characters in clipboard to half width
+        """
+
         s = clip.get_string()
-        s = s.translate(str.maketrans(ShowClipboardTools.full_width_chars, ShowClipboardTools.half_width_chars))
+        s = s.translate(str.maketrans(ShowClipboardTools._full_width_chars, ShowClipboardTools._half_width_chars))
         clip = Clipboard()
         clip.set_string(s)
         return clip
 
     @staticmethod
     def to_full_width(clip):
+
+        """
+        Convert half width characters in clipboard to full width
+        """
+
         s = clip.get_string()
-        s = s.translate(str.maketrans(ShowClipboardTools.half_width_chars, ShowClipboardTools.full_width_chars))
+        s = s.translate(str.maketrans(ShowClipboardTools._half_width_chars, ShowClipboardTools._full_width_chars))
         clip = Clipboard()
         clip.set_string(s)
         return clip

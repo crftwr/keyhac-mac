@@ -88,21 +88,6 @@ Define a user modifier key.
 
 ---
 
-#### <kbd>method</kbd> `Keymap.getInstance`
-
-```python
-getInstance()
-```
-
-Get the Keymap singleton instance. 
-
-
-
-**Returns:**
-  Keymap singleton instance. 
-
----
-
 #### <kbd>method</kbd> `Keymap.get_input_context`
 
 ```python
@@ -123,6 +108,21 @@ Use this method to get a key input context object and to programmatically send v
 
 **Returns:**
  Key input context 
+
+---
+
+#### <kbd>method</kbd> `Keymap.get_instance`
+
+```python
+get_instance()
+```
+
+Get the Keymap singleton instance. 
+
+
+
+**Returns:**
+  Keymap singleton instance. 
 
 ---
 
@@ -657,9 +657,7 @@ Action class to show clipboard snippets with Chooser window.
 __init__(snippets)
 ```
 
-
-
-
+Initializes the ShowClipboardSnippets object. 
 
 
 
@@ -687,6 +685,98 @@ on_chosen(item, modifier_flags: int)
 
 
 
+
+
+---
+
+
+### <kbd>class</kbd> `ShowClipboardTools`
+Action class to show clipboard conversion tools with Chooser window. 
+
+### <kbd>method</kbd> `ShowClipboardTools.__init__`
+
+```python
+__init__(tools)
+```
+
+Initializes the ShowClipboardTools object. 
+
+
+
+
+---
+
+#### <kbd>method</kbd> `ShowClipboardTools.list_items`
+
+```python
+list_items()
+```
+
+
+
+
+
+---
+
+#### <kbd>method</kbd> `ShowClipboardTools.on_chosen`
+
+```python
+on_chosen(item, modifier_flags: int)
+```
+
+
+
+
+
+---
+
+#### <kbd>method</kbd> `ShowClipboardTools.quote`
+
+```python
+quote(clip)
+```
+
+Convert clipboard to quoted string. 
+
+---
+
+#### <kbd>method</kbd> `ShowClipboardTools.to_full_width`
+
+```python
+to_full_width(clip)
+```
+
+Convert half width characters in clipboard to full width 
+
+---
+
+#### <kbd>method</kbd> `ShowClipboardTools.to_half_width`
+
+```python
+to_half_width(clip)
+```
+
+Convert full width characters in clipboard to half width 
+
+---
+
+#### <kbd>method</kbd> `ShowClipboardTools.to_plain`
+
+```python
+to_plain(clip)
+```
+
+Convert clipboard to plain-text. 
+
+---
+
+#### <kbd>method</kbd> `ShowClipboardTools.unindent`
+
+```python
+unindent(clip)
+```
+
+Remove common white space plex in the clipboard 
 
 
 ---
@@ -951,8 +1041,8 @@ Clipboard history
 ClipboardHistory object automatically captures historical clipboard contents. Currently this class only supports text data. 
 
 ClipboardHistory class has following class variables to configure the maximum length and data size: 
-- max_items: Maximum number of clipboard history item to keep (default: 1000 items)
-- max_label_length: Maximum length of label strings of clipboard items (default: 4096 bytes)
+- max_items: Maximum number of clipboard history item to keep (default: 1000 items) 
+- max_label_length: Maximum length of label strings of clipboard items (default: 4096 bytes) 
 - max_data_size: Maximum data size of single clipboard to keep (default: 10 * 1024 * 1024 = 10MB) 
 - max_persist_data_size: Maximum data size of single clipboard to save in persistent file (default: 64 * 1024 = 64KB) 
 

@@ -34,6 +34,7 @@ api_names = [
     "ThreadedAction",
     "ShowClipboardHistory",
     "ShowClipboardSnippets",
+    "ShowClipboardTools",
     "StartRecordingKeys",
     "StopRecordingKeys",
     "ToggleRecordingKeys",
