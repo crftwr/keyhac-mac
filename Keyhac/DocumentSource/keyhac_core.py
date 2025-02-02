@@ -46,7 +46,7 @@ class Hook:
         """
 
     @staticmethod
-    def acquire_lock() -> str:
+    def acquire_lock() -> None:
         """
         Acquire the lock for hooks.
 
@@ -55,7 +55,7 @@ class Hook:
         """
 
     @staticmethod
-    def release_lock() -> str:
+    def release_lock() -> None:
         """
         Release the lock for hooks.
 
