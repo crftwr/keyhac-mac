@@ -99,17 +99,25 @@ struct ChooserWindowView: View {
                     
                     // set Chooser window position
                     let window = NSApplication.shared.windows.first { $0.title == "Keyhac Chooser" }
-                    if let window {
-                        
-                        let mainScreenFrame = NSScreen.main?.frame
-                        if let mainScreenFrame {
-                            let position = NSPoint(
-                                x: x + width/2 - window.frame.width/2,
-                                y: mainScreenFrame.height - (y + height/2 - window.frame.height/2)
-                            )
-                            window.setFrameTopLeftPoint(position)
+                    guard let window else { return }
+                    
+                    // Find primary screen to calculate Y-axis inversion
+                    var primaryScreen: NSScreen?
+                    for screen in NSScreen.screens {
+                        if screen.frame.origin.x == 0 && screen.frame.origin.y == 0 {
+                            primaryScreen = screen
+                            break
                         }
                     }
+                    guard let primaryScreen else { return }
+
+                    // Calculate top-left position of chooser window
+                    let topLeft = NSPoint(
+                        x: x + width/2 - window.frame.width/2,
+                        y: primaryScreen.frame.height - (y + height/2 - window.frame.height/2)
+                    )
+
+                    window.setFrameTopLeftPoint(topLeft)
                     
                     searchText = ""
                     selectedIndex = 0
