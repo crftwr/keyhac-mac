@@ -4,7 +4,7 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
-from keyhac_core import Chooser, Clipboard
+from keyhac_core import Hook, Chooser, Clipboard
 from keyhac_main import Keymap
 import keyhac_console
 from keyhac_const import *
@@ -21,9 +21,9 @@ class ThreadedAction:
 
     To define your own threaded action class, derive the ThreadedAction class
     and implement starting(), run(), and finished() methods.
-    run() is executed in a thread pool for time consuming tasks.
-    starting() and finished() are for light-weight tasks 
-    and they are executed before and after run().
+    The run() method is executed in a thread pool for time consuming tasks.
+    The starting() and finished() methods are for light-weight tasks
+    and they are executed before and after run() under exclusive control with keyboard hooks. 
     """
 
     thread_pool = ThreadPoolExecutor(max_workers=16)
@@ -35,13 +35,25 @@ class ThreadedAction:
         return f"ThreadedAction()"
 
     def __call__(self):
-        self.starting()
+
+        try:
+            Hook.acquire_lock()
+            self.starting()
+        finally:
+            Hook.release_lock()
+
         future = ThreadedAction.thread_pool.submit(self.run)
         future.add_done_callback(self._done_callback)
 
     def _done_callback(self, future):
         try:
-            self.finished(future.result())
+            result = future.result()
+            try:
+                Hook.acquire_lock()
+                self.finished(result)
+            finally:
+                Hook.release_lock()
+
         except Exception as e:
             print()
             logger.error(f"Threaded action failed:\n{traceback.format_exc()}")
