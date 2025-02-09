@@ -80,6 +80,15 @@ public struct UIValue {
         return .init(axrect as AnyObject)
     }
     
+    public static func fromArray(_ value: [UIValue]) -> UIValue {
+        var axarray: AXValue?
+        withUnsafePointer(to: value as CFArray) { ptr in
+            let type: AXValueType? = AXValueType( rawValue: UInt32(CFArrayGetTypeID()) )
+            axarray = AXValueCreate(type!, ptr)
+        }
+        return .init(axarray as AnyObject)
+    }
+    
     public func getType() -> UIValueType {
         
         guard let value else { return .unknown }
@@ -334,6 +343,7 @@ public class UIElement {
         return names! as [AnyObject] as! [String]
     }
     
+    // FIXME: not exposed to Python
     public func getActionDescription(action: String) -> String! {
         
         guard let elm else {
@@ -369,6 +379,29 @@ public class UIElement {
             print("AXUIElementPerformAction failed: \(action) - \(result)")
             return
         }
+    }
+    
+    public static func getScreenFrames() -> UIValue {
+
+        var frames: [UIValue] = []
+        
+        for screen in NSScreen.screens {
+            
+            print("screen rect", screen.frame)
+            
+            let frame = [
+                Double(screen.frame.origin.x),
+                Double(screen.frame.origin.y),
+                Double(screen.frame.size.width),
+                Double(screen.frame.size.height)
+            ]
+            let uivalue = UIValue.fromRect(frame)
+            frames.append(uivalue)
+        }
+        
+        let uivalue = UIValue.fromArray(frames)
+
+        return uivalue
     }
 }
 

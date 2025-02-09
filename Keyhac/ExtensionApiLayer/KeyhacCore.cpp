@@ -528,6 +528,17 @@ static PyObject * UIElement_perform_action(UIElement_Object * self, PyObject * a
     return Py_None;
 }
 
+static PyObject * UIElement_get_screen_frames( PyObject * self, PyObject * args )
+{
+    if( ! PyArg_ParseTuple(args,"") )
+        return NULL;
+    
+    auto uivalue = UIElement::getScreenFrames();
+    PyObject* pyvalue = _convertUIValueToPyObject(uivalue);
+
+    return pyvalue;
+}
+
 static PyMethodDef UIElement_methods[] = {
     { "get_focused_application", (PyCFunction)UIElement_get_focused_application, METH_STATIC|METH_VARARGS, "" },
     { "get_running_applications", (PyCFunction)UIElement_get_running_applications, METH_STATIC|METH_VARARGS, "" },
@@ -536,6 +547,7 @@ static PyMethodDef UIElement_methods[] = {
     { "set_attribute_value", (PyCFunction)UIElement_set_attribute_value, METH_VARARGS, "" },
     { "get_action_names", (PyCFunction)UIElement_get_action_names, METH_VARARGS, "" },
     { "perform_action", (PyCFunction)UIElement_perform_action, METH_VARARGS, "" },
+    { "get_screen_frames", (PyCFunction)UIElement_get_screen_frames, METH_STATIC|METH_VARARGS, "" },
 
     {NULL,NULL}
 };
