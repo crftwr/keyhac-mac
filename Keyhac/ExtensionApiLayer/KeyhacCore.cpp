@@ -533,10 +533,19 @@ static PyObject * UIElement_get_screen_frames( PyObject * self, PyObject * args 
     if( ! PyArg_ParseTuple(args,"") )
         return NULL;
     
-    auto uivalue = UIElement::getScreenFrames();
-    PyObject* pyvalue = _convertUIValueToPyObject(uivalue);
+    PyObject * pyframes = PyList_New(0);
 
-    return pyvalue;
+    auto screen_frames = UIElement::getScreenFrames();
+    for( swift::Int i=screen_frames.getStartIndex() ; i<screen_frames.getEndIndex() ; ++i )
+    {
+        auto screen_frame = screen_frames[i];
+
+        PyObject* pyitem = Py_BuildValue( "(dddd)", screen_frame.getX(), screen_frame.getY(), screen_frame.getWidth(), screen_frame.getHeight() );
+        PyList_Append( pyframes, pyitem );
+        Py_XDECREF(pyitem);
+    }
+    
+    return pyframes;
 }
 
 static PyMethodDef UIElement_methods[] = {

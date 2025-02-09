@@ -25,6 +25,13 @@ public enum UIValueType {
     case unknown
 }
 
+public struct ScreenFrame {
+    public var x: Double
+    public var y: Double
+    public var width: Double
+    public var height: Double
+}
+
 public struct UIValue {
     
     fileprivate var value: AnyObject?
@@ -78,15 +85,6 @@ public struct UIValue {
         var cgrect: CGRect = CGRect.init(x:value[0], y:value[1], width:value[2], height:value[3])
         let axrect = AXValueCreate(AXValueType.cgRect, &cgrect)
         return .init(axrect as AnyObject)
-    }
-    
-    public static func fromArray(_ value: [UIValue]) -> UIValue {
-        var axarray: AXValue?
-        withUnsafePointer(to: value as CFArray) { ptr in
-            let type: AXValueType? = AXValueType( rawValue: UInt32(CFArrayGetTypeID()) )
-            axarray = AXValueCreate(type!, ptr)
-        }
-        return .init(axarray as AnyObject)
     }
     
     public func getType() -> UIValueType {
@@ -381,27 +379,24 @@ public class UIElement {
         }
     }
     
-    public static func getScreenFrames() -> UIValue {
+    public static func getScreenFrames() -> [ScreenFrame] {
 
-        var frames: [UIValue] = []
+        var frames: [ScreenFrame] = []
         
         for screen in NSScreen.screens {
             
             print("screen rect", screen.frame)
             
-            let frame = [
-                Double(screen.frame.origin.x),
-                Double(screen.frame.origin.y),
-                Double(screen.frame.size.width),
-                Double(screen.frame.size.height)
-            ]
-            let uivalue = UIValue.fromRect(frame)
-            frames.append(uivalue)
+            let frame = ScreenFrame(
+                x: screen.frame.origin.x,
+                y: screen.frame.origin.y,
+                width: screen.frame.size.width,
+                height: screen.frame.size.height
+            )
+            frames.append(frame)
         }
         
-        let uivalue = UIValue.fromArray(frames)
-
-        return uivalue
+        return frames
     }
 }
 
