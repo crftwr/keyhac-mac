@@ -383,13 +383,20 @@ public class UIElement {
 
         var frames: [ScreenFrame] = []
         
+        // Find primary screen to calculate Y-axis inversion
+        var primaryScreen: NSScreen?
         for screen in NSScreen.screens {
-            
-            print("screen rect", screen.frame)
-            
+            if screen.frame.origin.x == 0 && screen.frame.origin.y == 0 {
+                primaryScreen = screen
+                break
+            }
+        }
+        guard let primaryScreen else { return [] }
+        
+        for screen in NSScreen.screens {            
             let frame = ScreenFrame(
                 x: screen.frame.origin.x,
-                y: screen.frame.origin.y,
+                y: primaryScreen.frame.size.height - (screen.frame.origin.y + screen.frame.size.height),
                 width: screen.frame.size.width,
                 height: screen.frame.size.height
             )
