@@ -427,9 +427,9 @@ class Keymap:
         self._update_unified_keytable()
 
         # FIXME: show some UI to tell that multi stroke mode started
-        #help_string = self._multi_stroke_keytable.helpString()
-        #if help_string:
-        #    self.popBalloon( "MultiStroke", help_string )
+        # help_string = self._multi_stroke_keytable.helpString()
+        # if help_string:
+        #     self.popBalloon( "MultiStroke", help_string )
 
     def _leave_multi_stroke(self):
 
