@@ -99,7 +99,7 @@ class MoveWindow:
             window_edge: whether window stops and fits to other window's edge
         """
 
-        # FIXME: deprecated arguments
+        # FIXME: deprecated arguments from ver v1.64
         if x or y:
             logger.warning(f"MoveWindow's arguments x, y are deprecated. Use direction and distance instead.")
             if x < 0:
@@ -255,7 +255,7 @@ class MoveWindow:
                 
                 if not( front_range[1] <= window_edge_range[0] or front_range[0] >= window_edge_range[1] ):
                     if (window_edge_pos - front_pos) * sign - gap >= 0.1:
-                        print(f"Fitting to window {window_frame}, {front_range}, {window_edge_range}")
+                        #print(f"Fitting to window {window_frame}, {front_range}, {window_edge_range}")
                         distance = min(distance, (window_edge_pos - front_pos) * sign - gap)
 
         #print("Distance:", distance)
