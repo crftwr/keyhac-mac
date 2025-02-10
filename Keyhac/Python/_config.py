@@ -187,17 +187,18 @@ def configure(keymap):
     keytable_global["Fn-M"] = zoom_window
 
     # -----------------------------------------------------
-    # User0-Left/Right/Up/Down: Move current active window
-    keytable_global["User0-Left"]  = MoveWindow(direction="left",  distance=10)
-    keytable_global["User0-Right"] = MoveWindow(direction="right", distance=10)
-    keytable_global["User0-Up"]    = MoveWindow(direction="up",    distance=10)
-    keytable_global["User0-Down"]  = MoveWindow(direction="down",  distance=10)
+    # Fn-Shift-Left/Right/Up/Down: Move current active window
+    keytable_global["Fn-Shift-Home"] = MoveWindow(direction="left", distance=10)
+    keytable_global["Fn-Shift-End"] = MoveWindow(direction="right", distance=10)
+    keytable_global["Fn-Shift-PageUp"] = MoveWindow(direction="up", distance=10)
+    keytable_global["Fn-Shift-PageDown"] = MoveWindow(direction="down", distance=10)
 
-    keytable_global["User0-User1-Left"]  =  MoveWindow(direction="left",  window_edge=True)
-    keytable_global["User0-User1-Right"]  = MoveWindow(direction="right", window_edge=True)
-    keytable_global["User0-User1-Up"]  =    MoveWindow(direction="up",    window_edge=True)
-    keytable_global["User0-User1-Down"]  =  MoveWindow(direction="down",  window_edge=True)
-
+    # -----------------------------------------------------
+    # Fn-Cmd-Left/Right/Up/Down: Move current active window quickly to window/screen edge
+    keytable_global["Fn-Cmd-Home"] = MoveWindow(direction="left", window_edge=True)
+    keytable_global["Fn-Cmd-End"] = MoveWindow(direction="right", window_edge=True)
+    keytable_global["Fn-Cmd-PageUp"] = MoveWindow(direction="up", window_edge=True)
+    keytable_global["Fn-Cmd-PageDown"] = MoveWindow(direction="down", window_edge=True)
 
     # -----------------------------------------------------
     # User0-T/F/C: Launch an applications
