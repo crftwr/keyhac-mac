@@ -188,10 +188,16 @@ def configure(keymap):
 
     # -----------------------------------------------------
     # User0-Left/Right/Up/Down: Move current active window
-    keytable_global["User0-Left"]  = MoveWindow(-10,0)
-    keytable_global["User0-Right"] = MoveWindow(+10,0)
-    keytable_global["User0-Up"]    = MoveWindow(0,-10)
-    keytable_global["User0-Down"]  = MoveWindow(0,+10)
+    keytable_global["User0-Left"]  = MoveWindow(direction="left",  distance=10)
+    keytable_global["User0-Right"] = MoveWindow(direction="right", distance=10)
+    keytable_global["User0-Up"]    = MoveWindow(direction="up",    distance=10)
+    keytable_global["User0-Down"]  = MoveWindow(direction="down",  distance=10)
+
+    keytable_global["User0-User1-Left"]  =  MoveWindow(direction="left",  window_edge=True)
+    keytable_global["User0-User1-Right"]  = MoveWindow(direction="right", window_edge=True)
+    keytable_global["User0-User1-Up"]  =    MoveWindow(direction="up",    window_edge=True)
+    keytable_global["User0-User1-Down"]  =  MoveWindow(direction="down",  window_edge=True)
+
 
     # -----------------------------------------------------
     # User0-T/F/C: Launch an applications

@@ -248,8 +248,13 @@ public class UIElement {
         defer { py_allow_thread.End() }
 
         var applications: [UIElement] = []
-        
-        NSWorkspace.shared.runningApplications.forEach {            
+
+        // FIXME: move to better place for global initialization
+        // Shorten timeout for cannotComplete
+        let systemside = AXUIElementCreateSystemWide()
+        AXUIElementSetMessagingTimeout(systemside, 0.1)
+
+        NSWorkspace.shared.runningApplications.forEach {
             // create AXUIElement from the process id
             let axelement = AXUIElementCreateApplication($0.processIdentifier)
             

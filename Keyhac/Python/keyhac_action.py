@@ -1,10 +1,11 @@
+import math
 import json
 import subprocess
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
-from keyhac_core import Hook, Chooser, Clipboard
+from keyhac_core import UIElement, Hook, Chooser, Clipboard
 from keyhac_main import Keymap
 import keyhac_console
 from keyhac_const import *
@@ -87,38 +88,190 @@ class MoveWindow:
     A action class to move focused window
     """
 
-    def __init__(self, x: int, y: int):
+    def __init__(self, x:int = None, y:int = None, direction:str = "", distance:float = math.inf, window_edge:bool = False):
 
         """
         Initializes the action object.
 
         Args:
-            x: horizontal distance to move
-            y: vertical distance to move
+            direction: either of "left", "right", "up", "down"
+            distance: move amount
+            window_edge: whether window stops and fits to other window's edge
         """
 
-        self.x = x
-        self.y = y
+        # FIXME: deprecated arguments
+        if x or y:
+            logger.warning(f"MoveWindow's arguments x, y are deprecated. Use direction and distance instead.")
+            if x < 0:
+                self.direction = "left"
+                self.distance = abs(x)
+            elif x > 0:
+                self.direction = "right"
+                self.distance = abs(x)
+            elif y < 0:
+                self.direction = "up"
+                self.distance = abs(y)
+            elif y > 0:
+                self.direction = "down"
+                self.distance = abs(y)
+            else:
+                self.direction = ""
+                self.distance = 0
+        else:
+            self.direction = direction
+            self.distance = distance
+
+        self.window_edge = window_edge
 
     def __call__(self):
 
         elm = Keymap.get_instance().focus
 
+        # Get focused window
         while elm:
             role = elm.get_attribute_value("AXRole")
             if role=="AXWindow":
                 break
             elm = elm.get_attribute_value("AXParent")
 
-        if elm:
-            names = elm.get_attribute_names()
-            pos = elm.get_attribute_value("AXPosition")
-            pos[0] += self.x
-            pos[1] += self.y
-            elm.set_attribute_value("AXPosition", "point", pos)
+        if not elm:
+            return
+
+        # Get curret window frame
+        this_window_frame = elm.get_attribute_value("AXFrame")
+
+        # Get screens info
+        screen_frames = UIElement.get_screen_frames()
+
+        # Initial move distance
+        distance = self.distance
+
+        # Prepare window edge position
+        if self.direction=="left":
+            front_pos = this_window_frame[0]
+            front_range = ( this_window_frame[1], this_window_frame[1] + this_window_frame[3] )
+        elif self.direction=="right":
+            front_pos = this_window_frame[0] + this_window_frame[2]
+            front_range = ( this_window_frame[1], this_window_frame[1] + this_window_frame[3] )
+        elif self.direction=="up":
+            front_pos = this_window_frame[1]
+            front_range = ( this_window_frame[0], this_window_frame[0] + this_window_frame[2] )
+        elif self.direction=="down":
+            front_pos = this_window_frame[1] + this_window_frame[3]
+            front_range = ( this_window_frame[0], this_window_frame[0] + this_window_frame[2] )
+        else:
+            return
+        
+        # Fit to screen edge
+        for screen_frame in screen_frames:
+            
+            if self.direction=="left":
+                screen_edge_pos = screen_frame[0]
+                screen_edge_range = (screen_frame[1], screen_frame[1] + screen_frame[3])
+                sign = -1
+            elif self.direction=="right":
+                screen_edge_pos = screen_frame[0] + screen_frame[2]
+                screen_edge_range = (screen_frame[1], screen_frame[1] + screen_frame[3])
+                sign = 1
+            elif self.direction=="up":
+                screen_edge_pos = screen_frame[1]
+                screen_edge_range = (screen_frame[0], screen_frame[0] + screen_frame[2])
+                sign = -1
+            elif self.direction=="down":
+                screen_edge_pos = screen_frame[1] + screen_frame[3]
+                screen_edge_range = (screen_frame[0], screen_frame[0] + screen_frame[2])
+                sign = 1
+            
+            #print(f"Checking screen fit condition {front_range}, {screen_edge_range}, {screen_edge_pos}, {front_pos}")
+
+            if not( front_range[1] <= screen_edge_range[0] or front_range[0] >= screen_edge_range[1] ):
+                if (screen_edge_pos - front_pos) * sign >= 0.1:
+                    #print(f"Fitting to screen {screen_frame}, {front_range}, {screen_edge_range}")
+                    distance = min(distance, abs(screen_edge_pos - front_pos))
+
+        # Fit to window edge
+        if self.window_edge:
+
+            def dump_window_attrs(elm):
+                print("-----")
+
+                app = elm.get_attribute_value("AXParent")
+                app_title = app.get_attribute_value("AXTitle")
+                print(f"App Title: {app_title}")
+
+                for name in sorted(elm.get_attribute_names()):
+                    value = elm.get_attribute_value(name)
+                    print(f"{name}: {value}")
+
+            def get_window_frames(app):
+                windows = app.get_attribute_value("AXWindows")
+                frames = []
+                if windows:
+                    for wnd in windows:
+                        minimized = wnd.get_attribute_value("AXMinimized")
+                        if minimized:
+                            continue
+
+                        title = wnd.get_attribute_value("AXTitle")
+                        if not title:
+                            continue
+
+                        frame = wnd.get_attribute_value("AXFrame")
+                        frames.append(frame)
+
+                        dump_window_attrs(wnd)
+
+                return frames
+
+            # Get all window frames using parallel threads
+            window_frames = []
+            thread_pool = ThreadPoolExecutor(max_workers=16)
+            for window_frames_from_single_app in thread_pool.map(get_window_frames, UIElement.get_running_applications()):
+                window_frames += window_frames_from_single_app
+
+            #print(window_frames)
+
+            gap = 1
+
+            for window_frame in window_frames:
+                
+                if self.direction=="left":
+                    window_edge_pos = window_frame[0] + window_frame[2]
+                    window_edge_range = (window_frame[1], window_frame[1] + window_frame[3])
+                    sign = -1
+                elif self.direction=="right":
+                    window_edge_pos = window_frame[0]
+                    window_edge_range = (window_frame[1], window_frame[1] + window_frame[3])
+                    sign = 1
+                elif self.direction=="up":
+                    window_edge_pos = window_frame[1] + window_frame[3]
+                    window_edge_range = (window_frame[0], window_frame[0] + window_frame[2])
+                    sign = -1
+                elif self.direction=="down":
+                    window_edge_pos = window_frame[1]
+                    window_edge_range = (window_frame[0], window_frame[0] + window_frame[2])
+                    sign = 1
+                
+                if not( front_range[1] <= window_edge_range[0] or front_range[0] >= window_edge_range[1] ):
+                    if (window_edge_pos - front_pos) * sign - gap >= 0.1:
+                        print(f"Fitting to window {window_frame}, {front_range}, {window_edge_range}")
+                        distance = min(distance, (window_edge_pos - front_pos) * sign - gap)
+
+        #print("Distance:", distance)
+
+        # Move window
+        if self.direction=="left":
+            this_window_frame[0] -= distance
+        elif self.direction=="right":
+            this_window_frame[0] += distance
+        elif self.direction=="up":
+            this_window_frame[1] -= distance
+        elif self.direction=="down":
+            this_window_frame[1] += distance
+        elm.set_attribute_value("AXPosition", "point", this_window_frame[:2])
 
     def __repr__(self):
-        return f"MoveWindow({self.x},{self.y})"
+        return f"MoveWindow(direction={self.direction},distance={self.distance},window_edge={self.window_edge})"
 
 
 class LaunchApplication(ThreadedAction):
