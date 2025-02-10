@@ -27,7 +27,7 @@ class ThreadedAction:
     and they are executed before and after run() under exclusive control with keyboard hooks. 
     """
 
-    thread_pool = ThreadPoolExecutor(max_workers=16)
+    thread_pool = ThreadPoolExecutor(max_workers=1)
 
     def __init__(self):
         pass
@@ -82,7 +82,7 @@ class ThreadedAction:
             result: returned value from run().
         """
 
-class MoveWindow:
+class MoveWindow(ThreadedAction):
 
     """
     A action class to move focused window
@@ -123,7 +123,7 @@ class MoveWindow:
 
         self.window_edge = window_edge
 
-    def __call__(self):
+    def run(self):
 
         elm = Keymap.get_instance().focus
 
@@ -135,7 +135,7 @@ class MoveWindow:
             elm = elm.get_attribute_value("AXParent")
 
         if not elm:
-            return
+            return None
 
         # Get curret window frame
         this_window_frame = elm.get_attribute_value("AXFrame")
@@ -160,7 +160,7 @@ class MoveWindow:
             front_pos = this_window_frame[1] + this_window_frame[3]
             front_range = ( this_window_frame[0], this_window_frame[0] + this_window_frame[2] )
         else:
-            return
+            return None
         
         # Fit to screen edge
         for screen_frame in screen_frames:
@@ -260,7 +260,7 @@ class MoveWindow:
 
         #print("Distance:", distance)
 
-        # Move window
+        # Calculate target position
         if self.direction=="left":
             this_window_frame[0] -= distance
         elif self.direction=="right":
@@ -269,7 +269,13 @@ class MoveWindow:
             this_window_frame[1] -= distance
         elif self.direction=="down":
             this_window_frame[1] += distance
-        elm.set_attribute_value("AXPosition", "point", this_window_frame[:2])
+
+        return elm, this_window_frame[:2]
+
+    def finished(self, result: Any):
+        if result is not None:
+            elm, pos = result
+            elm.set_attribute_value("AXPosition", "point", pos)
 
     def __repr__(self):
         return f"MoveWindow(direction={self.direction},distance={self.distance},window_edge={self.window_edge})"
