@@ -316,6 +316,17 @@ public class UIElement {
 
         var py_allow_thread = PyAllowThread(true)
         defer { py_allow_thread.End() }
+        
+        // FIXME: Pending root cause
+        // AXUIElementSetAttributeValue crashes when being used for this process itself.
+        // Skipping API call when target pid is this process itself.
+        var pid: pid_t = 0
+        AXUIElementGetPid(elm, &pid)
+        if pid == ProcessInfo.processInfo.processIdentifier {
+            // FIXME: propagate the warning to Python layer
+            print("Ignoring AXUIElementSetAttributeValue to Keyhac process itself")
+            return
+        }
 
         let result = AXUIElementSetAttributeValue(elm, name as CFString, value)
 
