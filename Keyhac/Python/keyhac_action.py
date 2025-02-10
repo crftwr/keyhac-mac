@@ -122,9 +122,10 @@ class MoveWindow(ThreadedAction):
             self.distance = distance
 
         self.window_edge = window_edge
+        self.wnd = None
 
-    def run(self):
-
+    def starting(self):
+        
         elm = Keymap.get_instance().focus
 
         # Get focused window
@@ -134,11 +135,15 @@ class MoveWindow(ThreadedAction):
                 break
             elm = elm.get_attribute_value("AXParent")
 
-        if not elm:
+        self.wnd = elm
+
+    def run(self):
+
+        if not self.wnd:
             return None
 
         # Get curret window frame
-        this_window_frame = elm.get_attribute_value("AXFrame")
+        this_window_frame = self.wnd.get_attribute_value("AXFrame")
 
         # Get screens info
         screen_frames = UIElement.get_screen_frames()
@@ -270,12 +275,12 @@ class MoveWindow(ThreadedAction):
         elif self.direction=="down":
             this_window_frame[1] += distance
 
-        return elm, this_window_frame[:2]
+        return this_window_frame[:2]
 
     def finished(self, result: Any):
-        if result is not None:
-            elm, pos = result
-            elm.set_attribute_value("AXPosition", "point", pos)
+        if self.wnd and result is not None:
+            pos = result
+            self.wnd.set_attribute_value("AXPosition", "point", pos)
 
     def __repr__(self):
         return f"MoveWindow(direction={self.direction},distance={self.distance},window_edge={self.window_edge})"
