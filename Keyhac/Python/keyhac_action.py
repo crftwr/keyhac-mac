@@ -219,7 +219,8 @@ class MoveWindow:
                         frame = wnd.get_attribute_value("AXFrame")
                         frames.append(frame)
 
-                        dump_window_attrs(wnd)
+                        # FIXME: if enabling this line, dead-lock happens. Need investigation
+                        #dump_window_attrs(wnd)
 
                 return frames
 
