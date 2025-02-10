@@ -140,6 +140,12 @@ class UIElement:
             name: Name of the actiom
         """
 
+    @staticmethod
+    def get_screen_frames():
+        """
+        Get a list of position/size of screens (=displays) in [[x,y,width,height],...] format.
+        """
+
 class Console:
     
     @staticmethod

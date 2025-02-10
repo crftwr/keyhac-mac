@@ -456,7 +456,13 @@ A action class to move focused window
 ### <kbd>method</kbd> `MoveWindow.__init__`
 
 ```python
-__init__(x: int, y: int)
+__init__(
+    x: int = None,
+    y: int = None,
+    direction: str = '',
+    distance: float = inf,
+    window_edge: bool = False
+)
 ```
 
 Initializes the action object. 
@@ -465,11 +471,46 @@ Initializes the action object.
 
 **Args:**
  
- - <b>`x`</b>:  horizontal distance to move 
- - <b>`y`</b>:  vertical distance to move 
+ - <b>`direction`</b>:  either of "left", "right", "up", "down" 
+ - <b>`distance`</b>:  move amount 
+ - <b>`window_edge`</b>:  whether window stops and fits to other window's edge 
 
 
 
+
+---
+
+#### <kbd>method</kbd> `MoveWindow.finished`
+
+```python
+finished(result: Any)
+```
+
+
+
+
+
+---
+
+#### <kbd>method</kbd> `MoveWindow.run`
+
+```python
+run()
+```
+
+
+
+
+
+---
+
+#### <kbd>method</kbd> `MoveWindow.starting`
+
+```python
+starting()
+```
+
+Virtual method called immediately when the action is triggered. 
 
 
 ---
@@ -544,7 +585,7 @@ Base class for threaded actions.
 
 To run a time consuming task as an output key action, you need to use threads. ThreadedAction helps to define threaded action classes easily. 
 
-To define your own threaded action class, derive the ThreadedAction class and implement starting(), run(), and finished() methods. run() is executed in a thread pool for time consuming tasks. starting() and finished() are for light-weight tasks  and they are executed before and after run(). 
+To define your own threaded action class, derive the ThreadedAction class and implement starting(), run(), and finished() methods. The run() method is executed in a thread pool for time consuming tasks. The starting() and finished() methods are for light-weight tasks and they are executed before and after run() under exclusive control with keyboard hooks.  
 
 ### <kbd>method</kbd> `ThreadedAction.__init__`
 
@@ -1000,6 +1041,16 @@ Get currently running applications in a list of UIElements.
 
 ---
 
+#### <kbd>method</kbd> `UIElement.get_screen_frames`
+
+```python
+get_screen_frames()
+```
+
+Get a list of position/size of screens (=displays) in [[x,y,width,height],...] format. 
+
+---
+
 #### <kbd>method</kbd> `UIElement.perform_action`
 
 ```python
@@ -1192,7 +1243,7 @@ Keyhac core hook system.
 #### <kbd>method</kbd> `Hook.acquire_lock`
 
 ```python
-acquire_lock() → str
+acquire_lock() → None
 ```
 
 Acquire the lock for hooks. 
@@ -1221,7 +1272,7 @@ Keyhac calls this function automatically and configure the key expression string
 #### <kbd>method</kbd> `Hook.release_lock`
 
 ```python
-release_lock() → str
+release_lock() → None
 ```
 
 Release the lock for hooks. 
