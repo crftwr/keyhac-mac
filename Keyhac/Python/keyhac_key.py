@@ -201,9 +201,9 @@ class KeyCondition:
         "COMMA"  : VK_COMMA,
         "PERIOD" : VK_PERIOD,
 
-        "NumClear" : VK_NUMPAD_CLEAR,
-        "NumEnter" : VK_NUMPAD_ENTER,
-        "NumEqual" : VK_NUMPAD_EQUAL,
+        "NUMCLEAR" : VK_NUMPAD_CLEAR,
+        "NUMENTER" : VK_NUMPAD_ENTER,
+        "NUMEQUAL" : VK_NUMPAD_EQUAL,
         "DIVIDE"   : VK_DIVIDE,
         "MULTIPLY" : VK_MULTIPLY,
         "SUBTRACT" : VK_SUBTRACT,
