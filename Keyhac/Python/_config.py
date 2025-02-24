@@ -76,6 +76,20 @@ def configure(keymap):
 
     # -----------------------------------------------------
     # Cmd-Shift-V: Choose clipboard tool by Chooser window
+    def uppercase(clip):
+        s = clip.get_string()
+        s = s.upper()
+        clip = Clipboard()
+        clip.set_string(s)
+        return clip
+
+    def lowercase(clip):
+        s = clip.get_string()
+        s = s.lower()
+        clip = Clipboard()
+        clip.set_string(s)
+        return clip
+
     def pretty_json(clip):
         s = clip.get_string()
         try:
@@ -94,6 +108,8 @@ def configure(keymap):
         ("🔄", "Unindent", ShowClipboardTools.unindent),
         ("🔄", "Half Width", ShowClipboardTools.to_half_width),
         ("🔄", "Full Width", ShowClipboardTools.to_full_width),
+        ("🔄", "Uppercase", uppercase),
+        ("🔄", "Lowercase", lowercase),
         ("🔄", "Pretty JSON", pretty_json),
     ])
 
