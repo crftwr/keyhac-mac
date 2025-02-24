@@ -14,8 +14,8 @@ def configure(keymap):
     #keymap.replace_key( "RShift", "Back" )
 
     # Defining user defined modifier keys
-    keymap.define_modifier( "RCmd", "RUser0" )
-    keymap.define_modifier( "RAlt", "RUser1" )
+    keymap.define_modifier("RCmd", "RUser0")
+    keymap.define_modifier("RAlt", "RUser1")
 
     # Configure clipboard history
     keymap.clipboard_history.max_items = 1000
@@ -317,7 +317,7 @@ def configure(keymap):
         except KeyError:
             return False
 
-    keytable_terminal = keymap.define_keytable( custom_condition_func = is_terminal_window )
+    keytable_terminal = keymap.define_keytable(custom_condition_func = is_terminal_window)
 
     # -----------------------------------------------------
     # Fn-A: Overriding global keytable configuration
@@ -329,4 +329,3 @@ def configure(keymap):
     # -----------------------------------------------------
     # One-shot RCmd: Deactivate terminal
     keytable_terminal["O-RCmd"] = "Cmd-Tab"
-
