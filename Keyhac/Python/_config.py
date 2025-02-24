@@ -132,18 +132,58 @@ def configure(keymap):
     keytable_global["User0-Z"] = ThreadedActionTest()
 
     # -----------------------------------------------------
+    # Fn-T: Translate selected text English <-> Japanese
+    def translate_en_ja():
+
+        # Get selected text
+        elm = keymap.focus
+        if "AXSelectedText" not in elm.get_attribute_names():
+            logger.warning("Cannot pick up selected text")
+            return
+        text = elm.get_attribute_value("AXSelectedText")
+
+        # Detect source language
+        src_lang = "en"
+        for c in text:
+            c = ord(c)
+            if (0x3000 <= c <= 0x30ff) or (0x4e00 <= c <= 0x9faf) or (0xff00 <= c <= 0xffef):
+                src_lang = "ja"
+                break
+        
+        # Construct URL
+        quoted_text = urllib.parse.quote_plus(text)
+        if src_lang == "en":
+            url = f"https://translate.google.co.jp/?sl=en&tl=ja&text={quoted_text}&op=translate"
+        elif src_lang == "ja":
+            url = f"https://translate.google.co.jp/?sl=ja&tl=en&text={quoted_text}&op=translate"
+
+        # Open browser
+        logger.info(f"Translate: {text}")
+        cmd = ["open", url]
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        if r.stdout: logger.info(r.stdout.strip())
+        if r.stderr: logger.error(r.stderr.strip())
+
+    keytable_global["Fn-T"] = translate_en_ja
+
+    # -----------------------------------------------------
     # User0-D: Lookup selected words in the dictionary app
     def lookup_dictionary():
 
+        # Get selected text
         elm = keymap.focus
+        if "AXSelectedText" not in elm.get_attribute_names():
+            logger.warning("Cannot pick up selected text")
+            return
+        text = elm.get_attribute_value("AXSelectedText")
 
-        if "AXSelectedText" in elm.get_attribute_names():
-            words = elm.get_attribute_value("AXSelectedText")
-            words = urllib.parse.quote(words)
-            cmd = ["open", f"dict://{words}"]
-            r = subprocess.run(cmd, capture_output=True, text=True)
-            if r.stdout: logger.info(r.stdout.strip())
-            if r.stderr: logger.error(r.stderr.strip())
+        # Open dictionary app
+        logger.info(f"Dictionary: {text}")
+        quoted_text = urllib.parse.quote_plus(text)
+        cmd = ["open", f"dict://{quoted_text}"]
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        if r.stdout: logger.info(r.stdout.strip())
+        if r.stderr: logger.error(r.stderr.strip())
 
     keytable_global["User0-D"] = lookup_dictionary
 
@@ -151,16 +191,20 @@ def configure(keymap):
     # User0-G: Search selected words on Google
     def search_google():
 
+        # Get selected text
         elm = keymap.focus
+        if "AXSelectedText" not in elm.get_attribute_names():
+            logger.warning("Cannot pick up selected text")
+            return
+        text = elm.get_attribute_value("AXSelectedText")
 
-        if "AXSelectedText" in elm.get_attribute_names():
-            words = elm.get_attribute_value("AXSelectedText")
-            logger.info(f"Searching on Google: {words}")
-            words = urllib.parse.quote(words)
-            cmd = ["open", f"https://www.google.com/search?q={words}"]
-            r = subprocess.run(cmd, capture_output=True, text=True)
-            if r.stdout: logger.info(r.stdout.strip())
-            if r.stderr: logger.error(r.stderr.strip())
+        # Open browser
+        logger.info(f"Google: {text}")
+        quoted_text = urllib.parse.quote_plus(text)
+        cmd = ["open", f"https://www.google.com/search?q={quoted_text}"]
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        if r.stdout: logger.info(r.stdout.strip())
+        if r.stderr: logger.error(r.stderr.strip())
 
     keytable_global["User0-G"] = search_google
 
