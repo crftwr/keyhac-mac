@@ -29,7 +29,7 @@ def configure(keymap):
     keytable_global = keymap.define_keytable(focus_path_pattern="*")
 
     # -----------------------------------------------------
-    # Fn-A: Sample of assigning callable object to key
+    # User0-A: Sample of assigning callable object to key
     def hello_world():
 
         print("Hello World!")
@@ -40,7 +40,7 @@ def configure(keymap):
         logger.error("Error message via Console logger")
         logger.critical("Critical message via Console logger")
 
-    keytable_global["Fn-A"] = hello_world
+    keytable_global["User0-A"] = hello_world
 
     # -----------------------------------------------------
     # Fn-V: Show clipboard history by Chooser window
@@ -183,7 +183,7 @@ def configure(keymap):
     keytable_global["Fn-T"] = translate_en_ja
 
     # -----------------------------------------------------
-    # User0-D: Lookup selected words in the dictionary app
+    # Fn-D: Lookup selected words in the dictionary app
     def lookup_dictionary():
 
         # Get selected text
@@ -201,10 +201,10 @@ def configure(keymap):
         if r.stdout: logger.info(r.stdout.strip())
         if r.stderr: logger.error(r.stderr.strip())
 
-    keytable_global["User0-D"] = lookup_dictionary
+    keytable_global["Fn-D"] = lookup_dictionary
 
     # -----------------------------------------------------
-    # User0-G: Search selected words on Google
+    # Fn-G: Search selected words on Google
     def search_google():
 
         # Get selected text
@@ -222,7 +222,7 @@ def configure(keymap):
         if r.stdout: logger.info(r.stdout.strip())
         if r.stderr: logger.error(r.stderr.strip())
 
-    keytable_global["User0-G"] = search_google
+    keytable_global["Fn-G"] = search_google
 
     # -----------------------------------------------------
     # Fn-M: Zoom window (Test of UIElement.perform_action)
@@ -261,27 +261,27 @@ def configure(keymap):
     keytable_global["Fn-Cmd-PageDown"] = MoveWindow(direction="down", window_edge=True)
 
     # -----------------------------------------------------
-    # User0-T/F/C: Launch an applications
-    keytable_global["User0-F"] = LaunchApplication("ForkLift.app")
-    keytable_global["User0-C"] = LaunchApplication("Visual Studio Code.app")
+    # Fn-T/F/C: Launch an applications
+    keytable_global["Fn-F"] = LaunchApplication("ForkLift.app")
+    keytable_global["Fn-C"] = LaunchApplication("Visual Studio Code.app")
     
     # -----------------------------------------------------
     # One-shot RCmd: Launch Terminal
     keytable_global["O-RCmd"] = LaunchApplication("Terminal.app")
 
     # -----------------------------------------------------
-    # Fn-1/2/3: Start, Stop, and Toggle recoding keys
-    # Fn-4: Playback recorded keys
-    keytable_global["Fn-1"] = StartRecordingKeys()
-    keytable_global["Fn-2"] = StopRecordingKeys()
-    keytable_global["Fn-3"] = ToggleRecordingKeys()
-    keytable_global["Fn-4"] = PlaybackRecordedKeys()
+    # Fn- [ ] : Start / Stop recoding keys
+    # Fn- \ : Playback recorded keys
+    keytable_global["Fn-OpenBracket"] = StartRecordingKeys()
+    keytable_global["Fn-CloseBracket"] = StopRecordingKeys()
+    keytable_global["Fn-BackSlash"] = PlaybackRecordedKeys()
+
 
     # =====================================================
     # Key table for Xcode
     # =====================================================
 
-    keytable_xcode = keymap.define_keytable( focus_path_pattern="/AXApplication(Xcode)/*/AXTextArea()" )
+    keytable_xcode = keymap.define_keytable(focus_path_pattern="/AXApplication(Xcode)/*/AXTextArea()")
 
     # -----------------------------------------------------
     # Fn-A: Overriding global keytable configuration
@@ -301,7 +301,7 @@ def configure(keymap):
 
 
     # =====================================================
-    # Custom focus condition
+    # Key table for terminal apps
     # =====================================================
 
     # Use custom logic to detect terminal kind of applications
