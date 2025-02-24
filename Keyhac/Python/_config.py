@@ -284,11 +284,11 @@ def configure(keymap):
     keytable_xcode = keymap.define_keytable(focus_path_pattern="/AXApplication(Xcode)/*/AXTextArea()")
 
     # -----------------------------------------------------
-    # Fn-A: Overriding global keytable configuration
+    # User0-A: Overriding global keytable configuration
     def hello_xcode():
         print("Hello Xcode!")
 
-    keytable_xcode["Fn-A"] = hello_xcode
+    keytable_xcode["User0-A"] = hello_xcode
 
     # -----------------------------------------------------
     # Fn-L: Select whole line
@@ -320,11 +320,11 @@ def configure(keymap):
     keytable_terminal = keymap.define_keytable(custom_condition_func = is_terminal_window)
 
     # -----------------------------------------------------
-    # Fn-A: Overriding global keytable configuration
+    # User0-A: Overriding global keytable configuration
     def hello_terminal():
         print("Hello Terminal!")
 
-    keytable_terminal["Fn-A"] = hello_terminal
+    keytable_terminal["User0-A"] = hello_terminal
 
     # -----------------------------------------------------
     # One-shot RCmd: Deactivate terminal
