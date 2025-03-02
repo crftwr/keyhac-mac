@@ -386,7 +386,7 @@ class Keymap:
             action = self._unified_keytable[key]
 
         left_multi_stroke = False
-        if self._multi_stroke_keytable and not key.up and not key.oneshot and not key.vk in self._vk_mod_map:
+        if self._multi_stroke_keytable and key.down and not key.oneshot and not key.vk in self._vk_mod_map:
             self._leave_multi_stroke()
             left_multi_stroke = True
 

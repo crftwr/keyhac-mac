@@ -70,7 +70,7 @@ class InputContext:
 
         vk = None
         mod = 0
-        up = None
+        down = None
 
         token_list = s.split("-")
 
@@ -82,9 +82,9 @@ class InputContext:
                 mod |= KeyCondition.str_to_mod( token, force_LR=True )
             except ValueError:
                 if token=="D":
-                    up = False
+                    down = True
                 elif token=="U":
-                    up = True
+                    down = False
                 else:
                     raise ValueError
 
@@ -94,10 +94,10 @@ class InputContext:
 
         self.send_modifier_keys(mod)
 
-        if up==True:
-            self._input_seq.append( ("keyUp", vk) )
-        elif up==False:
+        if down==True:
             self._input_seq.append( ("keyDown", vk) )
+        elif down==False:
+            self._input_seq.append( ("keyUp", vk) )
         else:
             self._input_seq.append( ("keyDown", vk) )
             self._input_seq.append( ("keyUp", vk) )
