@@ -255,10 +255,10 @@ def configure(keymap):
 
     # -----------------------------------------------------
     # Fn-Cmd-Left/Right/Up/Down: Move current active window quickly to window/screen edge
-    keytable_global["Fn-Cmd-Home"] = MoveWindow(direction="left", window_edge=True)
-    keytable_global["Fn-Cmd-End"] = MoveWindow(direction="right", window_edge=True)
-    keytable_global["Fn-Cmd-PageUp"] = MoveWindow(direction="up", window_edge=True)
-    keytable_global["Fn-Cmd-PageDown"] = MoveWindow(direction="down", window_edge=True)
+    keytable_global["Fn-Cmd-Home"] = MoveWindow(direction="left", distance=9999, window_edge=True, screen_edge=True)
+    keytable_global["Fn-Cmd-End"] = MoveWindow(direction="right", distance=9999, window_edge=True, screen_edge=True)
+    keytable_global["Fn-Cmd-PageUp"] = MoveWindow(direction="up", distance=9999, window_edge=True, screen_edge=True)
+    keytable_global["Fn-Cmd-PageDown"] = MoveWindow(direction="down", distance=9999, window_edge=True, screen_edge=True)
 
     # -----------------------------------------------------
     # Fn-T/F/C: Launch an applications

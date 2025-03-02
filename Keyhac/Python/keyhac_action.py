@@ -88,15 +88,16 @@ class MoveWindow(ThreadedAction):
     A action class to move focused window
     """
 
-    def __init__(self, x:int = None, y:int = None, direction:str = "", distance:float = math.inf, window_edge:bool = False):
+    def __init__(self, x:int = None, y:int = None, direction:str = "", distance:float = 10, window_edge:bool = False, screen_edge:bool = True):
 
         """
         Initializes the action object.
 
         Args:
             direction: either of "left", "right", "up", "down"
-            distance: move amount
-            window_edge: whether window stops and fits to other window's edge
+            distance: move amount (default: 10)
+            window_edge: whether window stops at other windows' edges (default: False)
+            screen_edge: whether window stops at screen edges (default: True)
         """
 
         # FIXME: deprecated arguments from ver v1.64
@@ -122,6 +123,7 @@ class MoveWindow(ThreadedAction):
             self.distance = distance
 
         self.window_edge = window_edge
+        self.screen_edge = screen_edge
         self.wnd = None
 
     def starting(self):
@@ -168,31 +170,33 @@ class MoveWindow(ThreadedAction):
             return None
         
         # Fit to screen edge
-        for screen_frame in screen_frames:
-            
-            if self.direction=="left":
-                screen_edge_pos = screen_frame[0]
-                screen_edge_range = (screen_frame[1], screen_frame[1] + screen_frame[3])
-                sign = -1
-            elif self.direction=="right":
-                screen_edge_pos = screen_frame[0] + screen_frame[2]
-                screen_edge_range = (screen_frame[1], screen_frame[1] + screen_frame[3])
-                sign = 1
-            elif self.direction=="up":
-                screen_edge_pos = screen_frame[1]
-                screen_edge_range = (screen_frame[0], screen_frame[0] + screen_frame[2])
-                sign = -1
-            elif self.direction=="down":
-                screen_edge_pos = screen_frame[1] + screen_frame[3]
-                screen_edge_range = (screen_frame[0], screen_frame[0] + screen_frame[2])
-                sign = 1
-            
-            #print(f"Checking screen fit condition {front_range}, {screen_edge_range}, {screen_edge_pos}, {front_pos}")
+        if self.screen_edge:
 
-            if not( front_range[1] <= screen_edge_range[0] or front_range[0] >= screen_edge_range[1] ):
-                if (screen_edge_pos - front_pos) * sign >= 0.1:
-                    #print(f"Fitting to screen {screen_frame}, {front_range}, {screen_edge_range}")
-                    distance = min(distance, abs(screen_edge_pos - front_pos))
+            for screen_frame in screen_frames:
+                
+                if self.direction=="left":
+                    screen_edge_pos = screen_frame[0]
+                    screen_edge_range = (screen_frame[1], screen_frame[1] + screen_frame[3])
+                    sign = -1
+                elif self.direction=="right":
+                    screen_edge_pos = screen_frame[0] + screen_frame[2]
+                    screen_edge_range = (screen_frame[1], screen_frame[1] + screen_frame[3])
+                    sign = 1
+                elif self.direction=="up":
+                    screen_edge_pos = screen_frame[1]
+                    screen_edge_range = (screen_frame[0], screen_frame[0] + screen_frame[2])
+                    sign = -1
+                elif self.direction=="down":
+                    screen_edge_pos = screen_frame[1] + screen_frame[3]
+                    screen_edge_range = (screen_frame[0], screen_frame[0] + screen_frame[2])
+                    sign = 1
+                
+                #print(f"Checking screen fit condition {front_range}, {screen_edge_range}, {screen_edge_pos}, {front_pos}")
+
+                if not( front_range[1] <= screen_edge_range[0] or front_range[0] >= screen_edge_range[1] ):
+                    if (screen_edge_pos - front_pos) * sign >= 0.1:
+                        #print(f"Fitting to screen {screen_frame}, {front_range}, {screen_edge_range}")
+                        distance = min(distance, abs(screen_edge_pos - front_pos))
 
         # Fit to window edge
         if self.window_edge:
