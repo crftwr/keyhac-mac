@@ -14,7 +14,10 @@ class KeyhacSystem {
     static func getInstance() -> KeyhacSystem { return instance }
 
     func initializePythonSystem() {
-        PythonBridge.create(keyhacCoreModuleName, keyhacCoreModuleInit)
+        let pythonHome = Bundle.main.resourceURL!
+            .appendingPathComponent("PythonLibs/python3.13")
+            .path
+        PythonBridge.create(keyhacCoreModuleName, keyhacCoreModuleInit, pythonHome)
     }
     
     func finalizePythonSystem() {
@@ -42,6 +45,9 @@ class KeyhacSystem {
     
     func bootstrapPythonLayer(){
         let bundleResourcePath = Bundle.main.resourceURL!.path
+        
+        // print bundleResourcePath
+        print("bundleResourcePath: \(bundleResourcePath)")
         
         let code = """
         import sys

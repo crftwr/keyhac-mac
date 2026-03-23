@@ -70,7 +70,7 @@ class PythonBridge
 {
 public:
     // static method to handle as reference type
-    static void create(const char * module_name, PythonModuleInitFunc module_init_func);
+    static void create(const char * module_name, PythonModuleInitFunc module_init_func, const char * python_home);
     
     static PythonBridge * getInstance();
     
@@ -79,7 +79,7 @@ public:
     
 private:
     // private to handle as reference type
-    PythonBridge(const char * module_name, PythonModuleInitFunc module_init_func);
+    PythonBridge(const char * module_name, PythonModuleInitFunc module_init_func, const char * python_home);
     
     // private to handle as reference type
     PythonBridge(const PythonBridge & src);

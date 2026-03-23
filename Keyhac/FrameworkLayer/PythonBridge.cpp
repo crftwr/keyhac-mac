@@ -113,9 +113,9 @@ void PyGIL::Release()
 
 PythonBridge * PythonBridge::instance;
 
-void PythonBridge::create( const char * module_name, PythonModuleInitFunc module_init_func)
+void PythonBridge::create( const char * module_name, PythonModuleInitFunc module_init_func, const char * python_home)
 {
-    instance = new PythonBridge(module_name, module_init_func);
+    instance = new PythonBridge(module_name, module_init_func, python_home);
 }
 
 PythonBridge * PythonBridge::getInstance()
@@ -129,7 +129,7 @@ void PythonBridge::destroy()
     instance = NULL;
 }
 
-PythonBridge::PythonBridge(const char * module_name, PythonModuleInitFunc module_init_func)
+PythonBridge::PythonBridge(const char * module_name, PythonModuleInitFunc module_init_func, const char * python_home)
 {
     if (PyImport_AppendInittab(module_name, module_init_func) == -1)
     {
@@ -138,11 +138,14 @@ PythonBridge::PythonBridge(const char * module_name, PythonModuleInitFunc module
     }
     
     PyConfig config;
-    PyConfig_InitPythonConfig(&config);
-    config.isolated = 1;
+    PyConfig_InitIsolatedConfig(&config);
     config.use_environment = 0;
     config.user_site_directory = 0;
-    
+
+    PyConfig_SetBytesString(&config, &config.program_name, python_home);
+    PyWideStringList_Append(&config.module_search_paths, Py_DecodeLocale(python_home, NULL));
+    config.module_search_paths_set = 1;
+
     Py_InitializeFromConfig(&config);
     PyConfig_Clear(&config);
 
