@@ -85,7 +85,7 @@ public class Chooser {
         self.onCanceledCallback = PyObjectPtr()
     }
     
-    public func onSelected(uuid: String, nsModifierFlags: NSEvent.ModifierFlags) {
+    func onSelected(uuid: String, nsModifierFlags: NSEvent.ModifierFlags) {
         
         if self.onSelectedCallback.ptr() != nil {
             
