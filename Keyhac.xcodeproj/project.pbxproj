@@ -27,7 +27,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		FE5C48142CB351A00046C3DC /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = /Library/Frameworks/Python.framework/Versions/3.12/Python; sourceTree = "<group>"; };
+		FE5C48142CB351A00046C3DC /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = /Library/Frameworks/Python.framework/Versions/3.13/Python; sourceTree = "<group>"; };
 		FEBAF4FF2CB33AD000200C1F /* Keyhac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Keyhac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -183,7 +183,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\n# Fix the bundled Python dylib's own identity\ninstall_name_tool -id \\\n  @rpath/Python \\\n  \"$BUILT_PRODUCTS_DIR/$WRAPPER_NAME/Contents/Frameworks/Python\"\n\n# Fix the main executable (for Release builds)\ninstall_name_tool -change \\\n  /Library/Frameworks/Python.framework/Versions/3.12/Python \\\n  @rpath/Python \\\n  \"$BUILT_PRODUCTS_DIR/$EXECUTABLE_PATH\"\n\n# Fix the debug dylib (present in Debug builds)\nDEBUG_DYLIB=\"$BUILT_PRODUCTS_DIR/$WRAPPER_NAME/Contents/MacOS/Keyhac.debug.dylib\"\nif [ -f \"$DEBUG_DYLIB\" ]; then\n  install_name_tool -change \\\n    /Library/Frameworks/Python.framework/Versions/3.12/Python \\\n    @rpath/Python \\\n    \"$DEBUG_DYLIB\"\nfi\n\npython3 $PROJECT_DIR/Keyhac/BuildScripts/copy_python_stdlibs.py\npython3 $PROJECT_DIR/Keyhac/BuildScripts/copy_copyright_notices.py\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\n# Fix the bundled Python dylib's own identity\ninstall_name_tool -id \\\n  @rpath/Python \\\n  \"$BUILT_PRODUCTS_DIR/$WRAPPER_NAME/Contents/Frameworks/Python\"\n\n# Fix the main executable (for Release builds)\ninstall_name_tool -change \\\n  /Library/Frameworks/Python.framework/Versions/3.13/Python \\\n  @rpath/Python \\\n  \"$BUILT_PRODUCTS_DIR/$EXECUTABLE_PATH\"\n\n# Fix the debug dylib (present in Debug builds)\nDEBUG_DYLIB=\"$BUILT_PRODUCTS_DIR/$WRAPPER_NAME/Contents/MacOS/Keyhac.debug.dylib\"\nif [ -f \"$DEBUG_DYLIB\" ]; then\n  install_name_tool -change \\\n    /Library/Frameworks/Python.framework/Versions/3.13/Python \\\n    @rpath/Python \\\n    \"$DEBUG_DYLIB\"\nfi\n\npython3 $PROJECT_DIR/Keyhac/BuildScripts/copy_python_stdlibs.py\npython3 $PROJECT_DIR/Keyhac/BuildScripts/copy_copyright_notices.py\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -251,7 +251,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/3.12/include/python3.12";
+				HEADER_SEARCH_PATHS = "$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/3.13/include/python3.13";
 				INFOPLIST_KEY_LSUIElement = YES;
 				LIBRARY_SEARCH_PATHS = "";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -313,7 +313,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/3.12/include/python3.12";
+				HEADER_SEARCH_PATHS = "$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/3.13/include/python3.13";
 				INFOPLIST_KEY_LSUIElement = YES;
 				LIBRARY_SEARCH_PATHS = "";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -355,7 +355,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/3.12",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/3.13",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.66;
@@ -397,7 +397,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/3.12",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/3.13",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.66;

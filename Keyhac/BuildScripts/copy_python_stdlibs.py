@@ -10,7 +10,7 @@ resources_path = os.path.join( os.environ["TARGET_BUILD_DIR"], "Keyhac.app/Conte
 print("Framework path:", framework_path)
 print("Resources path:", resources_path)
 
-python_version = "3.12"
+python_version = "3.13"
 src_dir = f"/Library/Frameworks/Python.framework/Versions/{python_version}/lib"
 dst_dir = os.path.join( resources_path, "PythonLibs" )
 
@@ -60,7 +60,7 @@ copytree( f"python{python_version}",
     ignore_patterns=(
         "__pycache__",
         "site-packages",
-        "config-3.12-darwin",
+        "config-3.13-darwin",
         "test",
     )
 )
