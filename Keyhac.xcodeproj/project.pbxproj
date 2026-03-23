@@ -183,7 +183,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\npython3 $PROJECT_DIR/Keyhac/BuildScripts/copy_python_stdlibs.py\npython3 $PROJECT_DIR/Keyhac/BuildScripts/copy_copyright_notices.py\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\n# Fix the bundled Python dylib's own identity\ninstall_name_tool -id \\\n  @rpath/Python \\\n  \"$BUILT_PRODUCTS_DIR/$WRAPPER_NAME/Contents/Frameworks/Python\"\n\n# Fix the main executable (for Release builds)\ninstall_name_tool -change \\\n  /Library/Frameworks/Python.framework/Versions/3.12/Python \\\n  @rpath/Python \\\n  \"$BUILT_PRODUCTS_DIR/$EXECUTABLE_PATH\"\n\n# Fix the debug dylib (present in Debug builds)\nDEBUG_DYLIB=\"$BUILT_PRODUCTS_DIR/$WRAPPER_NAME/Contents/MacOS/Keyhac.debug.dylib\"\nif [ -f \"$DEBUG_DYLIB\" ]; then\n  install_name_tool -change \\\n    /Library/Frameworks/Python.framework/Versions/3.12/Python \\\n    @rpath/Python \\\n    \"$DEBUG_DYLIB\"\nfi\n\npython3 $PROJECT_DIR/Keyhac/BuildScripts/copy_python_stdlibs.py\npython3 $PROJECT_DIR/Keyhac/BuildScripts/copy_copyright_notices.py\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
