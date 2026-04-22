@@ -85,8 +85,20 @@ class ThreadedAction:
 class MoveWindow(ThreadedAction):
 
     """
-    A action class to move focused window
+    A action class to move focused window.
+
+    The window is clamped within the current screen bounds. When the window
+    reaches a screen edge, it can cross to an adjacent monitor in the movement
+    direction. The macOS menu bar gap between screens is accounted for.
     """
+
+    # Tolerance for detecting adjacent screens across the menu bar gap (pixels)
+    ADJACENT_SCREEN_TOLERANCE = 50
+
+    # Tolerance for detecting if the window is at the screen edge.
+    # For "up" direction, uses ADJACENT_SCREEN_TOLERANCE to account for the
+    # macOS menu bar preventing windows from reaching y=0.
+    EDGE_TOLERANCE = 2
 
     def __init__(self, x:int = None, y:int = None, direction:str = "", distance:float = 10, window_edge:bool = False, screen_edge:bool = True):
 
@@ -139,16 +151,109 @@ class MoveWindow(ThreadedAction):
 
         self.wnd = elm
 
+    @staticmethod
+    def _get_best_screen(wnd_frame, screen_frames):
+        """Find the screen that has the most overlap with the window."""
+        wx, wy, ww, wh = wnd_frame[0], wnd_frame[1], wnd_frame[2], wnd_frame[3]
+        best_screen = screen_frames[0] if screen_frames else None
+        best_overlap = -1
+        for sf in screen_frames:
+            sx, sy, sw, sh = sf[0], sf[1], sf[2], sf[3]
+            ox = max(0, min(wx + ww, sx + sw) - max(wx, sx))
+            oy = max(0, min(wy + wh, sy + sh) - max(wy, sy))
+            overlap = ox * oy
+            if overlap > best_overlap:
+                best_overlap = overlap
+                best_screen = sf
+        return best_screen
+
+    @classmethod
+    def _is_adjacent_in_direction(cls, current_screen, other_screen, direction):
+        """Check if other_screen is adjacent to current_screen in the given direction.
+
+        Uses a tolerance to account for the menu bar gap between visible screen areas.
+        """
+        cx, cy, cw, ch = current_screen[0], current_screen[1], current_screen[2], current_screen[3]
+        sx, sy, sw, sh = other_screen[0], other_screen[1], other_screen[2], other_screen[3]
+        tol = cls.ADJACENT_SCREEN_TOLERANCE
+        if direction == "left":
+            if abs((sx + sw) - cx) <= tol:
+                if not (sy + sh <= cy or sy >= cy + ch):
+                    return True
+        elif direction == "right":
+            if abs(sx - (cx + cw)) <= tol:
+                if not (sy + sh <= cy or sy >= cy + ch):
+                    return True
+        elif direction == "up":
+            if abs((sy + sh) - cy) <= tol:
+                if not (sx + sw <= cx or sx >= cx + cw):
+                    return True
+        elif direction == "down":
+            if abs(sy - (cy + ch)) <= tol:
+                if not (sx + sw <= cx or sx >= cx + cw):
+                    return True
+        return False
+
+    @classmethod
+    def _find_adjacent_screen(cls, current_screen, screen_frames, direction):
+        """Find the adjacent screen in the given direction, or None."""
+        for sf in screen_frames:
+            if sf is current_screen:
+                continue
+            if cls._is_adjacent_in_direction(current_screen, sf, direction):
+                return sf
+        return None
+
     def run(self):
 
         if not self.wnd:
             return None
 
-        # Get curret window frame
+        # Get current window frame
         this_window_frame = self.wnd.get_attribute_value("AXFrame")
 
         # Get screens info
         screen_frames = UIElement.get_screen_frames()
+        current_screen = self._get_best_screen(this_window_frame, screen_frames)
+
+        if not current_screen:
+            return None
+
+        ww = this_window_frame[2]
+        wh = this_window_frame[3]
+        sx, sy, sw, sh = current_screen[0], current_screen[1], current_screen[2], current_screen[3]
+
+        # Check if the window is already at (or stuck near) the screen edge
+        # in the movement direction. macOS menu bar prevents windows from
+        # reaching y=0, so use a generous tolerance for the "up" direction.
+        menu_bar_tol = self.ADJACENT_SCREEN_TOLERANCE
+        edge_tol = self.EDGE_TOLERANCE
+        at_edge = False
+        if self.direction == "left":
+            at_edge = (this_window_frame[0] - sx) <= edge_tol
+        elif self.direction == "right":
+            at_edge = ((sx + sw) - (this_window_frame[0] + ww)) <= edge_tol
+        elif self.direction == "up":
+            at_edge = (this_window_frame[1] - sy) <= menu_bar_tol
+        elif self.direction == "down":
+            at_edge = ((sy + sh) - (this_window_frame[1] + wh)) <= edge_tol
+
+        if at_edge:
+            adj = self._find_adjacent_screen(current_screen, screen_frames, self.direction)
+            if adj is not None:
+                ax, ay, aw, ah = adj[0], adj[1], adj[2], adj[3]
+                if self.direction == "left":
+                    this_window_frame[0] = ax + aw - ww
+                elif self.direction == "right":
+                    this_window_frame[0] = ax
+                elif self.direction == "up":
+                    this_window_frame[0] = max(ax, min(this_window_frame[0], ax + aw - ww))
+                    this_window_frame[1] = ay + ah - wh
+                elif self.direction == "down":
+                    this_window_frame[0] = max(ax, min(this_window_frame[0], ax + aw - ww))
+                    this_window_frame[1] = ay
+                return this_window_frame[:2]
+            # No adjacent monitor — fall through to normal move (which will clamp)
 
         # Initial move distance
         distance = self.distance
@@ -169,48 +274,21 @@ class MoveWindow(ThreadedAction):
         else:
             return None
         
-        # Fit to screen edge
+        # Fit to current screen edge
         if self.screen_edge:
-
-            for screen_frame in screen_frames:
-                
-                if self.direction=="left":
-                    screen_edge_pos = screen_frame[0]
-                    screen_edge_range = (screen_frame[1], screen_frame[1] + screen_frame[3])
-                    sign = -1
-                elif self.direction=="right":
-                    screen_edge_pos = screen_frame[0] + screen_frame[2]
-                    screen_edge_range = (screen_frame[1], screen_frame[1] + screen_frame[3])
-                    sign = 1
-                elif self.direction=="up":
-                    screen_edge_pos = screen_frame[1]
-                    screen_edge_range = (screen_frame[0], screen_frame[0] + screen_frame[2])
-                    sign = -1
-                elif self.direction=="down":
-                    screen_edge_pos = screen_frame[1] + screen_frame[3]
-                    screen_edge_range = (screen_frame[0], screen_frame[0] + screen_frame[2])
-                    sign = 1
-                
-                #print(f"Checking screen fit condition {front_range}, {screen_edge_range}, {screen_edge_pos}, {front_pos}")
-
-                if not( front_range[1] <= screen_edge_range[0] or front_range[0] >= screen_edge_range[1] ):
-                    if (screen_edge_pos - front_pos) * sign >= 0.1:
-                        #print(f"Fitting to screen {screen_frame}, {front_range}, {screen_edge_range}")
-                        distance = min(distance, abs(screen_edge_pos - front_pos))
+            if self.direction == "left":
+                edge_dist = this_window_frame[0] - sx
+            elif self.direction == "right":
+                edge_dist = (sx + sw) - (this_window_frame[0] + ww)
+            elif self.direction == "up":
+                edge_dist = this_window_frame[1] - sy
+            elif self.direction == "down":
+                edge_dist = (sy + sh) - (this_window_frame[1] + wh)
+            if edge_dist >= 0.1:
+                distance = min(distance, edge_dist)
 
         # Fit to window edge
         if self.window_edge:
-
-            def dump_window_attrs(elm):
-                print("-----")
-
-                app = elm.get_attribute_value("AXParent")
-                app_title = app.get_attribute_value("AXTitle")
-                print(f"App Title: {app_title}")
-
-                for name in sorted(elm.get_attribute_names()):
-                    value = elm.get_attribute_value(name)
-                    print(f"{name}: {value}")
 
             def get_window_frames(app):
                 windows = app.get_attribute_value("AXWindows")
@@ -228,9 +306,6 @@ class MoveWindow(ThreadedAction):
                         frame = wnd.get_attribute_value("AXFrame")
                         frames.append(frame)
 
-                        # FIXME: if enabling this line, dead-lock happens. Need investigation
-                        #dump_window_attrs(wnd)
-
                 return frames
 
             # Get all window frames using parallel threads
@@ -238,8 +313,6 @@ class MoveWindow(ThreadedAction):
             thread_pool = ThreadPoolExecutor(max_workers=16)
             for window_frames_from_single_app in thread_pool.map(get_window_frames, UIElement.get_running_applications()):
                 window_frames += window_frames_from_single_app
-
-            #print(window_frames)
 
             gap = 1
 
@@ -264,10 +337,7 @@ class MoveWindow(ThreadedAction):
                 
                 if not( front_range[1] <= window_edge_range[0] or front_range[0] >= window_edge_range[1] ):
                     if (window_edge_pos - front_pos) * sign - gap >= 0.1:
-                        #print(f"Fitting to window {window_frame}, {front_range}, {window_edge_range}")
                         distance = min(distance, (window_edge_pos - front_pos) * sign - gap)
-
-        #print("Distance:", distance)
 
         # Calculate target position
         if self.direction=="left":
@@ -278,6 +348,16 @@ class MoveWindow(ThreadedAction):
             this_window_frame[1] -= distance
         elif self.direction=="down":
             this_window_frame[1] += distance
+
+        # Clamp to current screen bounds
+        if this_window_frame[0] < sx:
+            this_window_frame[0] = sx
+        if this_window_frame[0] + ww > sx + sw:
+            this_window_frame[0] = sx + sw - ww
+        if this_window_frame[1] < sy:
+            this_window_frame[1] = sy
+        if this_window_frame[1] + wh > sy + sh:
+            this_window_frame[1] = sy + sh - wh
 
         return this_window_frame[:2]
 
